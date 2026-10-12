@@ -16,6 +16,7 @@
 import { paraBase64Url, deBase64Url } from './compartilhar.js';
 import { hmacSha256 } from './sha256.js';
 import { assinar, verificar, CHAVE_PUBLICA } from './ed25519.js';
+import { textoHoras } from './cargaHoraria.js';
 
 /** Endereço público do site: os links compartilhados apontam para cá. */
 export const SITE = 'https://sertaoseracloud.github.io/terraform-playground/';
@@ -28,33 +29,40 @@ export const EMISSOR = {
   logo: 'https://github.com/sertaoseracloud.png?size=160',
 };
 
+// cargaHoraria: horas de cada certificado (soma das atividades do módulo, mínimo 1 hora;
+// veja src/cargaHoraria.js). O final soma todos os módulos.
 export const CERTIFICADOS = {
   basico: {
     titulo: 'Fundamentos de Terraform',
+    cargaHoraria: 23,
     resumo: 'concluiu o módulo Terraform básico, resolvendo os 50 exercícios práticos',
     hashtags: ['Terraform', 'IaC', 'DevOps'],
     conteudos: ['HCL, recursos e referências', 'Variáveis, outputs e validação', 'Locals, expressões e funções', 'count, for_each e blocos dynamic', 'Estado, ciclo de vida e módulos'],
   },
   aws: {
     titulo: 'Terraform na AWS',
+    cargaHoraria: 27,
     resumo: 'concluiu o módulo Terraform na AWS, resolvendo os 55 exercícios práticos',
     hashtags: ['Terraform', 'AWS', 'Cloud'],
     conteudos: ['S3, IAM e políticas', 'VPC, sub-redes e security groups', 'EC2, ALB e Auto Scaling', 'RDS e DynamoDB', 'Lambda, API Gateway, SQS e SNS'],
   },
   azure: {
     titulo: 'Terraform no Azure',
+    cargaHoraria: 27,
     resumo: 'concluiu o módulo Terraform no Azure, resolvendo os 55 exercícios práticos',
     hashtags: ['Terraform', 'Azure', 'Cloud'],
     conteudos: ['Grupos de recursos e Storage', 'VNet, NSG e máquinas virtuais', 'App Service e Functions', 'SQL, PostgreSQL e Cosmos DB', 'Key Vault, identidades, AKS e monitoramento'],
   },
   projetos: {
     titulo: 'Projetos de infraestrutura com Terraform',
+    cargaHoraria: 25,
     resumo: 'construiu os 8 projetos completos da trilha, em 40 etapas',
     hashtags: ['Terraform', 'AWS', 'Azure', 'DevOps'],
     conteudos: ['Site estático com S3 e CloudFront', 'Rede de 3 camadas na AWS', 'API serverless', 'App web e Kubernetes no Azure', 'Módulos multiambiente, multicloud e estado remoto'],
   },
   final: {
     titulo: 'Engenharia de infraestrutura com Terraform: trilha completa',
+    cargaHoraria: 102,
     resumo: 'concluiu a trilha completa: 160 exercícios de Terraform, AWS e Azure e 8 projetos (40 etapas)',
     hashtags: ['Terraform', 'AWS', 'Azure', 'IaC', 'DevOps'],
     conteudos: ['Terraform e HCL', 'AWS', 'Azure', 'Módulos e estado remoto', '8 projetos completos'],
@@ -187,7 +195,7 @@ export function textoPublicacao(cert, url = linkPublico(cert)) {
     ? `🎓 Concluí a trilha completa "${def.titulo}" e recebi o certificado emitido pela ${EMISSOR.organizacao}!
 
 `
-      + `Foram ${def.resumo.replace(/^concluiu a trilha completa: /, '')}.
+      + `Foram ${def.resumo.replace(/^concluiu a trilha completa: /, '')}, com carga horária de ${textoHoras(def.cargaHoraria)}.
 
 ${url}
 
@@ -196,6 +204,7 @@ ${tags}`
 
 `
       + `Habilidades: ${def.conteudos.join(', ')}.
+Carga horária: ${textoHoras(def.cargaHoraria)}.
 
 ${url}
 
@@ -281,6 +290,7 @@ export function certificadoXml(cert, codigo = codificarCertificado(cert)) {
   <aluno>${escXml(cert.nome.trim())}</aluno>
   <modulo id="${cert.modulo}">${escXml(CERTIFICADOS[cert.modulo].titulo)}</modulo>
   <dataConclusao>${cert.data}</dataConclusao>
+  <cargaHoraria unidade="horas">${CERTIFICADOS[cert.modulo].cargaHoraria}</cargaHoraria>
   <codigo>${idDoHash(cert.data, atual.hash)}</codigo>
   <selo algoritmo="HMAC-SHA256">${atual.hash}</selo>
   <seloAnterior>${atual.anterior}</seloAnterior>

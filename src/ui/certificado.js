@@ -3,6 +3,7 @@
 // então quem recebe o link vê o mesmo certificado.
 import { CERTIFICADOS, EMISSOR, certificadoXml, decodificarCertificado, linkLinkedInPerfil, linkLinkedInPublicar, linkPublico, textoPublicacao } from '../certificados.js';
 import { svgBadge } from '../badges.js';
+import { textoHoras } from '../cargaHoraria.js';
 import { esc } from './util.js';
 
 const dataPorExtenso = (data) => new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -19,6 +20,7 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
   }
 
   const def = CERTIFICADOS[cert.modulo];
+  const horas = textoHoras(def.cargaHoraria);
   const final = cert.modulo === 'final';
   const confere = cert.selo === 'confere';
   // Só um certificado com selo válido pode ser compartilhado: gerar o link de novo
@@ -49,11 +51,12 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
           <h1 id="badge-titulo">${esc(def.titulo)}</h1>
           <p class="badge-dono">Conquistado por <b>${esc(cert.nome)}</b> em ${dataPorExtenso(cert.data)}</p>
           <p class="badge-desc">Quem tem este ${final ? 'certificado' : 'badge'} ${esc(def.resumo)} do curso
-            <b>${esc(EMISSOR.curso)}</b>, com exercícios corrigidos automaticamente por testes funcionais.</p>
+            <b>${esc(EMISSOR.curso)}</b>, com carga horária de ${horas} e exercícios corrigidos automaticamente por testes funcionais.</p>
           <h2 class="badge-subtitulo">Habilidades</h2>
           <ul class="badge-habilidades">${def.conteudos.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
           <dl class="badge-dados">
             <div><dt>Emissor</dt><dd>${esc(EMISSOR.organizacao)}</dd></div>
+            <div><dt>Carga horária</dt><dd>${horas}</dd></div>
             <div><dt>Código</dt><dd class="cert-codigo-dd">${esc(cert.id)}</dd></div>
             <div><dt>Selo</dt><dd class="selo-${cert.selo}">${confere ? '✅ confere' : cert.selo === 'ausente' ? 'ℹ️ sem selo' : '⚠️ não confere'}</dd></div>
           </dl>
@@ -98,7 +101,7 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
           <p class="cert-certificamos">Certificamos que</p>
           <p class="cert-nome">${esc(cert.nome)}</p>
           <p class="cert-texto">${esc(def.resumo)} em <b>${esc(def.titulo)}</b>,
-            com exercícios corrigidos automaticamente.</p>
+            com carga horária de <b>${horas}</b> e exercícios corrigidos automaticamente.</p>
 
           <ul class="cert-conteudos" aria-label="Conteúdos">
             ${def.conteudos.map((c) => `<li>${esc(c)}</li>`).join('')}
@@ -108,6 +111,7 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
             <div class="cert-data">
               <span>Concluído em</span>
               <b>${dataPorExtenso(cert.data)}</b>
+              <span class="cert-carga">Carga horária: ${horas}</span>
               <span class="cert-codigo">Código: ${esc(cert.id)}</span>
               <span class="cert-hash" title="Selo de autenticidade">Selo: ${esc(hashEmGrupos)}</span>
               ${cert.anterior ? `<span class="cert-hash" title="Ligação com o certificado anterior">Anterior: ${esc(grupos(cert.anterior))}</span>` : ''}

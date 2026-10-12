@@ -6,6 +6,7 @@ import { linkItem } from '../compartilhar.js';
 import { calcularJornada, sequenciaDeDias, LIMITE_DESBLOQUEIO, NIVEIS } from '../gamificacao.js';
 import { CERTIFICADOS, ORDEM, linkCertificado } from '../certificados.js';
 import { svgBadge } from '../badges.js';
+import { textoHoras } from '../cargaHoraria.js';
 import { statusDe, dataDe, diasAtivos, hoje, lerNome, gravarNome } from '../progresso.js';
 import { esc, $ } from './util.js';
 
@@ -151,6 +152,7 @@ function unidade(m, anterior, atual, cert) {
           const lidas = licoes.filter((i) => i.estado === 'concluido').length;
           return licoes.length ? `<span class="unidade-contagem">📖 ${lidas}/${licoes.length} ${licoes.length === 1 ? 'lição' : 'lições'}</span>` : '';
         })()}
+        ${CERTIFICADOS[m.id] ? `<span class="unidade-contagem" title="Carga horária do certificado deste módulo">⏱ ${textoHoras(CERTIFICADOS[m.id].cargaHoraria)}</span>` : ''}
       </div>
     </header>`;
 

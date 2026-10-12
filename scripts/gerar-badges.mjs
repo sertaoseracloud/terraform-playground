@@ -23,7 +23,7 @@ export function paginaBadge(id) {
   const def = CERTIFICADOS[id];
   const titulo = `${id === 'final' ? 'Certificado' : 'Badge'}: ${def.titulo} · ${EMISSOR.organizacao}`;
   const descricao = `${id === 'final' ? 'Certificado de conclusão' : 'Badge digital'} emitido pela ${EMISSOR.organizacao}. `
-    + `Habilidades: ${def.conteudos.join(', ')}.`;
+    + `Carga horária: ${def.cargaHoraria} ${def.cargaHoraria === 1 ? 'hora' : 'horas'}. Habilidades: ${def.conteudos.join(', ')}.`;
   const imagem = `${SITE}badges/${id}-card.png`;
   return `<!doctype html>
 <html lang="pt-br">

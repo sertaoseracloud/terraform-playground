@@ -77,6 +77,11 @@ O site é estático e fica no GitHub Pages.
   **certificado final**. Os certificados são emitidos pela **Sertão será cloud** e assinados por
   **Cláudio Raposo**, com **badge digital no estilo Credly** e botões para **publicar no LinkedIn** e
   **adicionar ao perfil**.
+- **Carga horária**: cada atividade tem um tempo estimado (lição 10 min, fácil 15, médio 30, difícil
+  45), mostrado no exercício. O certificado de cada módulo vale a soma, arredondada para cima em horas e
+  com o mínimo de 1 hora; o final soma os módulos (102 horas). As horas ficam fixas em
+  `src/certificados.js` (não entram no selo, então certificados antigos continuam válidos) e
+  `tests/carga-horaria.test.js` avisa quando o conteúdo mudar. A regra fica em `src/cargaHoraria.js`.
 - **Selo de verificação** (HMAC-SHA256) e **cadeia de certificados** Terraform → AWS → Azure →
   Projetos → Final: cada certificado inclui no selo o hash do anterior, então mudar uma data ou um
   nome em qualquer ponto quebra os seguintes.

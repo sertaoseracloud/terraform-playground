@@ -1,6 +1,7 @@
 // Tela de uma lição, exercício ou do playground livre.
 // ▶ Plan, ✔ Apply e 🗑 Destroy rodam o simulador de Terraform (src/tf/) no próprio
 // navegador. O estado (terraform.tfstate simulado) fica salvo por exercício.
+import { minutosDoItem } from '../cargaHoraria.js';
 import { buscarItem, modulos, vizinhos, DIFICULDADES } from '../conteudo/trilha.js';
 import { linkItem, linkCompartilhado } from '../compartilhar.js';
 import { corrigir } from '../corrigir.js';
@@ -255,6 +256,9 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     el.titulo.textContent = item.titulo;
     el.dificuldade.className = item.tipo === 'problema' ? `dificuldade ${item.dificuldade}` : 'licao-chip';
     el.dificuldade.textContent = item.tipo === 'problema' ? DIFICULDADES[item.dificuldade] : item.tipo === 'licao' ? 'Lição' : '';
+    const minutos = minutosDoItem(item);
+    if (minutos) el.dificuldade.textContent += ` · ⏱ ~${minutos} min`;
+    el.dificuldade.title = minutos ? `Tempo estimado: cerca de ${minutos} minutos (conta na carga horária do certificado)` : '';
     const status = statusDe(item.id);
     el.status.textContent = item.tipo === 'problema' && status === 'resolvido' ? '✅ Resolvido' : status === 'tentado' ? '◐ Tentado' : '';
     el.status.className = 'chip';

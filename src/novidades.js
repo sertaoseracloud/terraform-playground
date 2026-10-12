@@ -10,6 +10,23 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.2.0',
+    data: '2026-10-12',
+    titulo: 'Carga horária',
+    resumo: 'Os certificados agora mostram a carga horária, e cada exercício mostra quanto tempo leva, em média.',
+    grupos: [
+      {
+        titulo: '⏱ Carga horária',
+        itens: [
+          'Cada certificado mostra a carga horária do módulo (no mínimo 1 hora); a trilha completa soma 102 horas.',
+          'A carga aparece no certificado, no documento para imprimir, no post do LinkedIn, no arquivo XML e na validação.',
+          'Cada módulo da trilha mostra as horas, e cada exercício mostra o tempo estimado ao lado da dificuldade.',
+          'Certificados já emitidos continuam válidos e passam a mostrar a carga horária.',
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.1.0',
     data: '2026-10-12',
     titulo: 'Terminal de verdade e validador novo',

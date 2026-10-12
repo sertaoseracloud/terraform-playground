@@ -10,6 +10,7 @@ import {
   lerCertificadoXml, cadeiaCoerente, conferirAssinaturas, mensagemAssinada,
 } from '../certificados.js';
 import { svgBadge } from '../badges.js';
+import { textoHoras } from '../cargaHoraria.js';
 import { esc, $ } from './util.js';
 
 /** Maior XML aceito: o de um certificado tem poucos KB. */
@@ -84,6 +85,7 @@ export function resultadoDoLink(texto, { titulo } = {}) {
         <div class="largo"><dt>Aluno</dt><dd>${esc(cert.nome)}</dd></div>
         <div><dt>Certificado</dt><dd>${esc(def.titulo)}</dd></div>
         <div><dt>Concluído em</dt><dd>${dataPorExtenso(cert.data)}</dd></div>
+        <div><dt>Carga horária</dt><dd>${textoHoras(def.cargaHoraria)}</dd></div>
         <div><dt>Emitido por</dt><dd>${esc(EMISSOR.organizacao)}</dd></div>
         ${cert.selo !== 'ausente' ? `<div><dt>Código</dt><dd><code>${esc(cert.id)}</code></dd></div>` : ''}
       </dl>
