@@ -39,6 +39,12 @@ O site é estático e fica no GitHub Pages.
 
 - **Como no LeetCode**: **▶ Plan** roda os casos visíveis; **⬆ Enviar** roda todos, inclusive os
   **casos ocultos** (outras variáveis, outro workspace, apply). Resposta fixa no código não passa.
+- **Casos de teste detalhados** (aba 🧪 Testes): cada caso mostra o **cenário** como linha de comando
+  (`terraform apply -var='zonas=[...]'`, `workspace select`, estado já aplicado antes), o placar e o tempo;
+  cada verificação mostra a **categoria** (Recurso, Output, Plano...), o valor **obtido** (inclusive de onde
+  vem uma referência, como `(known after apply) ← aws_vpc.principal.id`) e, quando falha, o **motivo** e uma
+  **💡 dica** de onde mexer. Antes de rodar, o caso lista o que vai conferir. Nos ocultos, os valores ficam
+  escondidos e só aparece o que falhou. Os detalhes saem de `detalharRegra` em `src/verificacoes.js`.
 - **Terminal simulado, com movimento de terminal de verdade**: o comando é digitado no prompt
   (`aluno@sertao:~/exercicio$`), o primeiro `init` baixa os provedores (os seguintes reaproveitam o
   lock file), o `plan` lê data sources e faz `Refreshing state...`, e o `apply`/`destroy` pede a

@@ -10,6 +10,31 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.3.0',
+    data: '2026-10-12',
+    titulo: 'Testes mais detalhados',
+    resumo: 'Cada caso de teste agora mostra o que foi rodado, o que foi conferido, o que apareceu de fato e, quando falha, onde mexer.',
+    grupos: [
+      {
+        titulo: '🧪 Testes',
+        itens: [
+          'Cada caso mostra o comando que o teste roda (com as variáveis e o workspace), quantas verificações passaram e quanto tempo levou.',
+          'Cada verificação mostra o tipo (por exemplo recurso, output, texto da página) e o valor que o Terraform calculou, também quando passa.',
+          'Quando uma verificação falha, aparecem o motivo e uma dica de onde mexer.',
+          'Antes de rodar, cada caso já lista o que vai conferir.',
+          'Nos casos ocultos, os valores continuam escondidos e só aparece o que falhou.',
+        ],
+      },
+      {
+        titulo: '🐛 Correções',
+        itens: [
+          'Textos longos não são mais cortados nos cards de teste em telas estreitas.',
+          'Rótulos feitos só para leitores de tela não aparecem mais na tela.',
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.2.0',
     data: '2026-10-12',
     titulo: 'Carga horária',

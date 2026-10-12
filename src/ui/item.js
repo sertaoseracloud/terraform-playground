@@ -17,7 +17,7 @@ import { aplicarChecklist } from './neuro.js';
 import { desenharGrafo } from './grafo.js';
 import { criarTerminal } from './terminal.js';
 import { termosDoTexto } from '../conteudo/glossario.js';
-import { descreverRegra } from '../verificacoes.js';
+import { descreverRegra, categoriaDe } from '../verificacoes.js';
 import { jornadaAtual, certificadosDaJornada } from './inicio.js';
 import { CERTIFICADOS } from '../certificados.js';
 import { LIMITE_DESBLOQUEIO } from '../gamificacao.js';
@@ -415,18 +415,84 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     return resultado;
   }
 
-  // Cada caso de teste vira um card na aba Testes.
-  function cardCaso({ nome, descricao, situacao, resultados = [], oculto }) {
+  // ---------- casos de teste ----------
+  // Cada caso vira um card: o cenário (os comandos que o teste roda, como no terminal),
+  // o placar e cada verificação com categoria, valor obtido e, se falhar, motivo e dica.
+  // Nos casos ocultos, os valores das variáveis e o que passou ficam escondidos.
+
+  /** Os comandos de um caso, como o aluno digitaria no terminal. */
+  function linhasDoCenario(cenario, { ocultar = false, estadoAnterior = false } = {}) {
+    const valor = (v) => (ocultar ? '…' : typeof v === 'string' ? v : JSON.stringify(v));
+    const linhas = [];
+    if (estadoAnterior) linhas.push('# antes: terraform apply da versão anterior (o estado já existe)');
+    let workspaceAtual = 'default';
+    for (const { comando, variaveis, workspace = 'default' } of cenario) {
+      if (workspace !== workspaceAtual) {
+        linhas.push(`$ terraform workspace select ${ocultar ? '…' : workspace}`);
+        workspaceAtual = workspace;
+      }
+      const vars = Object.entries(variaveis ?? {}).map(([k, v]) => ` -var='${k}=${valor(v)}'`).join('');
+      linhas.push(`$ terraform ${comando}${vars}`);
+    }
+    return linhas;
+  }
+
+  /** Cenário a partir da definição do teste (antes de rodar). */
+  const cenarioDoTeste = (t) => (t.passos ?? [t]).map((p) => ({
+    comando: p.comando ?? 'plan',
+    variaveis: p.variaveis ?? t.variaveis,
+    workspace: p.workspace ?? t.workspace,
+  }));
+
+  /** O que o caso vai conferir (antes de rodar), em linguagem simples. */
+  const verificacoesPrevistas = (t) => (t.passos ?? [t]).flatMap((p) => p.regras ?? [])
+    .map((regra) => ({ mensagem: descreverRegra(regra) ?? 'Verificação no código', categoria: categoriaDe(regra) }));
+
+  function itemVerificacao(r, situacao) {
+    const marca = { ok: '✅', falha: '❌', pendente: '⏳' }[situacao];
+    const extras = [
+      r.obtido !== undefined && (situacao === 'ok' || situacao === 'falha') ? `<span class="obtido"><b>Obtido:</b> <code>${esc(r.obtido)}</code></span>` : '',
+      situacao === 'falha' && r.detalhe ? `<span class="detalhe"><b>Motivo:</b> ${esc(r.detalhe)}</span>` : '',
+      situacao === 'falha' && r.dica ? `<span class="dica">💡 ${esc(r.dica)}</span>` : '',
+    ].join('');
+    return `
+      <li class="verificacao ${situacao}">
+        <span class="marca" aria-hidden="true">${marca}</span>
+        <div>
+          <span class="chip-categoria">${esc(r.categoria ?? 'Verificação')}</span>
+          <span class="sr">${{ ok: 'passou', falha: 'falhou', pendente: 'ainda não rodou' }[situacao]}: </span>${esc(r.mensagem)}
+          ${extras}
+        </div>
+      </li>`;
+  }
+
+  function cardCaso({ nome, teste, resultado }) {
+    const oculto = Boolean(teste.oculto);
+    const situacao = resultado ? (resultado.ok ? 'ok' : 'falha') : 'pendente';
     const icone = { ok: '✅', falha: '❌', pendente: '⏳' }[situacao];
-    const url = descricao ? `<span class="url">${esc(descricao)}</span>` : '';
-    const regras = resultados
-      .filter((r) => !oculto || !r.ok)
-      .map((r) => `<li>${r.ok ? '✅' : '❌'} ${esc(r.mensagem)}${!r.ok && r.detalhe ? `<span class="detalhe">${esc(r.detalhe)}</span>` : ''}</li>`)
-      .join('');
+    const descricao = oculto ? (resultado ? 'caso oculto' : 'rode ⬆ Enviar') : teste.descricao ?? 'terraform plan';
+    const cenario = resultado?.cenario ?? cenarioDoTeste(teste);
+    const verificacoes = resultado
+      ? resultado.resultados.map((r) => ({ ...r, situacao: r.ok ? 'ok' : 'falha' }))
+      : verificacoesPrevistas(teste).map((r) => ({ ...r, situacao: 'pendente' }));
+    // Nos ocultos, só aparece o que falhou (sem revelar o resto do caso).
+    const visiveis = oculto ? verificacoes.filter((r) => r.situacao === 'falha') : verificacoes;
+    const passaram = verificacoes.filter((r) => r.situacao === 'ok').length;
+    const placar = resultado
+      ? `${passaram}/${verificacoes.length} verificações · ${resultado.ms} ms`
+      : oculto ? '' : `${verificacoes.length} verificações`;
+    const esperaErro = verificacoes.some((r) => r.categoria === 'Execução' && /recusa/.test(r.mensagem));
     return `
       <details class="caso ${situacao}" ${situacao === 'falha' ? 'open' : ''}>
-        <summary>${icone} ${nome}${url}</summary>
-        ${regras ? `<ul>${regras}</ul>` : ''}
+        <summary>${icone} ${nome}<span class="url">${esc(descricao)}</span>${placar ? `<span class="placar">${placar}</span>` : ''}</summary>
+        <div class="corpo-caso">
+          <p class="rotulo-caso">Cenário${oculto ? ' (valores ocultos)' : ''}</p>
+          <pre class="cenario">${linhasDoCenario(cenario, { ocultar: oculto, estadoAnterior: resultado?.estadoAnterior ?? Boolean(teste.antes) }).map(esc).join('\n')}</pre>
+          ${resultado?.erroExecucao && !oculto ? `<p class="erro-execucao ${esperaErro ? 'esperado' : ''}">${esperaErro ? '🛑 O Terraform recusou, como o caso espera:' : '⛔ O Terraform parou com erro:'} <code>${esc(resultado.erroExecucao)}</code></p>` : ''}
+          ${visiveis.length ? `<p class="rotulo-caso">${resultado ? 'Verificações' : 'O que este caso confere'}</p>
+          <ul class="verificacoes">${visiveis.map((r) => itemVerificacao(r, r.situacao)).join('')}</ul>` : ''}
+          ${oculto && resultado?.ok ? '<p class="nota-caso">Todas as verificações deste caso passaram.</p>' : ''}
+        </div>
       </details>`;
   }
 
@@ -450,11 +516,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     const nomes = nomesDosCasos(testes);
     el.testes.innerHTML = `
       <p class="veredito-sub"><b>▶ Plan</b> roda os casos visíveis. <b>⬆ Enviar</b> roda todos, inclusive os ocultos, e marca a questão como resolvida.</p>
-      <div class="casos">${testes.map((t, i) => cardCaso({
-        nome: nomes[i],
-        descricao: t.oculto ? '' : t.descricao ?? 'terraform plan',
-        situacao: 'pendente',
-      })).join('')}</div>`;
+      <div class="casos">${testes.map((t, i) => cardCaso({ nome: nomes[i], teste: t })).join('')}</div>`;
     definirResumo(`${testes.length} casos · ainda não executado`);
   }
 
@@ -462,16 +524,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     const testes = estado.item.testes;
     const nomes = nomesDosCasos(testes);
     const porTeste = new Map(relatorio.map((r, i) => [envio ? testes[i] : testes.filter((t) => !t.oculto)[i], r]));
-    const cards = testes.map((t, i) => {
-      const r = porTeste.get(t);
-      return cardCaso({
-        nome: nomes[i],
-        descricao: t.oculto ? (r ? '' : 'rode ⬆ Enviar') : t.descricao ?? 'terraform plan',
-        situacao: r ? (r.ok ? 'ok' : 'falha') : 'pendente',
-        resultados: r?.resultados,
-        oculto: t.oculto,
-      });
-    }).join('');
+    const cards = testes.map((t, i) => cardCaso({ nome: nomes[i], teste: t, resultado: porTeste.get(t) })).join('');
 
     const passaram = relatorio.filter((t) => t.ok).length;
     const gentil = semPressao();

@@ -187,6 +187,8 @@ li.tarefa.feita > label > span { opacity: 0.6; }
 }
 
 * { box-sizing: border-box; }
+/* Só para leitores de tela: some da tela, mas continua sendo lido. */
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 [hidden] { display: none !important; }
 
 html, body { height: 100%; margin: 0; }
@@ -674,7 +676,7 @@ kbd {
 .resumo-testes.ok { color: var(--verde); font-weight: 600; }
 .resumo-testes.falha { color: var(--vermelho); font-weight: 600; }
 .testes { padding: 10px 14px; }
-.casos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; align-items: start; }
+.casos { display: grid; gap: 8px; align-items: start; }
 .veredito { font-size: 1.15rem; font-weight: 700; margin: 0 0 4px; }
 .veredito.ok { color: var(--verde); }
 .veredito.falha { color: var(--vermelho); }
@@ -685,9 +687,37 @@ kbd {
 .caso summary { cursor: pointer; padding: 7px 12px; list-style: none; }
 .caso summary::-webkit-details-marker { display: none; }
 .caso summary .url { color: var(--amarelo); margin-left: 6px; }
-.caso ul { list-style: none; margin: 0; padding: 0 12px 10px; }
-.caso li { padding: 3px 0; }
-.caso .detalhe { display: block; margin-left: 26px; color: var(--suave); font-size: 0.82rem; }
+.caso summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; }
+.caso summary .placar { margin-left: auto; color: var(--suave); font-size: 0.78rem; font-weight: 400; }
+.corpo-caso { padding: 0 12px 10px; border-top: 1px solid var(--linha); }
+.rotulo-caso { margin: 10px 0 4px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--suave); }
+.cenario {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--fundo-mais-escuro);
+  color: var(--texto);
+  font-family: var(--fonte-codigo);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.erro-execucao { margin: 8px 0 0; padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--vermelho); background: color-mix(in srgb, var(--vermelho) 8%, var(--fundo)); font-size: 0.82rem; }
+.erro-execucao.esperado { border-left-color: var(--ciano); background: color-mix(in srgb, var(--ciano) 7%, var(--fundo)); }
+.erro-execucao code, .caso .obtido code { font-family: var(--fonte-codigo); overflow-wrap: anywhere; }
+.caso ul.verificacoes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.caso { min-width: 0; }
+.caso summary, .verificacao > div { min-width: 0; overflow-wrap: anywhere; }
+.verificacao { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 4px; padding: 6px 8px; border-radius: 6px; background: var(--fundo); color: var(--texto); }
+.verificacao.falha { background: color-mix(in srgb, var(--vermelho) 7%, var(--fundo)); }
+.chip-categoria { display: inline-block; margin-right: 4px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--linha); color: var(--suave); font-size: 0.7rem; vertical-align: 1px; }
+.caso .obtido, .caso .detalhe, .caso .dica { display: block; margin-top: 3px; font-size: 0.82rem; }
+.caso .obtido { color: var(--suave); }
+.caso .obtido code { color: var(--ciano); }
+.caso .detalhe { color: var(--texto); }
+.caso .dica { color: var(--amarelo); }
+.nota-caso { margin: 8px 0 0; color: var(--suave); font-size: 0.82rem; }
+:root.a11y-sem-pressao .verificacao.falha { background: color-mix(in srgb, var(--laranja) 7%, var(--fundo)); }
 .caso.pendente summary { color: var(--suave); }
 .caso.ok { border-color: var(--verde); }
 .caso.ok summary { color: var(--verde); }

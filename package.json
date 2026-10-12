@@ -1,6 +1,6 @@
 {
   "name": "terraform-playground",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Playground de Terraform (básico, AWS, Azure e projetos) rodando no navegador, com simulador próprio",
   "scripts": {
     "dev": "vite",

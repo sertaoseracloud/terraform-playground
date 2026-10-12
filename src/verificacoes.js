@@ -318,6 +318,160 @@ function descreverVariavel(regra) {
   return partes.length ? ` ${partes.join(', ')}` : '';
 }
 
+// ---------- detalhes para a aba Testes ----------
+//
+// Além de "passou / não passou", cada verificação mostra a categoria, o valor obtido
+// (também quando passa, para o aluno confirmar o que o Terraform calculou) e, quando
+// falha, uma dica de onde mexer.
+
+const CATEGORIAS = [
+  ['semErros', 'Execução'], ['erro', 'Execução'], ['aviso', 'Execução'], ['recurso', 'Recurso'],
+  ['quantidade', 'Quantidade'], ['variavel', 'Variável'], ['valorVariavel', 'Variável'], ['local', 'Local'],
+  ['saida', 'Output'], ['plano', 'Plano'], ['dado', 'Data source'], ['modulo', 'Módulo'], ['requerido', 'Versões'],
+  ['versaoTerraform', 'Versões'], ['backend', 'Backend'], ['lifecycle', 'Ciclo de vida'], ['meta', 'Meta-argumento'],
+  ['provider', 'Provider'], ['dependencia', 'Dependência'], ['movido', 'Estado'], ['texto', 'Terminal'],
+  ['codigo', 'Código'], ['semCodigo', 'Código'], ['arquivo', 'Arquivo'],
+];
+export const categoriaDe = (regra) => CATEGORIAS.find(([chave]) => chave in regra)?.[1] ?? 'Verificação';
+
+/** Valor curto para a tela: listas e mapas em JSON de uma linha, cortado se for longo. */
+function curto(v) {
+  if (ehDesconhecido(v)) return `(known after apply)${v.origem ? ` ← ${v.origem}` : ''}`;
+  if (v === undefined) return 'não definido';
+  const texto = typeof v === 'string' ? JSON.stringify(v) : JSON.stringify(normalizar(v));
+  return texto.length > 140 ? `${texto.slice(0, 137)}…` : texto;
+}
+
+const NOMES_RESUMO = { importar: 'to import', criar: 'to add', alterar: 'to change', destruir: 'to destroy' };
+
+/** O que o Terraform calculou para o ponto que a regra confere (ou undefined, se não houver um valor). */
+function obtidoDe(regra, r) {
+  const lista = erros(r);
+  if ('semErros' in regra || 'erro' in regra) return lista.length ? lista.map((e) => `Error: ${e.resumo}`).join(' · ') : 'nenhum erro';
+  // Sem plano (erro antes dele), não há valor para mostrar além do próprio erro.
+  const precisaDoPlano = ['recurso', 'quantidade', 'instancias', 'valorVariavel', 'local', 'saida', 'plano', 'dado', 'movido'].some((k) => k in regra);
+  if (lista.length && precisaDoPlano && !r.plano?.acoes?.length) return 'o plano não rodou (veja o erro do caso)';
+  if ('recurso' in regra) {
+    const ativos = instancias(r).filter((i) => (i.endereco === regra.recurso || i.endereco.startsWith(`${regra.recurso}[`)) && (regra.acao === 'destruir' || i.acao !== 'destruir'));
+    if (!ativos.length) return 'o recurso não aparece no plano';
+    if (regra.atributo) {
+      const partes = regra.atributo.split('.');
+      const v = caminho(ativos[0].valor, partes);
+      const sensivel = ativos[0].sensiveis?.has?.(partes[0]) && !ehDesconhecido(v);
+      return `${ativos.length > 1 ? `${ativos[0].endereco}: ` : ''}${sensivel ? '(sensitive value)' : curto(v)}`;
+    }
+    if (regra.acao) return NOMES_ACAO[ativos[0].acao] ?? ativos[0].acao;
+    return ativos.map((a) => a.endereco).slice(0, 4).join(', ') + (ativos.length > 4 ? '…' : '');
+  }
+  if ('tipo' in regra && 'quantidade' in regra) {
+    return `${instancias(r).filter((i) => i.tipo === regra.tipo && i.acao !== 'destruir' && i.acao !== 'esquecer').length} recurso(s)`;
+  }
+  if ('instancias' in regra) {
+    const lista2 = instancias(r).filter((i) => (i.endereco === regra.instancias || i.endereco.startsWith(`${regra.instancias}[`)) && i.acao !== 'destruir');
+    return lista2.length ? lista2.map((i) => i.endereco.slice(regra.instancias.length) || '(uma)').join(' ') : 'nenhuma instância';
+  }
+  if ('variavel' in regra) {
+    const v = r.blocos?.variaveis?.[regra.variavel];
+    if (!v) return 'a variável não existe';
+    return [`type = ${v.tipo ?? 'any'}`, v.temPadrao ? `default = ${curto(v.padrao)}` : 'sem default', v.sensivel && 'sensitive', v.validacoes && 'com validation']
+      .filter(Boolean).join(', ');
+  }
+  if ('valorVariavel' in regra) return curto(r.variaveis?.[regra.valorVariavel]?.valor);
+  if ('local' in regra) return regra.local in (r.locais ?? {}) ? curto(r.locais[regra.local]) : 'o local não existe';
+  if ('saida' in regra) {
+    const s = r.saidas?.[regra.saida];
+    if (!s) return 'o output não existe';
+    if (regra.sensivel) return s.sensivel ? 'sensitive = true' : 'sem sensitive';
+    return s.sensivel ? '(sensitive value)' : curto(s.valor);
+  }
+  if ('plano' in regra) {
+    const resumo = r.plano?.resumo;
+    return resumo ? Object.entries(NOMES_RESUMO).filter(([k]) => k !== 'importar' || resumo.importar).map(([k, n]) => `${resumo[k] ?? 0} ${n}`).join(', ') : 'o plano não rodou';
+  }
+  if ('dado' in regra && regra.atributo) {
+    const d = (r.dados ?? []).find((x) => x.endereco === `data.${regra.dado}`);
+    return d ? curto(caminho(d.valor, regra.atributo.split('.'))) : 'o data source não foi lido';
+  }
+  if ('modulo' in regra) {
+    const m = r.blocos?.modulos?.[regra.modulo];
+    return m ? `source = ${curto(m.source)}${m.entradas?.length ? `, entradas: ${m.entradas.join(', ')}` : ''}` : 'o módulo não existe';
+  }
+  if ('requerido' in regra) {
+    const req = r.blocos?.requeridos?.[regra.requerido];
+    if (!req) return 'não declarado';
+    const obj = typeof req === 'string' ? { version: req } : req;
+    return `source = ${curto(obj.source)}, version = ${curto(obj.version)}`;
+  }
+  if ('versaoTerraform' in regra) return curto(r.blocos?.versaoExigida);
+  if ('backend' in regra) {
+    const b = r.blocos?.backend;
+    if (!b) return 'sem backend (estado local)';
+    return regra.atributo ? `backend "${b.tipo}", ${regra.atributo} = ${curto(b.valores?.[regra.atributo])}` : `backend "${b.tipo}"`;
+  }
+  if ('dependencia' in regra) {
+    const usa = (r.grafo?.arestas ?? []).filter((a) => a.de === regra.dependencia[0]).map((a) => a.para);
+    return usa.length ? `${regra.dependencia[0]} usa: ${usa.join(', ')}` : `${regra.dependencia[0]} não usa outros blocos`;
+  }
+  if ('movido' in regra) {
+    const m = r.plano?.movidos ?? [];
+    return m.length ? m.map((x) => `${x.de} → ${x.para}`).join(', ') : 'nenhum moved';
+  }
+  return undefined;
+}
+
+/** Onde mexer quando a verificação falha. */
+function dicaDe(regra, r) {
+  if (erros(r).length && !('erro' in regra)) return 'Primeiro corrija o erro: a caixa ╷ Error no 🖥️ Terminal mostra o arquivo, a linha e o motivo.';
+  if ('erro' in regra) return 'Este caso espera que o Terraform recuse a configuração: confira a validation ou a regra pedida no enunciado.';
+  if ('recurso' in regra) {
+    const existe = instancias(r).some((i) => i.endereco === regra.recurso || i.endereco.startsWith(`${regra.recurso}[`));
+    if (!existe) {
+      const indice = regra.recurso.match(/\[([^\]]+)\]$/)?.[1];
+      return indice !== undefined
+        ? `A instância [${indice}] só existe se o count ou o for_each gerar esse item: confira a quantidade e as chaves.`
+        : `Crie o bloco resource "${regra.recurso.split('.').at(-2)}" "${regra.recurso.split('.').at(-1)}" (tipo e nome exatamente assim).`;
+    }
+    if ('referencia' in regra) return `Use a referência direta (${regra.referencia}) em vez de escrever o valor: assim o Terraform liga os dois recursos.`;
+    if ('igual' in regra) return 'Compare com atenção: maiúsculas, aspas, espaços e o tipo (número, texto ou lista) contam.';
+    if (regra.acao) return 'Veja no 🖥️ Terminal o símbolo do recurso no plano (+ cria, ~ altera, -/+ recria).';
+    return `Confira o tipo e o nome do bloco: resource "${regra.recurso.split('.').at(-2) ?? ''}" "${regra.recurso.split('.').at(-1)?.replace(/\[.*$/, '') ?? ''}".`;
+  }
+  if ('quantidade' in regra) return 'Confira o count ou o for_each e a variável que define quantos itens são criados.';
+  if ('variavel' in regra || 'valorVariavel' in regra) return 'Confira o bloco variable: nome, type, default e, se pedido, validation, description ou sensitive.';
+  if ('local' in regra) return 'Confira o bloco locals { } e a expressão do valor.';
+  if ('saida' in regra) return regra.sensivel ? 'Acrescente sensitive = true no bloco output.' : 'Confira o bloco output "nome" { value = ... }: o nome e a expressão do value.';
+  if ('plano' in regra) return 'Leia a linha "Plan: ..." no 🖥️ Terminal e compare com o que o caso espera.';
+  if ('dado' in regra) return 'Confira o bloco data "tipo" "nome" { } e os filtros dele.';
+  if ('modulo' in regra) return 'Confira o bloco module: o source (caminho da pasta) e as entradas passadas.';
+  if ('requerido' in regra || 'versaoTerraform' in regra) return 'Isso fica dentro de terraform { required_providers { } } (ou required_version).';
+  if ('backend' in regra) return 'O backend fica em terraform { backend "tipo" { ... } } e não aceita variáveis: escreva os valores direto.';
+  if ('lifecycle' in regra) return 'Acrescente um bloco lifecycle { } dentro do resource.';
+  if ('meta' in regra) return 'Confira os meta-argumentos do resource (count, for_each, depends_on, provider, dynamic).';
+  if ('dependencia' in regra) return `Use um atributo de ${regra.dependencia[1]} (por exemplo .id ou .name) dentro de ${regra.dependencia[0]}.`;
+  if ('movido' in regra) return 'Use um bloco moved { from = ... to = ... } ao renomear, para o Terraform não destruir e recriar.';
+  if ('codigo' in regra || 'semCodigo' in regra) return 'O enunciado pede essa forma de escrever: releia o passo correspondente.';
+  if ('arquivo' in regra) return 'Crie o arquivo com o botão + do editor, com o nome exato (inclusive a pasta).';
+  return undefined;
+}
+
+/** O resultado da regra com categoria, valor obtido e dica (para a aba Testes). */
+export function detalharRegra(regra, r, opcoes = {}) {
+  const base = verificarRegra(regra, r, opcoes);
+  const obtido = obtidoDe(regra, r);
+  return {
+    ...base,
+    categoria: categoriaDe(regra),
+    ...(obtido !== undefined ? { obtido } : {}),
+    ...(base.ok ? {} : { dica: dicaDe(regra, r) }),
+  };
+}
+
+/** Primeiro erro do Terraform num resultado, em uma linha (para mostrar uma vez por caso). */
+export function primeiroErroDe(r) {
+  const e = erros(r)[0];
+  return e ? `Error: ${e.resumo}${e.arquivo && e.linha ? ` (${e.arquivo}, linha ${e.linha})` : ''}${e.detalhe ? ` — ${String(e.detalhe).split('\n')[0]}` : ''}` : undefined;
+}
+
 /**
  * A regra em linguagem simples, para a seção "Como saber que deu certo".
  * Regras de código sem `msg` são regex e ficariam confusas: devolve null.
