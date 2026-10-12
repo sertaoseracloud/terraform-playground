@@ -223,17 +223,17 @@ const limparHash = (h) => String(h ?? '').toLowerCase().replace(/[^0-9a-f]/g, ''
 /**
  * Confere um certificado impresso: com nome, módulo, data, selo e (a partir do
  * segundo da cadeia) o hash anterior, recalcula aquele elo e compara com o selo.
- * Devolve { valido, motivo }.
+ * Devolve { valido, motivo, incompleto } (incompleto: falta algum dado; não é o selo que não confere).
  */
 export function validarImpresso({ nome, modulo, data, selo, anterior }) {
-  if (!String(nome ?? '').trim()) return { valido: false, motivo: 'Informe o nome como está no certificado.' };
-  if (!(modulo in CERTIFICADOS)) return { valido: false, motivo: 'Escolha qual certificado é.' };
-  if (!DATA.test(data ?? '')) return { valido: false, motivo: 'Informe a data de conclusão.' };
+  if (!String(nome ?? '').trim()) return { valido: false, incompleto: true, motivo: 'Informe o nome como está no certificado.' };
+  if (!(modulo in CERTIFICADOS)) return { valido: false, incompleto: true, motivo: 'Escolha qual certificado é.' };
+  if (!DATA.test(data ?? '')) return { valido: false, incompleto: true, motivo: 'Informe a data de conclusão.' };
   const h = limparHash(selo);
-  if (h.length !== 64) return { valido: false, motivo: 'O selo tem 64 caracteres (letras de a a f e números).' };
+  if (h.length !== 64) return { valido: false, incompleto: true, motivo: 'O selo tem 64 caracteres (letras de a a f e números).' };
   const primeiro = anteriores(modulo).length === 0;
   const a = limparHash(anterior);
-  if (!primeiro && a.length !== 64) return { valido: false, motivo: 'Este certificado tem o campo "Anterior" (64 caracteres). Copie-o também.' };
+  if (!primeiro && a.length !== 64) return { valido: false, incompleto: true, motivo: 'Este certificado tem o campo "Anterior" (64 caracteres). Copie-o também.' };
   const esperado = hashCertificado({ nome, modulo, data }, primeiro ? '' : a);
   return esperado === h
     ? { valido: true, motivo: 'O selo confere com o nome, o certificado, a data e o elo anterior informados.' }

@@ -68,8 +68,15 @@ function atualizarProgressoTopo() {
 }
 
 const layout = criarLayout();
-const telaDoItem = criarTelaItem({ layout, definirStatus, aoMudarProgresso: atualizarProgressoTopo });
-definirStatus(`Terraform ${VERSAO_TERRAFORM} (simulado) pronto`);
+const STATUS_PRONTO = `Terraform ${VERSAO_TERRAFORM} (simulado) pronto`;
+// O exercício só escreve no status enquanto está na tela: um plan que termina depois que
+// o aluno foi para outra página não deixa "plan: 2 add..." no validador, por exemplo.
+const telaDoItem = criarTelaItem({
+  layout,
+  definirStatus: (texto) => { if (!telaItem.hidden) definirStatus(texto); },
+  aoMudarProgresso: atualizarProgressoTopo,
+});
+definirStatus(STATUS_PRONTO);
 
 function marcarMenu(nome) {
   document.querySelectorAll('[data-menu]').forEach((a) => {
@@ -97,6 +104,9 @@ function navegar() {
     });
     return;
   }
+  // Fora do exercício: o terminal para de animar e o status volta ao padrão.
+  telaDoItem.sair();
+  definirStatus(STATUS_PRONTO);
   if (rota.tela === 'landing') {
     renderLanding(telaLanding);
     mostrarTela(telaLanding);

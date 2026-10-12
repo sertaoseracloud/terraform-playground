@@ -34,7 +34,7 @@ describe('validar pelo link', () => {
     const html = resultadoDoLink(`${SITE}#/certificado/${codificarCertificado(PHP)}`);
     expect(html).toContain('Certificado válido');
     expect(html).toContain('Maria da Conceição');
-    expect(html.match(/<li/g)).toHaveLength(3); // básico → AWS → Azure
+    expect(html.match(/<li[ >]/g)).toHaveLength(3); // básico → AWS → Azure
   });
 
   it('link alterado é inválido', () => {
@@ -75,6 +75,8 @@ describe('validar certificado impresso', () => {
     expect(validarImpresso({ ...impressoPhp, anterior: '' }).motivo).toMatch(/Anterior/);
     expect(validarImpresso({ ...impressoPhp, selo: 'abc' }).motivo).toMatch(/64 caracteres/);
     expect(resultadoDoImpresso(impressoPhp)).toContain('Selo confere');
+    expect(resultadoDoImpresso({ ...impressoPhp, selo: 'abc' })).toContain('resultado-validacao ilegivel');
+    expect(resultadoDoImpresso({ ...impressoPhp, nome: 'Outra' })).toContain('resultado-validacao invalido');
   });
 });
 
@@ -84,15 +86,84 @@ describe('página', () => {
     expect(lerRota('#/validar/abc')).toEqual({ tela: 'validar', codigo: 'abc' });
   });
 
-  it('com código na rota, já mostra o resultado', () => {
+  it('com código na rota, o resultado vem primeiro, com o badge', () => {
     document.body.innerHTML = '<main id="tela"></main>';
     renderValidador(document.getElementById('tela'), codificarCertificado(HTML));
-    expect(document.getElementById('saida-link').textContent).toContain('Certificado válido');
+    const inicial = document.getElementById('resultado-inicial');
+    expect(inicial.textContent).toContain('Certificado válido');
+    expect(inicial.querySelector('.resultado-badge svg')).not.toBeNull();
+    expect(document.getElementById('titulo-metodos').textContent).toBe('Validar outro certificado');
+    // O campo do link fica livre para validar outro (sem o código enorme ocupando a tela).
+    expect(document.getElementById('campo-link').value).toBe('');
     // O básico é o primeiro da cadeia: o campo "Anterior" some quando ele é escolhido
     const form = document.getElementById('form-impresso');
     form.modulo.value = 'basico';
     form.modulo.onchange();
     expect(document.getElementById('rotulo-anterior').hidden).toBe(true);
+  });
+
+  it('sem código, pergunta como o certificado chegou', () => {
+    document.body.innerHTML = '<main id="tela"></main>';
+    renderValidador(document.getElementById('tela'));
+    expect(document.getElementById('resultado-inicial')).toBeNull();
+    expect(document.getElementById('titulo-metodos').textContent).toBe('Como você recebeu o certificado?');
+  });
+
+  it('abas: uma forma de validar por vez, com setas do teclado', () => {
+    document.body.innerHTML = '<main id="tela"></main>';
+    renderValidador(document.getElementById('tela'));
+    const aba = (id) => document.getElementById(`aba-val-${id}`);
+    const painel = (id) => document.getElementById(`painel-val-${id}`);
+    expect(painel('link').hidden).toBe(false);
+    expect(painel('impresso').hidden).toBe(true);
+    aba('link').onkeydown({ key: 'ArrowRight', preventDefault() {} });
+    expect(aba('impresso').getAttribute('aria-selected')).toBe('true');
+    expect(painel('impresso').hidden).toBe(false);
+    expect(painel('link').hidden).toBe(true);
+    expect(aba('link').tabIndex).toBe(-1);
+    aba('impresso').onkeydown({ key: 'End', preventDefault() {} });
+    expect(painel('xml').hidden).toBe(false);
+    aba('xml').onkeydown({ key: 'ArrowRight', preventDefault() {} }); // dá a volta
+    expect(painel('link').hidden).toBe(false);
+  });
+
+  it('editar o link apaga o resultado antigo (ele não vale para o texto novo)', () => {
+    document.body.innerHTML = '<main id="tela"></main>';
+    renderValidador(document.getElementById('tela'));
+    const campo = document.getElementById('campo-link');
+    campo.value = codificarCertificado(HTML);
+    document.getElementById('form-link').onsubmit({ preventDefault() {} });
+    expect(document.getElementById('saida-link').textContent).toContain('Certificado válido');
+    campo.value += 'x';
+    campo.oninput();
+    expect(document.getElementById('saida-link').innerHTML).toBe('');
+  });
+
+  it('contador do selo ignora espaços e maiúsculas', () => {
+    document.body.innerHTML = '<main id="tela"></main>';
+    renderValidador(document.getElementById('tela'));
+    const form = document.getElementById('form-impresso');
+    form.selo.value = 'ABCD EF01';
+    form.selo.dispatchEvent(new Event('input'));
+    const contador = document.querySelector('.contador-hash[data-para="selo"]');
+    expect(contador.textContent).toBe('8/64');
+    form.selo.value = 'a'.repeat(64);
+    form.selo.dispatchEvent(new Event('input'));
+    expect(contador.classList.contains('completo')).toBe(true);
+  });
+
+  it('"não consegui ler" não usa a cor de "adulterado"', () => {
+    expect(resultadoDoLink('qualquer coisa')).toContain('resultado-validacao ilegivel');
+    expect(resultadoDoXml('<html></html>')).toContain('resultado-validacao ilegivel');
+    const outro = codificarCertificado({ ...HTML, nome: 'Outra Pessoa' });
+    const dados = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(outro.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0))));
+    const original = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(codificarCertificado(HTML).replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0))));
+    const adulterado = btoa(unescape(encodeURIComponent(JSON.stringify({ ...original, n: dados.n })))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    expect(resultadoDoLink(adulterado)).toContain('resultado-validacao invalido');
+  });
+
+  it('não repete o anúncio para leitores de tela (só a região aria-live anuncia)', () => {
+    expect(resultadoDoLink(codificarCertificado(HTML))).not.toContain('role="status"');
   });
 });
 

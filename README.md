@@ -39,9 +39,17 @@ O site é estático e fica no GitHub Pages.
 
 - **Como no LeetCode**: **▶ Plan** roda os casos visíveis; **⬆ Enviar** roda todos, inclusive os
   **casos ocultos** (outras variáveis, outro workspace, apply). Resposta fixa no código não passa.
-- **Terminal simulado**: o plano sai como no Terraform (`+ create`, `~ update in-place`,
-  `-/+ destroy and then create replacement`, `# forces replacement`, `(known after apply)`) e os erros
-  saem na caixa `╷ │ ╵`, com uma explicação em português embaixo.
+- **Terminal simulado, com movimento de terminal de verdade**: o comando é digitado no prompt
+  (`aluno@sertao:~/exercicio$`), o primeiro `init` baixa os provedores (os seguintes reaproveitam o
+  lock file), o `plan` lê data sources e faz `Refreshing state...`, e o `apply`/`destroy` pede a
+  confirmação (`Enter a value: yes`). No apply, cada recurso começa quando as dependências terminam
+  (vários ao mesmo tempo) e leva o tempo típico do serviço: um bucket leva segundos, um RDS ou um AKS
+  mostra `Still creating... [00m10s elapsed]` por minutos (comprimidos em poucos segundos na tela).
+  **⏩ Pular** (ou `Esc`) mostra tudo na hora, e com **Reduzir animações** a saída aparece de uma vez.
+  O plano sai como no Terraform (`+ create`, `~ update in-place`, `-/+ destroy and then create
+  replacement`, `# forces replacement`, `(known after apply)`) e os erros saem na caixa `╷ │ ╵`, com
+  uma explicação em português embaixo. O ritmo de cada linha vem de `src/tf/saida.js`, e a animação,
+  de `src/ui/terminal.js`.
 - **Abas de saída**: 🖥️ Terminal, 🕸️ **Grafo** de dependências (SVG), 📦 **Estado** (com exportação
   `terraform.tfstate` v4) e 📤 **Outputs**. O estado de cada exercício fica salvo no navegador, por
   workspace; **Limpar estado** recomeça do zero.
@@ -72,8 +80,11 @@ O site é estático e fica no GitHub Pages.
 - **Selo de verificação** (HMAC-SHA256) e **cadeia de certificados** Terraform → AWS → Azure →
   Projetos → Final: cada certificado inclui no selo o hash do anterior, então mudar uma data ou um
   nome em qualquer ponto quebra os seguintes.
-- **🔎 Validador** (`#/validar`), **📄 XML do certificado** e **✍️ assinatura Ed25519** com a chave
-  pública em `chave-publica-ed25519.txt`.
+- **🔎 Validador** (`#/validar`): três abas (link ou código, impresso/PDF e arquivo XML). Quem abre um
+  link de validação vê o resultado primeiro, com o badge, os dados e a cadeia como linha do tempo.
+  As cores separam "válido" (verde), "alterado" (vermelho), "não consegui ler / faltam dados" (âmbar)
+  e "link antigo" (ciano), e mudar o texto apaga o resultado anterior.
+- **📄 XML do certificado** e **✍️ assinatura Ed25519** com a chave pública em `chave-publica-ed25519.txt`.
 - **A palavra secreta nunca entra no código nem no site.** Ela fica no secret
   `CERTIFICADO_SEGREDO` do GitHub Actions; o build injeta só um valor derivado dela
   (`vite.config.js`) e falha se o secret não existir. Para gerar o build localmente:

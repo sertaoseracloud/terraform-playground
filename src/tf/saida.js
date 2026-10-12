@@ -1,38 +1,67 @@
 // Texto do terminal no formato do Terraform (em inglês, como na vida real, para o
 // aluno reconhecer a saída) com as explicações dos erros em português.
-// Cada linha vem com uma classe para colorir: criar, alterar, destruir, erro...
+// Cada linha vem com uma classe para colorir (criar, alterar, destruir, erro...) e,
+// para o terminal animado, o ritmo em que aparece:
+//   atraso:  milissegundos de espera antes da linha (download, refresh, recurso demorado...);
+//   digitar: a partir de qual caractere o texto é "digitado" (comandos e o "yes").
 import { ehDesconhecido, ehObjeto, ehConjunto, comoHcl, textoDoNumero } from './valores.js';
 
 const SIMBOLO = { criar: '+', alterar: '~', destruir: '-', substituir: '-/+', substituirAntes: '+/-', importar: ' ', ler: '<=', esquecer: '.' };
 
-export function linhasDoResultado(r) {
+/**
+ * Linhas do terminal para um resultado de executarTerraform.
+ * `primeiraVez`: o init baixa os provedores (senão reaproveita os já instalados, como no
+ * segundo `terraform init` de uma pasta).
+ */
+export function linhasDoResultado(r, { primeiraVez = true } = {}) {
   const L = [];
-  const add = (texto, classe = '') => L.push({ texto, classe });
+  let espera = 0;
+  const add = (texto, classe = '', ritmo = {}) => {
+    const linha = { texto, classe };
+    const atraso = (ritmo.atraso ?? 0) + espera;
+    espera = 0;
+    if (atraso) linha.atraso = atraso;
+    if (ritmo.digitar !== undefined) linha.digitar = ritmo.digitar;
+    L.push(linha);
+  };
+  /** A próxima linha espera `ms` (o Terraform "pensando"). */
+  const pausar = (ms) => { espera += ms; };
+  const comando = (texto, atraso = 250) => add(`$ ${texto}`, 'comando', { digitar: 2, atraso });
 
   // ---------- init ----------
-  add('$ terraform init', 'comando');
+  comando('terraform init', 0);
   add('');
+  add('Initializing the backend...', 'titulo', { atraso: 160 });
   if (r.init?.backend?.tipo && r.init.backend.tipo !== 'local') {
-    add('Initializing the backend...', 'titulo');
-    add(`Successfully configured the backend "${r.init.backend.tipo}"! Terraform will automatically`, 'sucesso');
+    add('');
+    add(`Successfully configured the backend "${r.init.backend.tipo}"! Terraform will automatically`, 'sucesso', { atraso: 220 });
     add('use this backend unless the backend configuration changes.', 'sucesso');
-  } else {
-    add('Initializing the backend...', 'titulo');
   }
-  add('Initializing provider plugins...', 'titulo');
+  add('Initializing provider plugins...', 'titulo', { atraso: 140 });
+  const externos = (r.provedores ?? []).filter((p) => !p.embutido);
   for (const p of r.provedores ?? []) {
     if (p.embutido) {
-      add(`- ${p.nome} is built in to Terraform`);
-      continue;
+      add('- terraform.io/builtin/terraform is built in to Terraform', '', { atraso: 40 });
+    } else if (primeiraVez) {
+      add(`- Finding ${p.fonte} versions matching "${p.restricao ?? '*'}"...`, '', { atraso: 320 });
+      add(`- Installing ${p.fonte} v${p.versao}...`, '', { atraso: 260 });
+      add(`- Installed ${p.fonte} v${p.versao} (signed by HashiCorp)`, '', { atraso: 520 });
+    } else {
+      add(`- Reusing previous version of ${p.fonte} from the dependency lock file`, '', { atraso: 60 });
+      add(`- Using previously-installed ${p.fonte} v${p.versao}`, '', { atraso: 60 });
     }
-    add(`- Finding ${p.fonte} versions matching "${p.restricao ?? '*'}"...`);
-    add(`- Installing ${p.fonte} v${p.versao}...`);
-    add(`- Installed ${p.fonte} v${p.versao} (signed by HashiCorp)`);
   }
   const errosInit = r.fase === 'init';
   if (!errosInit) {
+    if (primeiraVez && externos.length) {
+      add('');
+      add('Terraform has created a lock file .terraform.lock.hcl to record the provider', '', { atraso: 80 });
+      add('selections it made above. Include this file in your version control repository');
+      add('so that Terraform can guarantee to make the same selections by default when');
+      add('you run "terraform init" in the future.');
+    }
     add('');
-    add('Terraform has been successfully initialized!', 'sucesso');
+    add('Terraform has been successfully initialized!', 'sucesso forte', { atraso: 90 });
   }
   add('');
 
@@ -41,23 +70,77 @@ export function linhasDoResultado(r) {
     return L;
   }
 
+  // ---------- workspace ----------
+  if (r.workspace && r.workspace !== 'default') {
+    comando(`terraform workspace select ${r.workspace}`);
+    add(`Switched to workspace "${r.workspace}".`, 'sucesso', { atraso: 120 });
+    add('');
+  }
+
   // ---------- plan / apply / destroy ----------
-  add(`$ terraform ${r.comando === 'destroy' ? 'destroy' : r.comando === 'apply' ? 'apply' : 'plan'}${r.workspace !== 'default' ? `  # workspace "${r.workspace}"` : ''}`, 'comando');
+  comando(`terraform ${r.comando === 'destroy' ? 'destroy' : r.comando === 'apply' ? 'apply' : 'plan'}`, 350);
   add('');
   const avisos = r.diagnosticos.filter((d) => d.gravidade === 'aviso');
   const erros = r.diagnosticos.filter((d) => d.gravidade === 'erro');
   if (!r.plano) {
+    pausar(300);
     for (const d of [...avisos, ...erros]) caixa(d, add);
     return L;
   }
+  if (escreverLeituras(r, add)) add('');
+  pausar(450);
   escreverPlano(r, add);
   for (const d of avisos) caixa(d, add);
   if (erros.length && r.comando !== 'apply') {
     for (const d of erros) caixa(d, add);
     return L;
   }
-  if (r.comando === 'apply' || r.comando === 'destroy') escreverApply(r, erros, add);
+  if (r.comando === 'apply' || r.comando === 'destroy') {
+    if (temMudancas(r)) escreverConfirmacao(r, add);
+    escreverApply(r, erros, add);
+  }
   return L;
+}
+
+/** Antes do plano: o Terraform lê os data sources e atualiza o que já está no estado. */
+function escreverLeituras(r, add) {
+  let escreveu = false;
+  const adiados = new Set((r.plano.dadosLidos ?? []).map((d) => d.endereco));
+  for (const d of r.dados ?? []) {
+    if (adiados.has(d.endereco)) continue;
+    add(`${d.endereco}: Reading...`, 'forte', { atraso: 70 });
+    add(`${d.endereco}: Read complete after 0s${idDe(d.valor)}`, 'forte', { atraso: 140 });
+    escreveu = true;
+  }
+  for (const a of r.plano.acoes) {
+    if (!a.antes || a.acao === 'importar') continue;
+    add(`${a.endereco}: Refreshing state...${idDe(a.antes)}`, 'forte', { atraso: 60 });
+    escreveu = true;
+  }
+  return escreveu;
+}
+
+const idDe = (valor) => (valor?.id !== undefined && valor.id !== null && !ehDesconhecido(valor.id) && valor.id !== '' ? ` [id=${valor.id}]` : '');
+
+function temMudancas(r) {
+  return r.plano.acoes.some((a) => a.acao !== 'nada') || r.plano.saidas.some((s) => s.acao !== 'nada') || r.plano.movidos.length > 0;
+}
+
+/** "Do you want to perform these actions?" e o "yes" digitado. */
+function escreverConfirmacao(r, add) {
+  const ws = r.workspace && r.workspace !== 'default' ? ` in workspace "${r.workspace}"` : '';
+  if (r.comando === 'destroy') {
+    add(`Do you really want to destroy all resources${ws}?`, 'forte', { atraso: 250 });
+    add('  Terraform will destroy all your managed infrastructure, as shown above.');
+    add('  There is no undo. Only \'yes\' will be accepted to confirm.');
+  } else {
+    add(`Do you want to perform these actions${ws}?`, 'forte', { atraso: 250 });
+    add('  Terraform will perform the actions described above.');
+    add('  Only \'yes\' will be accepted to approve.');
+  }
+  add('');
+  add('  Enter a value: yes', 'forte', { digitar: 17, atraso: 650 });
+  add('');
 }
 
 export function textoDoResultado(r) {
@@ -88,6 +171,14 @@ function escreverPlano(r, add) {
   const mudam = acoes.filter((a) => a.acao !== 'nada');
   const saidasMudam = saidas.filter((s) => s.acao !== 'nada');
   if (!mudam.length && !dadosLidos.length && !movidos.length) {
+    if (!saidasMudam.length && r.comando === 'destroy') {
+      add('No changes. No objects need to be destroyed.', 'sucesso forte');
+      add('');
+      add('Either you have not created any objects yet or the existing objects were');
+      add('already deleted outside of Terraform.');
+      add('');
+      return;
+    }
     if (!saidasMudam.length) {
       add('No changes. Your infrastructure matches the configuration.', 'sucesso forte');
       add('');
@@ -318,20 +409,16 @@ export function formatarValor(v, recuo = '', simbolo = '') {
 
 function escreverApply(r, erros, add) {
   const eventos = r.estado?.eventos ?? [];
-  const verbos = {
-    criar: ['Creating...', 'Creation complete after 1s'],
-    importar: ['Importing...', 'Import complete'],
-    alterar: ['Modifying...', 'Modifications complete after 1s'],
-    substituir: ['Destroying... + Creating...', 'Creation complete after 2s'],
-    destruir: ['Destroying...', 'Destruction complete after 0s'],
-    esquecer: ['Removing from state...', 'Removed from state'],
-  };
-  for (const e of eventos) {
-    const [comeco, fim] = verbos[e.acao] ?? ['...', 'ok'];
-    add(`${e.endereco}: ${comeco}`, classeDe(e.acao));
-    add(`${e.endereco}: ${fim}${e.id && e.acao !== 'destruir' ? ` [id=${e.id}]` : ''}`, classeDe(e.acao));
+  const tempo = linhaDoTempo(r, erros);
+  // O tempo simulado (minutos para um RDS ou um AKS) vira poucos segundos na tela.
+  const total = tempo.at(-1)?.t ?? 0;
+  const msPorSegundo = total ? Math.min(14, 7000 / total) : 0;
+  let anterior = 0;
+  for (const { t, texto, classe } of tempo) {
+    add(texto, classe, { atraso: Math.min(600, Math.round((t - anterior) * msPorSegundo)) + 45 });
+    anterior = t;
   }
-  if (eventos.length) add('');
+  if (tempo.length) add('');
   for (const d of erros) caixa(d, add);
   if (erros.length) {
     add('');
@@ -341,20 +428,199 @@ function escreverApply(r, erros, add) {
   const n = (acao) => eventos.filter((e) => e.acao === acao).length;
   const substituidos = n('substituir');
   if (r.comando === 'destroy') {
-    add(`Destroy complete! Resources: ${n('destruir')} destroyed.`, 'sucesso forte');
+    add(`Destroy complete! Resources: ${n('destruir')} destroyed.`, 'sucesso forte', { atraso: 200 });
     return;
   }
   const importados = n('importar');
-  add(`Apply complete! Resources: ${importados ? `${importados} imported, ` : ''}${n('criar') + substituidos} added, ${n('alterar')} changed, ${n('destruir') + substituidos} destroyed.`, 'sucesso forte');
+  add(`Apply complete! Resources: ${importados ? `${importados} imported, ` : ''}${n('criar') + substituidos} added, ${n('alterar')} changed, ${n('destruir') + substituidos} destroyed.`, 'sucesso forte', { atraso: 200 });
   const saidas = Object.entries(r.estado?.saidas ?? {});
   if (saidas.length) {
     add('');
-    add('Outputs:', 'titulo');
+    add('Outputs:', 'titulo', { atraso: 80 });
     add('');
     for (const [nome, s] of saidas.sort(([a], [b]) => (a < b ? -1 : 1))) {
       add(`${nome} = ${s.sensivel ? '<sensitive>' : formatarValor(s.valor)}`, 'saida');
     }
   }
+}
+
+// ---------- linha do tempo do apply ----------
+//
+// Como o Terraform de verdade: cada recurso começa assim que as dependências terminam
+// (vários ao mesmo tempo), os demorados mostram "Still creating... [00m10s elapsed]" a
+// cada 10 segundos e o fim diz quanto levou. Os tempos são típicos de cada serviço
+// (um bucket leva segundos, um cluster AKS leva minutos) e sempre os mesmos para o
+// mesmo endereço, para a saída não mudar entre execuções.
+
+/** Segundos típicos para criar cada tipo de recurso (o resto: 1 a 3 s; provedores locais: 0 s). */
+const DURACAO = {
+  aws_db_instance: 290, aws_cloudfront_distribution: 200, aws_elasticache_cluster: 420, aws_lb: 160,
+  aws_nat_gateway: 105, aws_autoscaling_group: 50, aws_acm_certificate_validation: 40, aws_route53_zone: 35,
+  aws_instance: 14, aws_subnet: 11, aws_dynamodb_table: 9, aws_lambda_function: 8, aws_ecs_service: 6,
+  aws_ebs_volume: 10, aws_volume_attachment: 21, aws_eip: 2, aws_vpc: 2, aws_secretsmanager_secret: 1,
+  azurerm_redis_cache: 960, azurerm_postgresql_flexible_server: 430, azurerm_cosmosdb_account: 390,
+  azurerm_kubernetes_cluster: 340, azurerm_container_app_environment: 290, azurerm_key_vault: 190,
+  azurerm_kubernetes_cluster_node_pool: 180, azurerm_application_gateway: 600, azurerm_mssql_server: 75,
+  azurerm_linux_function_app: 62, azurerm_linux_virtual_machine_scale_set: 64, azurerm_linux_virtual_machine: 52,
+  azurerm_private_endpoint: 48, azurerm_linux_web_app: 44, azurerm_mssql_database: 42, azurerm_container_app: 31,
+  azurerm_role_assignment: 26, azurerm_storage_account: 24, azurerm_container_registry: 21, azurerm_nat_gateway: 19,
+  azurerm_log_analytics_workspace: 12, azurerm_resource_group: 11, azurerm_service_plan: 9,
+  azurerm_virtual_network: 6, azurerm_static_web_app: 6, azurerm_subnet: 5, azurerm_public_ip: 4,
+  azurerm_lb: 4, azurerm_application_insights: 4, azurerm_dns_zone: 3, azurerm_key_vault_secret: 2,
+};
+const LOCAIS = /^(random_|local_|null_|terraform_data|tls_|archive_)/;
+
+function hashTexto(texto) {
+  let h = 2166136261;
+  for (let i = 0; i < texto.length; i++) h = Math.imul(h ^ texto.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+
+/** Segundos simulados para uma ação num recurso. */
+function duracaoDe(tipo, acao, endereco) {
+  if (LOCAIS.test(tipo) || acao === 'importar' || acao === 'esquecer') return 0;
+  const base = DURACAO[tipo] ?? 1 + (hashTexto(tipo) % 3);
+  const variacao = 0.85 + (hashTexto(endereco) % 31) / 100;
+  const fator = { criar: 1, alterar: 0.35, destruir: tipo === 'aws_cloudfront_distribution' ? 0.9 : 0.45 }[acao] ?? 1;
+  return Math.max(acao === 'destruir' ? 0 : 1, Math.round(base * variacao * fator));
+}
+
+function tempoDecorrido(s) {
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}m${String(s % 60).padStart(2, '0')}s`;
+}
+function duracaoTexto(s) {
+  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m${s % 60}s`;
+}
+
+const base = (endereco) => endereco.replace(/\[[^\]]*\]$/, '');
+const tipoDoEndereco = (endereco) => base(endereco).replace(/^(module\.[^.]+\.)+/, '').replace(/^data\./, '').split('.')[0];
+
+/** De quem cada nó depende (recursos e data sources), atravessando variáveis, locals e módulos. */
+function dependenciasDoGrafo(r) {
+  const diretas = new Map();
+  for (const { de, para } of r.grafo?.arestas ?? []) {
+    if (!diretas.has(de)) diretas.set(de, new Set());
+    diretas.get(de).add(para);
+  }
+  const memo = new Map();
+  const resolver = (no, visitando = new Set()) => {
+    if (memo.has(no)) return memo.get(no);
+    if (visitando.has(no)) return new Set();
+    visitando.add(no);
+    const todas = new Set();
+    for (const alvo of diretas.get(no) ?? []) {
+      if (/^(var|local|output)\./.test(alvo) || /^module\.[^.]+$/.test(alvo)) {
+        for (const x of resolver(alvo, visitando)) todas.add(x);
+        if (/^module\.[^.]+$/.test(alvo)) todas.add(alvo);
+      } else {
+        todas.add(alvo);
+      }
+    }
+    memo.set(no, todas);
+    return todas;
+  };
+  return (endereco) => {
+    const modulo = endereco.match(/^module\.[^.[]+/)?.[0];
+    const deps = new Set(resolver(base(endereco)));
+    if (modulo) for (const x of resolver(modulo)) deps.add(x);
+    for (const x of r.estado?.recursos?.[endereco]?.dependencias ?? []) deps.add(modulo && !x.startsWith('module.') ? `${modulo}.${x}` : x);
+    return deps;
+  };
+}
+
+function linhaDoTempo(r, erros) {
+  const deps = dependenciasDoGrafo(r);
+  const eventos = (r.estado?.eventos ?? []).map((e) => ({ ...e }));
+  // Recursos que a API recusou: começam a ser criados e param no erro.
+  for (const d of erros) {
+    const endereco = d.contexto?.match(/^with (.+)$/)?.[1];
+    if (endereco && !eventos.some((e) => e.endereco === endereco)) eventos.push({ endereco, acao: 'criar', falhou: true });
+  }
+  // Data sources que só podem ser lidos no apply.
+  const lidosNoApply = new Set((r.plano?.dadosLidos ?? []).map((d) => d.endereco));
+  for (const d of r.dados ?? []) {
+    if (lidosNoApply.has(d.endereco)) eventos.push({ endereco: d.endereco, acao: 'ler', id: d.valor?.id });
+  }
+
+  // Quem pertence a cada nó do grafo (aws_subnet.a → aws_subnet.a[0], [1]...).
+  const doNo = (no) => eventos.filter((e) => base(e.endereco) === no || e.endereco.startsWith(`${no}.`));
+  const fim = new Map();
+  const inicio = new Map();
+  const destruindo = (e) => e.acao === 'destruir';
+
+  const calcular = (e, pilha = new Set()) => {
+    if (fim.has(e)) return fim.get(e);
+    if (pilha.has(e)) return 0;
+    pilha.add(e);
+    let pronto = 0;
+    if (destruindo(e)) {
+      // Para destruir, espera quem depende dele ser destruído antes.
+      for (const outro of eventos) {
+        if (outro !== e && destruindo(outro) && deps(outro.endereco).has(base(e.endereco))) pronto = Math.max(pronto, calcular(outro, pilha));
+      }
+    } else {
+      for (const no of deps(e.endereco)) {
+        for (const outro of doNo(no)) if (outro !== e && !destruindo(outro)) pronto = Math.max(pronto, calcular(outro, pilha));
+      }
+    }
+    const tipo = tipoDoEndereco(e.endereco);
+    const d = e.acao === 'substituir'
+      ? duracaoDe(tipo, 'destruir', e.endereco) + duracaoDe(tipo, 'criar', e.endereco)
+      : e.acao === 'ler' ? 0 : duracaoDe(tipo, e.acao, e.endereco);
+    inicio.set(e, pronto);
+    fim.set(e, e.falhou ? pronto + Math.min(d, 3) : pronto + d);
+    return fim.get(e);
+  };
+  eventos.forEach((e) => calcular(e));
+
+  const linhas = [];
+  let ordem = 0;
+  // No Terraform as linhas de progresso saem em negrito, sem cor.
+  const em = (t, texto) => linhas.push({ t, texto, classe: 'forte', ordem: ordem++ });
+  for (const e of eventos) {
+    const t0 = inicio.get(e);
+    const t1 = fim.get(e);
+    const id = e.id !== undefined && e.id !== null && e.id !== '' ? ` [id=${e.id}]` : '';
+    const ticks = (desde, ate, verbo, comId) => {
+      for (let s = 10; desde + s < ate; s += 10) em(desde + s, `${e.endereco}: Still ${verbo}... [${comId ? `id=${e.id}, ` : ''}${tempoDecorrido(s)} elapsed]`);
+    };
+    switch (e.acao) {
+      case 'ler':
+        em(t0, `${e.endereco}: Reading...`);
+        em(t1, `${e.endereco}: Read complete after 0s${id}`);
+        break;
+      case 'importar':
+        em(t0, `${e.endereco}: Importing...${id}`);
+        em(t1, `${e.endereco}: Import complete${id}`);
+        break;
+      case 'esquecer':
+        break;
+      case 'destruir':
+        em(t0, `${e.endereco}: Destroying...${id}`);
+        ticks(t0, t1, 'destroying', Boolean(id));
+        em(t1, `${e.endereco}: Destruction complete after ${duracaoTexto(t1 - t0)}`);
+        break;
+      case 'alterar':
+        em(t0, `${e.endereco}: Modifying...${id}`);
+        ticks(t0, t1, 'modifying', Boolean(id));
+        em(t1, `${e.endereco}: Modifications complete after ${duracaoTexto(t1 - t0)}${id}`);
+        break;
+      case 'substituir': {
+        const meio = t0 + duracaoDe(tipoDoEndereco(e.endereco), 'destruir', e.endereco);
+        em(t0, `${e.endereco}: Destroying...`);
+        em(meio, `${e.endereco}: Destruction complete after ${duracaoTexto(meio - t0)}`);
+        em(meio, `${e.endereco}: Creating...`);
+        ticks(meio, t1, 'creating');
+        em(t1, `${e.endereco}: Creation complete after ${duracaoTexto(t1 - meio)}${id}`);
+        break;
+      }
+      default:
+        em(t0, `${e.endereco}: Creating...`);
+        ticks(t0, t1, 'creating');
+        if (!e.falhou) em(t1, `${e.endereco}: Creation complete after ${duracaoTexto(t1 - t0)}${id}`);
+    }
+  }
+  return linhas.sort((a, b) => a.t - b.t || a.ordem - b.ordem);
 }
 
 /** Estado no formato do terraform.tfstate (versão 4), para a aba Estado. */

@@ -423,6 +423,9 @@
 .pagina-texto .atualizada { margin: 4px 0 16px; color: var(--suave); font-size: 0.85rem; }
 .pagina-texto li { margin: 4px 0; }
 .pagina-texto a { color: var(--roxo); }
+/* Links com cara de botão mantêm a cor do botão (o roxo dos links some num botão roxo). */
+.pagina-texto a.btn { color: var(--texto); text-decoration: none; }
+.pagina-texto a.btn-verde, .pagina-texto a.btn-roxo { color: var(--sobre-cor); }
 .resumo-privacidade {
   padding: 4px 18px 16px;
   border: 2px solid var(--verde);
@@ -498,10 +501,65 @@
 .no.trofeu.em-espera .legenda { color: var(--ciano); }
 
 /* validador de certificados (#/validar) */
-.cartao-validacao { margin: 22px 0; padding: 4px 18px 16px; border: 1px solid var(--linha); border-radius: 12px; background: var(--fundo-escuro); }
+.cabecalho-validador p { margin: 6px 0 0; }
+.cabecalho-validador .selo-privacidade {
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--linha);
+  background: var(--fundo-escuro);
+  color: var(--suave);
+  font-size: 0.85rem;
+}
+.resultado-inicial { margin: 22px 0 0; }
+
+.cartao-validacao { margin: 22px 0; padding: 4px 18px 18px; border: 1px solid var(--linha); border-radius: 12px; background: var(--fundo-escuro); }
+.pagina-texto .cartao-validacao > h2 { margin: 16px 0 12px; }
+
+/* abas: link, impresso e XML */
+.abas-validacao {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  background: var(--fundo);
+  border: 1px solid var(--linha);
+}
+.aba-validacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--suave);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+/* No celular, o ícone fica em cima e o texto pode quebrar: as três abas cabem numa linha. */
+@media (max-width: 560px) {
+  .aba-validacao { flex-direction: column; gap: 2px; padding: 8px 4px; font-size: 0.8rem; line-height: 1.25; }
+  .aba-validacao span { font-size: 1.1rem; }
+}
+.aba-validacao:hover { color: var(--texto); background: var(--linha-atual); }
+.aba-validacao[aria-selected="true"] { color: var(--sobre-cor); background: var(--ciano); font-weight: 700; }
+
 .form-validacao { display: grid; gap: 10px; }
-.form-validacao label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--suave); }
+.form-validacao label { display: grid; gap: 4px; min-width: 0; font-size: 0.9rem; color: var(--suave); }
 .form-validacao input, .form-validacao select, .form-validacao textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   font: inherit;
   color: var(--texto);
   background: var(--fundo);
@@ -509,23 +567,92 @@
   border-radius: 8px;
   padding: 9px 10px;
 }
+.form-validacao textarea { resize: vertical; }
 .form-validacao textarea, .form-validacao input[name="selo"], .form-validacao input[name="anterior"] { font-family: var(--fonte-codigo); font-size: 0.85rem; }
+.form-validacao input[type="file"] { padding: 6px; color: var(--suave); }
+.form-validacao input[type="file"]::file-selector-button {
+  margin-right: 10px;
+  font: inherit;
+  color: var(--texto);
+  background: var(--linha);
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
 .form-validacao .btn { justify-self: start; }
-.grade-validacao { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; }
+.grade-validacao { grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); align-items: end; }
 .grade-validacao .largo { grid-column: 1 / -1; }
-.resultado-validacao { margin-top: 14px; padding: 12px 16px; border-radius: 10px; border: 2px solid var(--linha); }
-.resultado-validacao h2 { margin: 0 0 6px !important; }
+.contador-hash { justify-self: end; margin-top: -1.4em; font-family: var(--fonte-codigo); font-size: 0.75rem; }
+.contador-hash.completo { color: var(--verde); }
+
+/* resultado */
+.saida-validacao:empty { display: none; }
+.resultado-validacao { margin-top: 14px; padding: 14px 16px; border-radius: 12px; border: 2px solid var(--linha); background: var(--fundo); }
+.resultado-topo { display: flex; gap: 14px; align-items: flex-start; }
+.resultado-topo p { margin: 4px 0 0; }
+.resultado-icone { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+.resultado-badge { flex-shrink: 0; display: inline-flex; }
+.resultado-badge svg { width: 84px; height: 84px; filter: drop-shadow(0 4px 10px rgb(0 0 0 / 35%)); }
+.pagina-texto .resultado-validacao h2 { margin: 0; font-size: 1.2rem; }
 .resultado-validacao.valido { border-color: var(--verde); background: color-mix(in srgb, var(--verde) 9%, var(--fundo)); }
-.resultado-validacao.valido h2 { color: var(--verde) !important; }
+.pagina-texto .resultado-validacao.valido h2 { color: var(--verde); }
 .resultado-validacao.invalido { border-color: var(--vermelho); background: color-mix(in srgb, var(--vermelho) 9%, var(--fundo)); }
-.resultado-validacao.invalido h2 { color: var(--vermelho) !important; }
-.resultado-validacao.antigo { border-color: var(--ciano); }
-.dados-validacao { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 18px; margin: 12px 0; }
-.dados-validacao dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--suave); }
-.dados-validacao dd { margin: 2px 0 0; font-weight: 600; }
+.pagina-texto .resultado-validacao.invalido h2 { color: var(--vermelho); }
+.resultado-validacao.ilegivel { border-color: var(--laranja); background: color-mix(in srgb, var(--laranja) 8%, var(--fundo)); }
+.pagina-texto .resultado-validacao.ilegivel h2 { color: var(--laranja); }
+.resultado-validacao.antigo { border-color: var(--ciano); background: color-mix(in srgb, var(--ciano) 7%, var(--fundo)); }
+.pagina-texto .resultado-validacao.antigo h2 { color: var(--ciano); }
+
+.dados-validacao {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 12px 18px;
+  margin: 14px 0 4px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--linha);
+}
+.dados-validacao dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--suave); }
+.dados-validacao dd { margin: 2px 0 0; font-weight: 600; overflow-wrap: anywhere; }
 .dados-validacao .largo { grid-column: 1 / -1; }
+.dados-validacao .largo dd { font-size: 1.15rem; }
+.dados-validacao code { color: var(--amarelo); font-family: var(--fonte-codigo); }
+.validador h3 { margin: 16px 0 6px; font-size: 0.95rem; }
+
+/* cadeia de certificados como linha do tempo */
+.cadeia-validacao { list-style: none; margin: 0; padding: 0; }
+.pagina-texto .cadeia-validacao li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 6px 0;
+}
+.cadeia-validacao li + li::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: -6px;
+  height: 12px;
+  border-left: 2px solid var(--verde);
+}
+.cadeia-validacao .marcador {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  color: var(--sobre-cor);
+  background: var(--verde);
+}
+.cadeia-validacao .nome-elo { flex: 1; min-width: 0; }
+.cadeia-validacao time { color: var(--suave); font-family: var(--fonte-codigo); font-size: 0.85rem; }
+.cadeia-validacao .atual .nome-elo { font-weight: 700; }
+.acoes-validacao { margin: 14px 0 0; }
 .nota-validacao { font-size: 0.85rem; color: var(--suave); }
-.validador h3 { margin: 14px 0 0; font-size: 0.95rem; }
 
 /* lista simples de certificados anteriores (página do certificado e validador) */
 .anteriores { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }

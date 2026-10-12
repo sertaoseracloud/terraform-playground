@@ -120,7 +120,14 @@
               </select>
             </label>
           </div>
-          <pre id="saida-terminal" class="terminal" tabindex="0" aria-label="Saída do terminal" aria-live="polite"></pre>
+          <div id="janela-terminal" class="janela-terminal">
+            <div class="barra-terminal">
+              <span class="luzes" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="titulo-terminal" id="titulo-terminal">aluno@sertao: ~/terraform</span>
+              <button type="button" class="btn-pular" id="btn-pular" hidden title="Mostrar o resto da saída agora (Esc)">⏩ Pular <kbd>Esc</kbd></button>
+            </div>
+            <pre id="saida-terminal" class="terminal" tabindex="0" aria-label="Saída do terminal" aria-live="polite" aria-busy="false"></pre>
+          </div>
           <div id="saida-grafo" class="saida grafo" hidden tabindex="0"></div>
           <div id="saida-estado" class="saida estado" hidden tabindex="0"></div>
           <div id="saida-saidas" class="saida saidas" hidden tabindex="0"></div>

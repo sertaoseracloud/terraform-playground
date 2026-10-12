@@ -10,6 +10,35 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.1.0',
+    data: '2026-10-12',
+    titulo: 'Terminal de verdade e validador novo',
+    resumo: 'O terminal agora se comporta como o Terraform de verdade, e a página de validar certificados ficou mais clara e funciona melhor no celular.',
+    grupos: [
+      {
+        titulo: '🖥️ Terminal',
+        itens: [
+          'Os comandos são digitados no prompt, como num terminal, e a saída aparece no ritmo do Terraform.',
+          'O primeiro terraform init baixa os provedores; os seguintes reaproveitam o que já foi instalado.',
+          'O plan lê os data sources e atualiza o que já existe ("Refreshing state...") antes de mostrar o plano.',
+          'O apply e o destroy pedem a confirmação ("Enter a value: yes"), e a troca de workspace aparece no terminal.',
+          'No apply, cada recurso leva o tempo típico do serviço (um bucket leva segundos, um cluster leva minutos), vários ao mesmo tempo e na ordem das dependências.',
+          'Botão ⏩ Pular (ou tecla Esc) para ver tudo na hora; com "Reduzir animações", a saída aparece de uma vez.',
+        ],
+      },
+      {
+        titulo: '🔎 Validar certificado',
+        itens: [
+          'Quem abre um link de validação vê o resultado primeiro, com o badge e os certificados da trilha numa linha do tempo.',
+          'As três formas de validar (link, impresso e arquivo XML) ficam em abas.',
+          'Cores diferentes para "válido", "alterado", "não consegui ler" e "link antigo".',
+          'Contador de caracteres no selo e resultado que some quando você muda o texto.',
+          'Correções: a página não passa mais da largura da tela no celular e o botão "Abrir o certificado" voltou a mostrar o texto.',
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.0.0',
     data: '2026-10-12',
     titulo: 'Primeira versão oficial',

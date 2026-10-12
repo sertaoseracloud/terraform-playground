@@ -571,9 +571,59 @@ kbd {
   line-height: 1.45;
   white-space: pre;
   tab-size: 2;
+  font-variant-ligatures: none; /* como num terminal: "..." continua sendo três pontos */
 }
 .terminal .linha { display: inline; }
-.l-comando { color: var(--suave); }
+
+/* janela do terminal: barra com as "luzes", o título (usuário e pasta) e o ⏩ Pular */
+.janela-terminal { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--fundo-mais-escuro); }
+.janela-terminal[hidden] { display: none; }
+.barra-terminal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--linha);
+  background: var(--fundo-escuro);
+  font-family: var(--fonte-codigo);
+  font-size: 0.78rem;
+  color: var(--suave);
+}
+.luzes { display: inline-flex; gap: 6px; flex-shrink: 0; }
+.luzes i { width: 11px; height: 11px; border-radius: 50%; background: var(--vermelho); opacity: 0.85; }
+.luzes i:nth-child(2) { background: var(--amarelo); }
+.luzes i:nth-child(3) { background: var(--verde); }
+.titulo-terminal { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.btn-pular {
+  flex-shrink: 0;
+  font: inherit;
+  color: var(--texto);
+  background: var(--linha);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.btn-pular:hover { border-color: var(--roxo); }
+.btn-pular kbd { font: inherit; font-size: 0.7rem; color: var(--suave); border: 1px solid var(--suave); border-radius: 3px; padding: 0 3px; margin-left: 2px; }
+.terminal[aria-busy="true"] { cursor: progress; }
+
+/* prompt do shell e cursor piscando */
+.p-usuario { color: var(--verde); font-weight: 700; }
+.p-pasta { color: var(--roxo); font-weight: 700; }
+.p-cifrao { color: var(--texto); }
+.l-comando { color: var(--texto); }
+.cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.15em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--texto);
+  animation: piscar 1.05s steps(1) infinite;
+}
+@keyframes piscar { 50% { opacity: 0; } }
 .l-titulo { font-weight: 700; }
 .l-sucesso { color: var(--verde); }
 .l-forte { font-weight: 700; }

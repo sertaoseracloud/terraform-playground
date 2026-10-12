@@ -14,6 +14,7 @@ import { EditorArquivos } from './editor.js';
 import { iniciarLeitura } from './acessibilidade.js';
 import { aplicarChecklist } from './neuro.js';
 import { desenharGrafo } from './grafo.js';
+import { criarTerminal } from './terminal.js';
 import { termosDoTexto } from '../conteudo/glossario.js';
 import { descreverRegra } from '../verificacoes.js';
 import { jornadaAtual, certificadosDaJornada } from './inicio.js';
@@ -48,6 +49,9 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     solucao: $('desc-solucao'),
     testes: $('saida-testes'),
     terminal: $('saida-terminal'),
+    janelaTerminal: $('janela-terminal'),
+    tituloTerminal: $('titulo-terminal'),
+    pular: $('btn-pular'),
     grafo: $('saida-grafo'),
     estado: $('saida-estado'),
     saidas: $('saida-saidas'),
@@ -56,6 +60,20 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   };
 
   const estado = { item: null, ocupado: false, origem: null, ultimo: null };
+
+  // Terminal animado. O primeiro `terraform init` de cada exercício baixa os provedores;
+  // os seguintes reaproveitam, como numa pasta de verdade.
+  const terminal = criarTerminal(el.terminal, {
+    aoMudar: (animando) => { el.pular.hidden = !animando; },
+  });
+  const iniciados = new Set();
+  el.pular.onclick = () => terminal.pular();
+  el.terminal.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && terminal.animando) {
+      e.preventDefault();
+      terminal.pular();
+    }
+  });
 
   let salvarTimer;
   const editor = new EditorArquivos({
@@ -89,7 +107,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   }
   document.querySelectorAll('[data-desc]').forEach((b) => { b.onclick = () => mostrarDesc(b.dataset.desc); });
 
-  const saidas = { terminal: el.terminal, grafo: el.grafo, estado: el.estado, saidas: el.saidas };
+  const saidas = { terminal: el.janelaTerminal, grafo: el.grafo, estado: el.estado, saidas: el.saidas };
   function mostrarSaida(nome) {
     for (const [chave, painel] of Object.entries(saidas)) painel.hidden = chave !== nome;
     document.querySelectorAll('[data-saida]').forEach((b) => {
@@ -282,7 +300,8 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
       renderSolucao();
       renderTestesPendentes();
     }
-    el.terminal.innerHTML = '';
+    terminal.limpar();
+    el.tituloTerminal.textContent = `aluno@sertao: ~/${item.id}`;
     mostrarDesc('enunciado');
     mostrarSaida('terminal');
     renderEstado();
@@ -291,11 +310,12 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   }
 
   // ---------- execução ----------
-  function renderTerminal(r) {
-    el.terminal.innerHTML = linhasDoResultado(r)
-      .map((l) => `<span class="linha${l.classe ? ` ${l.classe.split(' ').map((c) => `l-${c}`).join(' ')}` : ''}">${esc(l.texto) || ' '}</span>`)
-      .join('\n');
-    el.terminal.scrollTop = 0;
+  /** Mostra a saída; com `animar`, termina quando a animação acaba (ou o aluno pula). */
+  function renderTerminal(r, { animar }) {
+    const id = estado.item.id;
+    const linhas = linhasDoResultado(r, { primeiraVez: !iniciados.has(id) });
+    iniciados.add(id);
+    return terminal.mostrar(linhas, { animar, pasta: id });
   }
 
   function renderEstado() {
@@ -328,7 +348,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   }
 
   /** Executar pedido pelo aluno (botão ou Ctrl+Enter): mostra a aba de testes com o resultado. */
-  const executarPeloAluno = () => executar('plan', { abrirTestes: true });
+  const executarPeloAluno = () => executar('plan', { abrirTestes: true, animar: true });
 
   /** Abre a aba 🧪 Testes (e a descrição, se estiver oculta). */
   function abrirAbaTestes() {
@@ -337,7 +357,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     mostrarDesc('testes');
   }
 
-  async function executar(comando = 'plan', { abrirTestes = false } = {}) {
+  async function executar(comando = 'plan', { abrirTestes = false, animar = false } = {}) {
     if (!estado.item) return;
     const item = estado.item;
     const arquivos = { ...editor.arquivos };
@@ -349,7 +369,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
       r = executarTerraform(arquivos, { comando, estado: estadoAtual(), workspace: el.workspace.value, semente: item.id });
     } catch (erro) {
       console.error(erro);
-      el.terminal.textContent = `Erro interno do simulador: ${erro.message}`;
+      terminal.texto(`Erro interno do simulador: ${erro.message}`);
       definirStatus('Erro interno do simulador');
       return;
     }
@@ -358,11 +378,15 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     if ((comando === 'apply' || comando === 'destroy') && r.plano) {
       gravarEstado(chaveEstado(), r.estado);
     }
-    renderTerminal(r);
+    const ms = Math.max(1, Math.round(performance.now() - inicio));
+    const animarAgora = animar && !el.janelaTerminal.hidden;
+    if (animarAgora) definirStatus(`terraform ${comando}… (Esc ou ⏩ Pular para ver tudo)`);
+    const animacao = renderTerminal(r, { animar: animarAgora });
     renderEstado();
     renderSaidas(r);
     if (!el.grafo.hidden) desenharGrafo(el.grafo, r);
-    const ms = Math.max(1, Math.round(performance.now() - inicio));
+    await animacao;
+    if (estado.item !== item || estado.ultimo !== r) return;
     const resumo = r.plano?.resumo;
     definirStatus(r.ok
       ? `${comando}: ${resumo ? `${resumo.criar} add, ${resumo.alterar} change, ${resumo.destruir} destroy` : 'ok'} · ${ms} ms`
@@ -504,18 +528,18 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
 
   // ---------- eventos ----------
   el.executar.onclick = () => executarPeloAluno();
-  el.apply.onclick = () => executar('apply');
+  el.apply.onclick = () => executar('apply', { animar: true });
   el.destroy.onclick = () => {
     if (!Object.keys(estadoAtual()?.recursos ?? {}).length) {
       definirStatus('O estado está vazio: não há nada para destruir.');
       return;
     }
-    if (confirm('terraform destroy: apagar todos os recursos do estado simulado deste exercício?')) executar('destroy');
+    if (confirm('terraform destroy: apagar todos os recursos do estado simulado deste exercício?')) executar('destroy', { animar: true });
   };
   el.enviar.onclick = () => enviar();
   el.workspace.onchange = () => {
     renderEstado();
-    executar();
+    executar('plan', { animar: true });
   };
 
   el.restaurar.onclick = () => {
@@ -548,5 +572,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   return {
     abrir,
     redesenharDescricao: () => estado.item && renderDescricao(),
+    /** Saiu da tela do exercício: a animação do terminal termina na hora. */
+    sair: () => terminal.pular(),
   };
 }
