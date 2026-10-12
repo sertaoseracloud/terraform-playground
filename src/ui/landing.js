@@ -3,6 +3,7 @@
 import { modulos, itens, problemas } from '../conteudo/trilha.js';
 import { CERTIFICADOS, EMISSOR } from '../certificados.js';
 import { svgBadge } from '../badges.js';
+import { secaoInstrutor } from './instrutor.js';
 import { linkItem } from '../compartilhar.js';
 import { jornadaAtual } from './inicio.js';
 import { esc } from './util.js';
@@ -135,6 +136,8 @@ export function renderLanding(el) {
         </div>
       </section>
 
+      ${secaoInstrutor()}
+
       <section class="cta-final" aria-labelledby="cta-titulo">
         <h2 id="cta-titulo">Pronto para escrever seu primeiro código?</h2>
         <p>Comece pelo Terraform básico. Em poucos minutos o seu primeiro recurso aparece no plano, aqui mesmo.</p>
@@ -143,7 +146,7 @@ export function renderLanding(el) {
 
       <footer class="rodape-landing">
         <p><b>${esc(EMISSOR.organizacao)}</b> · ${esc(EMISSOR.curso)} · <a href="#/novidades">Versão ${esc(VERSAO)} · Novidades</a></p>
-        <p><a href="#/validar">Validar certificado</a> · <a href="#/termos">Termos de uso</a> · <a href="#/privacidade">Privacidade e cookies</a> · <a href="#/licenca">Licença (AGPL-3.0 e CC BY-SA 4.0)</a> · <a href="${REPOSITORIO}" target="_blank" rel="noopener noreferrer">Código no GitHub</a></p>
+        <p><a href="#/instrutor">Quem é o instrutor?</a> · <a href="#/apoie">☕ Apoie o projeto</a> · <a href="#/validar">Validar certificado</a> · <a href="#/termos">Termos de uso</a> · <a href="#/privacidade">Privacidade e cookies</a> · <a href="#/licenca">Licença (AGPL-3.0 e CC BY-SA 4.0)</a> · <a href="${REPOSITORIO}" target="_blank" rel="noopener noreferrer">Código no GitHub</a></p>
       </footer>
     </div>`;
 }

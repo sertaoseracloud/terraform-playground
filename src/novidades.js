@@ -10,6 +10,36 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.4.0',
+    data: '2026-10-12',
+    titulo: 'Quem é o instrutor e apoio ao projeto',
+    resumo: 'Nova página sobre o instrutor, Cláudio Filipe Lima Rapôso, e um jeito simples de apoiar o projeto com PIX.',
+    grupos: [
+      {
+        titulo: '👨‍🏫 Quem é o instrutor?',
+        itens: [
+          'Página com a foto, a atuação, os reconhecimentos (Microsoft MVP, Docker Captain e AWS Golden Jacket), as certificações e a formação do instrutor.',
+          'Seção na página inicial e link no menu e no rodapé.',
+        ],
+      },
+      {
+        titulo: '☕ Apoie o projeto',
+        itens: [
+          'Apoio com um PIX de qualquer valor, por QR Code ou pelo código copia e cola (com botão de copiar).',
+          'O apoio é voluntário e não muda nada no acesso ao site nem nos certificados.',
+        ],
+      },
+      {
+        titulo: '🔧 Por dentro',
+        itens: [
+          'A lista de novidades é lida do projeto certo, de onde quer que o site seja gerado.',
+          'Publicação atualizada para as versões atuais das ferramentas do GitHub.',
+          'Mais testes protegendo os projetos em etapas e os casos ocultos.',
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.3.0',
     data: '2026-10-12',
     titulo: 'Testes mais detalhados',

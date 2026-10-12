@@ -4,14 +4,18 @@
 // a lista sai vazia e a página mostra só o resumo das versões.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const ID = 'virtual:historico';
 const RESOLVIDO = `\0${ID}`;
 const SEP = '\u001f';
+/** Raiz do projeto: o git roda aqui, de onde quer que o Vite tenha sido chamado. */
+const RAIZ = fileURLToPath(new URL('..', import.meta.url));
 
-export function lerHistorico(cwd = process.cwd()) {
+export function lerHistorico(cwd = RAIZ) {
   try {
-    const saida = execFileSync('git', ['log', `--format=%h${SEP}%ad${SEP}%s`, '--date=short'], { cwd, encoding: 'utf8' });
+    // stderr ignorado: sem git, a lista só sai vazia (sem "fatal: not a git repository" no console).
+    const saida = execFileSync('git', ['log', `--format=%h${SEP}%ad${SEP}%s`, '--date=short'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
     return saida.trim().split('\n').filter(Boolean).map((linha) => {
       const [hash, data, titulo] = linha.split(SEP);
       return { hash, data, titulo };

@@ -39,6 +39,13 @@ O site é estático e fica no GitHub Pages.
 
 - **Como no LeetCode**: **▶ Plan** roda os casos visíveis; **⬆ Enviar** roda todos, inclusive os
   **casos ocultos** (outras variáveis, outro workspace, apply). Resposta fixa no código não passa.
+- **👨‍🏫 Quem é o instrutor?** (`#/instrutor` e seção na landing): perfil de Cláudio Filipe Lima Rapôso
+  (atuação, reconhecimentos, certificações e formação), com a foto servida pelo próprio site
+  (`public/instrutor.webp`). Os dados ficam em `src/instrutor.js`, sem telefone nem endereço.
+- **☕ Apoie o projeto** (`#/apoie`): PIX de qualquer valor para a conta PicPay do instrutor, por **QR Code**
+  ou **copia e cola** (com botão de copiar). O código segue o BR Code do Banco Central (campos EMV e
+  CRC16) e é montado no navegador por `src/apoio.js`; o QR Code sai da biblioteca `qrcode-generator` (MIT).
+  A chave fica em `PIX.chave`: sem ela, o apoio aparece como "em breve".
 - **Casos de teste detalhados** (aba 🧪 Testes): cada caso mostra o **cenário** como linha de comando
   (`terraform apply -var='zonas=[...]'`, `workspace select`, estado já aplicado antes), o placar e o tempo;
   cada verificação mostra a **categoria** (Recurso, Output, Plano...), o valor **obtido** (inclusive de onde

@@ -2,7 +2,7 @@
 // testes (inclusive os ocultos), o código inicial falha em algum caso visível e as
 // lições rodam sem erro.
 import { describe, it, expect } from 'vitest';
-import { modulos, itens, problemas, LIVRE } from '../src/conteudo/trilha.js';
+import { modulos, itens, problemas, LIVRE, buscarItem } from '../src/conteudo/trilha.js';
 import { corrigir } from '../src/corrigir.js';
 import { executarTerraform } from '../src/tf/motor.js';
 
@@ -23,6 +23,41 @@ describe('estrutura da trilha', () => {
     expect(p.dica).toBeTruthy();
     expect(Object.keys(p.arquivos).length).toBeGreaterThan(0);
     expect(p.testes.some((t) => !t.oculto)).toBe(true);
+  });
+});
+
+describe('projetos em etapas', () => {
+  const etapas = problemas.filter((p) => p.projeto);
+
+  it('são 8 projetos de 5 etapas', () => {
+    expect(new Set(etapas.map((e) => e.projeto.id)).size).toBe(8);
+    expect(etapas).toHaveLength(40);
+  });
+
+  it('cada etapa parte da solução da etapa anterior', () => {
+    for (const etapa of etapas.filter((e) => e.etapaAnterior)) {
+      const anterior = problemas.find((p) => p.id === etapa.etapaAnterior);
+      expect(etapa.arquivos, etapa.id).toEqual(anterior.solucao);
+    }
+  });
+});
+
+describe('casos ocultos', () => {
+  it('ficam de fora quando incluirOcultos é false', async () => {
+    const p = buscarItem('az-grupo-variaveis');
+    const visiveis = await corrigir(p, p.solucao, { incluirOcultos: false });
+    expect(visiveis.relatorio.every((t) => !t.oculto)).toBe(true);
+    const todos = await corrigir(p, p.solucao);
+    expect(todos.relatorio.some((t) => t.oculto)).toBe(true);
+  });
+
+  it('reprovam quem escreve o valor fixo em vez de usar a variável', async () => {
+    const p = buscarItem('az-grupo-variaveis');
+    const fixo = { 'main.tf': p.solucao['main.tf'].replace('location = var.local', 'location = "brazilsouth"') };
+    expect(fixo['main.tf']).not.toBe(p.solucao['main.tf']);
+    const { relatorio } = await corrigir(p, fixo);
+    expect(relatorio.filter((t) => !t.oculto).every((t) => t.ok)).toBe(true);
+    expect(relatorio.find((t) => t.oculto).ok).toBe(false);
   });
 });
 

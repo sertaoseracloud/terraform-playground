@@ -16,6 +16,7 @@ import { renderLanding } from './ui/landing.js';
 import { renderValidador } from './ui/validador.js';
 import { renderLicenca, renderTermos } from './ui/paginas-legais.js';
 import { renderNovidades } from './ui/novidades.js';
+import { renderInstrutor } from './ui/instrutor.js';
 import { VERSAO } from './novidades.js';
 import { VERSAO_TERRAFORM } from './tf/esquema/index.js';
 import { iniciarMenu, iniciarFlutuantes } from './ui/menu.js';
@@ -44,6 +45,7 @@ const telaValidador = $('tela-validador');
 const telaLicenca = $('tela-licenca');
 const telaTermos = $('tela-termos');
 const telaNovidades = $('tela-novidades');
+const telaInstrutor = $('tela-instrutor');
 
 function mostrarTela(tela) {
   telaInicio.hidden = tela !== telaInicio;
@@ -55,6 +57,7 @@ function mostrarTela(tela) {
   telaLicenca.hidden = tela !== telaLicenca;
   telaTermos.hidden = tela !== telaTermos;
   telaNovidades.hidden = tela !== telaNovidades;
+  telaInstrutor.hidden = tela !== telaInstrutor;
 }
 
 const definirStatus = (texto) => { $('status').textContent = texto; };
@@ -124,6 +127,17 @@ function navegar() {
       descricao: `Confira se um certificado ou badge do ${NOME}, emitido pela Sertão será cloud, é autêntico.`,
     });
     telaValidador.scrollTop = 0;
+    return;
+  }
+  if (rota.tela === 'instrutor') {
+    telaInstrutor.scrollTop = 0;
+    mostrarTela(telaInstrutor);
+    renderInstrutor(telaInstrutor, { ancora: rota.ancora });
+    marcarMenu('instrutor');
+    definirPagina({
+      titulo: `${rota.ancora === 'apoie' ? 'Apoie o projeto' : 'Quem é o instrutor?'} · ${NOME}`,
+      descricao: 'Cláudio Filipe Lima Rapôso: arquiteto de soluções, Microsoft MVP, Docker Captain e professor. Apoie o projeto com um PIX de qualquer valor.',
+    });
     return;
   }
   if (rota.tela === 'novidades') {
