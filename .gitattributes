@@ -1,0 +1,4 @@
+# Finais de linha LF no repositório (o .editorconfig pede o mesmo).
+* text=auto eol=lf
+*.png binary
+*.wasm binary

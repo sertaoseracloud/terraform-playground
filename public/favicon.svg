@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#282a36"/>
+  <rect x="24" y="24" width="464" height="464" rx="92" fill="none" stroke="#bd93f9" stroke-width="20"/>
+  <text x="256" y="300" text-anchor="middle" font-family="'Fira Code', Consolas, 'DejaVu Sans Mono', monospace" font-size="210" font-weight="700" fill="#bd93f9">tf</text>
+  <text x="256" y="405" text-anchor="middle" font-family="'Fira Code', Consolas, 'DejaVu Sans Mono', monospace" font-size="78" font-weight="700" fill="#50fa7b">{ }</text>
+</svg>

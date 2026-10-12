@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="dracula">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#21222c">
+  <!-- seo:inicio -->
+  <!-- No build, este bloco é trocado pelas meta tags de src/seo.js (scripts/prerender.mjs). -->
+  <title>Terraform Playground: aprenda Terraform, AWS e Azure no navegador</title>
+  <meta name="description" content="Aprenda Terraform do zero, grátis e sem conta na nuvem: exercícios de HCL, AWS, Azure e projetos corrigidos na hora, com certificados.">
+  <!-- seo:fim -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="icone-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- Link direto para uma tela interna (#/trilha, #/p/...): esconde a landing pré-renderizada até o JS assumir. -->
+  <script>if (/^#\/./.test(location.hash)) document.documentElement.classList.add('rota-interna');</script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <noscript><p class="sem-js">O Terraform Playground simula o Terraform no seu navegador e precisa de JavaScript ativado.</p></noscript>
+
+  <header class="topo">
+    <a href="#/" class="marca"><span aria-hidden="true">🏗️</span> Terraform Playground</a>
+    <!-- No celular, a navegação fica no painel do botão ☰; no desktop, em linha. Ajuda e preferências ficam nos botões flutuantes. -->
+    <button type="button" id="btn-menu" class="btn-menu" aria-expanded="false" aria-controls="menu-topo" aria-label="Abrir menu">
+      <span aria-hidden="true">☰</span>
+    </button>
+    <div id="menu-topo" class="menu-topo">
+      <nav class="menu" aria-label="Principal">
+        <a href="#/trilha" data-menu="inicio">🗺️ Trilha</a>
+        <a href="#/livre" data-menu="livre">🧪 Playground livre</a>
+        <a href="#/validar" data-menu="validar">🔎 Validar certificado</a>
+      </nav>
+    </div>
+    <span id="progresso-topo" class="progresso-topo"></span>
+    <span id="status" class="status" role="status">Carregando…</span>
+  </header>
+
+  <div id="conteudo" class="conteudo" tabindex="-1">
+    <main id="tela-landing" class="tela-landing"></main>
+    <main id="tela-inicio" class="tela-inicio" hidden></main>
+    <main id="tela-certificado" class="tela-certificado" hidden></main>
+    <main id="tela-privacidade" class="tela-privacidade" hidden></main>
+    <main id="tela-validador" class="tela-privacidade" hidden></main>
+    <main id="tela-licenca" class="tela-privacidade" hidden></main>
+    <main id="tela-termos" class="tela-privacidade" hidden></main>
+    <main id="tela-novidades" class="tela-privacidade" hidden></main>
+
+    <main id="tela-item" class="tela-item" hidden>
+      <div class="barra-item">
+        <a id="item-anterior" class="btn-icone" aria-label="Item anterior">‹</a>
+        <a id="item-proximo" class="btn-icone" aria-label="Próximo item">›</a>
+        <div class="titulo-item">
+          <span id="item-modulo" class="chip"></span>
+          <h1 id="item-titulo"></h1>
+          <span id="item-dificuldade"></span>
+          <span id="item-status"></span>
+        </div>
+        <div class="acoes">
+          <button id="btn-executar" class="btn btn-roxo" title="terraform plan: mostra o que vai mudar e roda os testes visíveis (Ctrl+Enter)" aria-keyshortcuts="Control+Enter" disabled>▶ Plan</button>
+          <button id="btn-apply" class="btn btn-ciano" title="terraform apply: cria ou altera os recursos no estado simulado"><span aria-hidden="true">✔</span><span class="rotulo-btn"> Apply</span></button>
+          <button id="btn-destroy" class="btn btn-fantasma btn-perigo" title="terraform destroy: apaga tudo o que está no estado simulado"><span aria-hidden="true">🗑</span><span class="rotulo-btn"> Destroy</span></button>
+          <button id="btn-enviar" class="btn btn-verde" title="Rodar todos os casos de teste, inclusive os ocultos (Ctrl+Shift+Enter)" aria-keyshortcuts="Control+Shift+Enter" disabled>⬆ Enviar</button>
+          <button id="btn-resetar-estado" class="btn btn-fantasma" title="Apagar o estado simulado (como se nada tivesse sido criado)" aria-label="Limpar estado"><span aria-hidden="true">⟲</span><span class="rotulo-btn" aria-hidden="true"> Limpar estado</span></button>
+          <button id="btn-restaurar" class="btn btn-fantasma" title="Voltar ao código original" aria-label="Restaurar código original"><span aria-hidden="true">↺</span><span class="rotulo-btn" aria-hidden="true"> Restaurar</span></button>
+          <button id="btn-compartilhar" class="btn btn-fantasma" title="Copiar link com o seu código" aria-label="Compartilhar link com o seu código"><span aria-hidden="true">🔗</span><span class="rotulo-btn" aria-hidden="true"> Compartilhar</span></button>
+        </div>
+        <div class="grupo-layout" id="grupo-layout" role="group" aria-label="Posição do código e do terminal">
+          <button class="btn-layout" data-layout="auto" title="Automático: lado a lado só quando o terminal cabe com folga">Auto</button>
+          <button class="btn-layout" data-layout="lado" title="Código e terminal lado a lado" aria-label="Lado a lado">⇆</button>
+          <button class="btn-layout" data-layout="empilhado" title="Código em cima, terminal embaixo" aria-label="Empilhado">⇅</button>
+          <button class="btn-layout" id="btn-descricao" title="Mostrar ou ocultar a descrição" aria-label="Mostrar descrição">📄</button>
+        </div>
+      </div>
+
+      <div class="area" id="area">
+        <section class="painel painel-descricao" id="painel-descricao" aria-label="Descrição">
+          <div class="abas">
+            <div class="abas-grupo" role="tablist" aria-label="Descrição">
+            <button class="aba ativa" data-desc="enunciado" role="tab" aria-selected="true">Descrição</button>
+            <button class="aba" data-desc="docs" id="aba-docs" role="tab" aria-selected="false" title="Documentação dos recursos usados aqui">📘 Docs</button>
+            <button class="aba" data-desc="solucao" id="aba-solucao" role="tab" aria-selected="false">Solução</button>
+            <button class="aba" data-desc="testes" id="aba-testes" role="tab" aria-selected="false" aria-controls="desc-testes">
+              🧪 Testes <span id="resumo-testes" class="resumo-testes" aria-live="polite"></span></button>
+            </div>
+            <button class="aba aba-direita" id="btn-ouvir" title="Ouvir: ler a descrição em voz alta" aria-label="Ouvir a descrição em voz alta" aria-pressed="false">🔊</button>
+          </div>
+          <div class="conteudo-desc" id="desc-enunciado" role="tabpanel"></div>
+          <div class="conteudo-desc" id="desc-docs" role="tabpanel" hidden></div>
+          <div class="conteudo-desc" id="desc-solucao" role="tabpanel" hidden></div>
+          <div class="conteudo-desc" id="desc-testes" role="tabpanel" aria-label="Testes funcionais" hidden>
+            <div id="saida-testes" class="saida testes"></div>
+          </div>
+        </section>
+
+        <section class="painel painel-codigo" aria-label="Código">
+          <div class="abas" id="abas-arquivos" role="toolbar" aria-label="Arquivos"></div>
+          <div id="editor" class="editor"></div>
+        </section>
+
+        <div class="divisor" id="divisor" role="separator" tabindex="0" aria-label="Redimensionar código e terminal"
+             aria-valuemin="20" aria-valuemax="80" aria-valuenow="50"></div>
+
+        <section class="painel painel-preview" aria-label="Saída do Terraform">
+          <div class="abas">
+            <div class="abas-grupo" role="tablist" aria-label="Saída">
+              <button class="aba ativa" data-saida="terminal" role="tab" aria-selected="true">🖥️ Terminal</button>
+              <button class="aba" data-saida="grafo" role="tab" aria-selected="false" title="Quem depende de quem">🕸️ Grafo</button>
+              <button class="aba" data-saida="estado" role="tab" aria-selected="false" title="terraform.tfstate simulado">📦 Estado <span id="contador-estado" class="contador"></span></button>
+              <button class="aba" data-saida="saidas" role="tab" aria-selected="false">📤 Outputs</button>
+            </div>
+            <label class="seletor-workspace" title="terraform workspace select">
+              <span aria-hidden="true">🗂</span><span class="sr">Workspace</span>
+              <select id="workspace">
+                <option value="default">default</option>
+                <option value="dev">dev</option>
+                <option value="homolog">homolog</option>
+                <option value="prod">prod</option>
+              </select>
+            </label>
+          </div>
+          <pre id="saida-terminal" class="terminal" tabindex="0" aria-label="Saída do terminal" aria-live="polite"></pre>
+          <div id="saida-grafo" class="saida grafo" hidden tabindex="0"></div>
+          <div id="saida-estado" class="saida estado" hidden tabindex="0"></div>
+          <div id="saida-saidas" class="saida saidas" hidden tabindex="0"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Tutorial (passo a passo em modal) -->
+  <dialog id="tutorial" class="dialogo tutorial" aria-labelledby="tutorial-titulo" aria-describedby="tutorial-texto">
+    <p class="tutorial-passo" id="tutorial-passo"></p>
+    <h2 id="tutorial-titulo"></h2>
+    <div id="tutorial-texto" class="tutorial-texto"></div>
+    <div class="tutorial-pontos" id="tutorial-pontos" aria-hidden="true"></div>
+    <div class="tutorial-botoes">
+      <button class="btn btn-fantasma btn-pequeno" id="tutorial-pular">Pular tutorial</button>
+      <span class="espaco"></span>
+      <button class="btn btn-fantasma" id="tutorial-voltar">‹ Voltar</button>
+      <button class="btn btn-roxo" id="tutorial-avancar">Próximo ›</button>
+    </div>
+  </dialog>
+
+  <!-- Nome que aparece nos certificados -->
+  <dialog id="dialogo-nome" class="dialogo" aria-labelledby="nome-titulo">
+    <form method="dialog">
+      <h2 id="nome-titulo">🎓 Seu nome no certificado</h2>
+      <p>Digite seu nome do jeito que deve aparecer nos certificados.</p>
+      <p class="nota-nome">🔒 O nome fica salvo só neste navegador e vai dentro do link do certificado:
+        quem tiver o link vê o nome. Se você for menor de idade, use só o primeiro nome.
+        <a href="#/privacidade" target="_blank" rel="noopener">Privacidade</a></p>
+      <label for="campo-nome" class="sr">Nome completo</label>
+      <input id="campo-nome" class="campo-texto" maxlength="80" autocomplete="name" placeholder="Nome completo" required>
+      <div class="dialogo-rodape">
+        <!-- type="button": o Enter no campo tem que acionar o Salvar, não o Cancelar -->
+        <button type="button" class="btn btn-fantasma" id="btn-cancelar-nome">Cancelar</button>
+        <button class="btn btn-roxo" value="salvar">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Ferramentas de acessibilidade -->
+  <dialog id="dialogo-a11y" class="dialogo" aria-labelledby="a11y-titulo">
+    <form method="dialog" class="form-a11y" id="form-a11y">
+      <div class="dialogo-cabecalho">
+        <h2 id="a11y-titulo">♿ Acessibilidade</h2>
+        <button class="btn btn-fantasma btn-pequeno" value="fechar" aria-label="Fechar">✕</button>
+      </div>
+
+      <fieldset>
+        <legend>Perfis rápidos</legend>
+        <p class="a11y-ajuda">Cada perfil liga um conjunto de opções. Combine quantos quiser e ajuste abaixo.</p>
+        <div id="a11y-perfis" class="perfis"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tema de cores</legend>
+        <div id="a11y-temas" class="opcoes-tema"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tamanho do texto</legend>
+        <div class="controle-tamanho">
+          <button type="button" class="btn" id="a11y-menor" aria-label="Diminuir texto">A−</button>
+          <output id="a11y-tamanho" aria-live="polite">100%</output>
+          <button type="button" class="btn" id="a11y-maior" aria-label="Aumentar texto">A+</button>
+        </div>
+      </fieldset>
+
+      <div id="a11y-opcoes"></div>
+
+      <details class="atalhos">
+        <summary>⌨️ Atalhos de teclado</summary>
+        <dl>
+          <dt><kbd>Ctrl</kbd> + <kbd>Enter</kbd></dt><dd>Executar</dd>
+          <dt><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd></dt><dd>Enviar (todos os testes)</dd>
+          <dt><kbd>Tab</kbd></dt><dd>Ir para a próxima área (o editor não prende o Tab)</dd>
+          <dt><kbd>←</kbd> <kbd>→</kbd> no divisor</dt><dd>Redimensionar código e preview</dd>
+          <dt><kbd>Esc</kbd></dt><dd>Fechar janelas como esta</dd>
+        </dl>
+      </details>
+
+      <div class="dialogo-rodape">
+        <button type="button" class="btn btn-fantasma" id="a11y-padrao">Restaurar padrão</button>
+        <button class="btn btn-roxo" value="fechar">Pronto</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Botões flutuantes (canto inferior direito): ajuda e preferências, em qualquer tela -->
+  <aside class="flutuantes" id="flutuantes" aria-label="Ajuda e preferências">
+    <button type="button" id="btn-tutorial" class="flutuante" aria-haspopup="dialog" aria-label="Tutorial" data-rotulo="Tutorial">
+      <span aria-hidden="true">❓</span></button>
+    <button type="button" id="btn-acessibilidade" class="flutuante" aria-haspopup="dialog" aria-label="Acessibilidade" data-rotulo="Acessibilidade">
+      <span aria-hidden="true">♿</span></button>
+    <a href="#/privacidade" class="flutuante" data-menu="privacidade" aria-label="Privacidade e cookies" data-rotulo="Privacidade e cookies">
+      <span aria-hidden="true">🔒</span></a>
+  </aside>
+
+  <!-- Régua de leitura (opção do painel de acessibilidade) -->
+  <div id="regua-leitura" class="regua-leitura" aria-hidden="true"></div>
+  <!-- Aviso de privacidade (primeira visita) -->
+  <div id="aviso-privacidade" class="aviso-privacidade" role="region" aria-label="Aviso de privacidade" hidden></div>
+  <!-- Lembrete de pausa -->
+  <div id="lembrete-pausa" class="lembrete-pausa" role="status" hidden></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
