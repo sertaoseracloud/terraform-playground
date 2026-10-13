@@ -1,9 +1,8 @@
 // Página "Novidades" (#/novidades): versão atual, resumo de cada release e o
 // histórico completo de alterações, agrupado por dia.
 import { VERSAO, RELEASES, HISTORICO, REPOSITORIO } from '../novidades.js';
-import { esc } from './util.js';
+import { esc, dataPorExtenso } from './util.js';
 
-const dataPorExtenso = (data) => new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 
 /** Histórico agrupado por dia, do mais recente para o mais antigo. */
 export function historicoPorDia(lista = HISTORICO) {

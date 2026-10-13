@@ -10,6 +10,47 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.5.0',
+    data: '2026-10-13',
+    titulo: 'Agora é DivergeTerraform: acessível para todas as pessoas',
+    resumo: 'Novo nome e uma plataforma feita para pessoas cegas, surdas, mudas e neurodivergentes.',
+    grupos: [
+      {
+        titulo: '🦯 Pessoas cegas (leitor de tela)',
+        itens: [
+          'O leitor de tela fala o resultado de cada execução e de cada envio: quantos casos passaram, qual falhou, o motivo e a dica.',
+          'O terminal não é mais lido letra por letra, e as execuções automáticas não interrompem o leitor.',
+          'Ao trocar de página, o foco vai para o título; o editor anuncia os atalhos de teclado.',
+          'Novo perfil 🦯 Leitor de tela no painel ♿: terminal sem animação e todas as falhas faladas.',
+          'Corrigido: o link "Pular para o conteúdo" levava para a página inicial.',
+        ],
+      },
+      {
+        titulo: '🤟 Pessoas surdas e mudas',
+        itens: [
+          'Novo perfil 🤟 Libras: tradução com o VLibras, do Governo Federal, carregado só quando você liga.',
+          'Nada no site depende de som ou de voz.',
+        ],
+      },
+      {
+        titulo: '♿ Página de acessibilidade e design',
+        itens: [
+          'Nova página Acessibilidade com os recursos para cada público, os atalhos de teclado e como relatar uma barreira.',
+          'O tema segue o modo claro e o contraste alto do sistema; botões, títulos e textos pequenos ajustados para a WCAG 2.2 AA.',
+          'Telas conferidas com o axe-core nos quatro temas, também nos testes automáticos.',
+        ],
+      },
+      {
+        titulo: '🔧 Por dentro',
+        itens: [
+          'Novo nome (DivergeTerraform) e busca do Google focada em acessibilidade, com dados de acessibilidade do schema.org.',
+          'Os endereços, o progresso salvo e os certificados já emitidos continuam valendo.',
+          'Mais testes, código repetido centralizado e dependências atualizadas.',
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.4.0',
     data: '2026-10-12',
     titulo: 'Quem é o instrutor e apoio ao projeto',

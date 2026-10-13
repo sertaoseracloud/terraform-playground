@@ -7,7 +7,7 @@
 import { SITE, EMISSOR, CERTIFICADOS } from './certificados.js';
 import { modulos, problemas, itens } from './conteudo/trilha.js';
 
-export const NOME = 'Terraform Playground';
+export const NOME = 'DivergeTerraform';
 export const IMAGEM = `${SITE}og-capa.png`;
 export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playground';
 
@@ -15,13 +15,36 @@ const totalLicoes = itens.filter((i) => i.tipo === 'licao').length;
 
 /** Título e descrição da página principal (buscadores e redes sociais). */
 export const PRINCIPAL = {
-  titulo: `${NOME}: Terraform, AWS e Azure no navegador`,
+  titulo: `${NOME}: Terraform acessível para todas as pessoas`,
   // Até ~155 caracteres, para não ser cortada no Google.
-  descricao: `Aprenda Terraform do zero, grátis e sem conta na nuvem: ${problemas.length} exercícios de HCL, AWS, `
-    + 'Azure e projetos, corrigidos na hora, com certificados.',
+  descricao: `Aprenda Terraform grátis com acessibilidade: leitor de tela, Libras, teclado e perfis para TDAH e dislexia. `
+    + `${problemas.length} exercícios de AWS e Azure com certificado.`,
 };
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+
+/**
+ * Acessibilidade da plataforma no vocabulário do schema.org (o mesmo que buscadores e
+ * catálogos de recursos educacionais acessíveis leem). Só o que o site faz de verdade:
+ * veja a página #/acessibilidade e tests/acessibilidade-telas.test.js.
+ */
+export const ACESSIBILIDADE = {
+  accessMode: ['textual', 'visual'],
+  accessModeSufficient: [
+    { '@type': 'ItemList', itemListElement: ['textual'], description: 'Todo o conteúdo funciona só com texto, com leitor de tela ou linha braille.' },
+    { '@type': 'ItemList', itemListElement: ['visual'], description: 'Nada depende de som: todo aviso aparece escrito na tela.' },
+  ],
+  accessibilityFeature: [
+    'alternativeText', 'longDescription', 'ARIA', 'structuralNavigation', 'readingOrder',
+    'highContrastDisplay', 'largePrint', 'displayTransformability', 'signLanguage', 'ttsMarkup',
+  ],
+  accessibilityControl: ['fullKeyboardControl', 'fullMouseControl', 'fullTouchControl'],
+  accessibilityHazard: ['noFlashingHazard', 'noMotionSimulationHazard', 'noSoundHazard'],
+  accessibilityAPI: ['ARIA'],
+  accessibilitySummary: 'Plataforma feita para pessoas cegas, surdas, mudas e neurodivergentes: '
+    + 'resultados falados pelo leitor de tela, navegação completa pelo teclado, tradução para Libras com o VLibras, '
+    + 'temas de alto contraste, texto até 175% e perfis para TDAH, dislexia, autismo e ansiedade. Meta: WCAG 2.2 nível AA.',
+};
 
 /** Dados estruturados schema.org: organização, site e curso. */
 export function dadosEstruturados() {
@@ -44,17 +67,19 @@ export function dadosEstruturados() {
         description: PRINCIPAL.descricao,
         inLanguage: 'pt-BR',
         publisher: { '@id': `${SITE}#organizacao` },
+        ...ACESSIBILIDADE,
       },
       {
         '@type': 'Course',
         '@id': `${SITE}#curso`,
         name: EMISSOR.curso,
-        description: `Trilha gamificada com ${totalLicoes} lições, ${problemas.length} exercícios corrigidos por testes `
+        description: `Trilha gamificada e acessível com ${totalLicoes} lições, ${problemas.length} exercícios corrigidos por testes `
           + `automáticos e ${modulos.find((m) => m.grupos)?.grupos.length ?? 0} projetos completos: Terraform do básico à AWS e ao Azure.`,
         url: SITE,
         image: IMAGEM,
         inLanguage: 'pt-BR',
         isAccessibleForFree: true,
+        ...ACESSIBILIDADE,
         license: 'https://creativecommons.org/licenses/by-sa/4.0/',
         educationalLevel: 'Iniciante',
         teaches: Object.values(CERTIFICADOS).filter((c) => c !== CERTIFICADOS.final).map((c) => c.titulo),
@@ -89,7 +114,7 @@ export function metaTags() {
     `<meta property="og:image" content="${IMAGEM}">`,
     '<meta property="og:image:width" content="1200">',
     '<meta property="og:image:height" content="630">',
-    `<meta property="og:image:alt" content="${esc(`${NOME}: Terraform, AWS e Azure no navegador`)}">`,
+    `<meta property="og:image:alt" content="${esc(`${NOME}: Terraform acessível, com leitor de tela, Libras e perfis para neurodivergentes`)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
     `<meta name="twitter:title" content="${esc(titulo)}">`,
     `<meta name="twitter:description" content="${esc(descricao)}">`,

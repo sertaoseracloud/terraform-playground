@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { PRINCIPAL, metaTags, dadosEstruturados, sitemap, IMAGEM } from '../src/seo.js';
+import { PRINCIPAL, metaTags, dadosEstruturados, sitemap, IMAGEM, NOME } from '../src/seo.js';
 import { prerender } from '../scripts/prerender.mjs';
 import { SITE } from '../src/certificados.js';
 import { problemas } from '../src/conteudo/trilha.js';
@@ -56,6 +56,29 @@ describe('SEO', () => {
     expect(landing).toContain('Aprenda');
     expect((landing.match(/<h1/g) ?? []).length).toBe(1);
     expect(landing).toContain('href="#/trilha"');
+  });
+
+  it('o nome é DivergeTerraform e o título e a descrição falam de acessibilidade', () => {
+    expect(NOME).toBe('DivergeTerraform');
+    expect(PRINCIPAL.titulo).toMatch(/acessíve(l|is) para todas as pessoas/);
+    expect(PRINCIPAL.descricao).toMatch(/acessibilidade: leitor de tela, Libras, teclado/);
+    expect(metaTags()).toContain(`<meta property="og:site_name" content="DivergeTerraform">`);
+  });
+
+  it('dados estruturados de acessibilidade (schema.org) no site e no curso', () => {
+    const [, site, curso] = dadosEstruturados()['@graph'];
+    for (const no of [site, curso]) {
+      expect(no.accessibilityFeature).toEqual(expect.arrayContaining(['signLanguage', 'ARIA', 'highContrastDisplay', 'structuralNavigation']));
+      expect(no.accessibilityControl).toContain('fullKeyboardControl');
+      expect(no.accessibilityHazard).toEqual(['noFlashingHazard', 'noMotionSimulationHazard', 'noSoundHazard']);
+      expect(no.accessibilitySummary).toMatch(/cegas, surdas, mudas e neurodivergentes/);
+    }
+  });
+
+  it('a página inicial já abre falando de acessibilidade (h1 e selos)', () => {
+    const landing = prerender(html).match(/<main id="tela-landing"[^>]*>([\s\S]*?)<\/main>/)[1];
+    expect(landing).toMatch(/<h1[^>]*>Aprenda .* com acessibilidade para todas as pessoas<\/h1>/);
+    expect(landing).toContain('Leitor de tela · 🤟 Libras');
   });
 
   it('sitemap com a página principal', () => {

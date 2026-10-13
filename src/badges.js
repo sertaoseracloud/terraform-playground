@@ -53,7 +53,7 @@ function desenhoBadge(modulo, prefixo) {
   <polygon points="560,370 510,370 510,450 560,450 538,410" fill="${cor}" opacity="0.7"/>
   <rect x="70" y="358" width="460" height="80" rx="6" fill="${cor}"/>
   <text x="300" y="${398 + tamanhoFaixa * 0.35}" text-anchor="middle" font-family="${SANS}" font-size="${tamanhoFaixa}" font-weight="800" letter-spacing="2" fill="#21222c">${escXml(faixa)}</text>
-  <text x="300" y="490" text-anchor="middle" font-family="${SANS}" font-size="18" font-weight="600" letter-spacing="2" fill="#f8f8f2" opacity="0.8">TERRAFORM PLAYGROUND</text>`;
+  <text x="300" y="490" text-anchor="middle" font-family="${SANS}" font-size="18" font-weight="600" letter-spacing="2" fill="#f8f8f2" opacity="0.8">DIVERGETERRAFORM</text>`;
 }
 
 // Ids únicos por desenho: o mesmo badge pode aparecer duas vezes na página e
@@ -132,11 +132,11 @@ export function svgCapa({ exercicios, projetos }) {
   <rect width="1200" height="630" fill="url(#capa-luz)"/>
   <rect width="1200" height="10" fill="#bd93f9"/>
   <text x="70" y="120" font-family="${SANS}" font-size="26" font-weight="700" letter-spacing="5" fill="#8be9fd">${escXml(EMISSOR.organizacao.toUpperCase())}</text>
-  <text x="70" y="215" font-family="${SANS}" font-size="58" font-weight="800" fill="#f8f8f2">Terraform <tspan fill="#bd93f9">Playground</tspan></text>
-  <text x="70" y="285" font-family="${SANS}" font-size="36" fill="#f8f8f2">Aprenda Terraform, AWS e Azure</text>
-  <text x="70" y="333" font-family="${SANS}" font-size="36" fill="#f8f8f2">direto no navegador.</text>
+  <text x="70" y="215" font-family="${SANS}" font-size="58" font-weight="800" fill="#f8f8f2">Diverge<tspan fill="#bd93f9">Terraform</tspan></text>
+  <text x="70" y="285" font-family="${SANS}" font-size="36" fill="#f8f8f2">Aprenda Terraform, AWS e Azure com</text>
+  <text x="70" y="333" font-family="${SANS}" font-size="36" fill="#f8f8f2">acessibilidade para todas as pessoas.</text>
   <text x="70" y="420" font-family="${SANS}" font-size="28" fill="#50fa7b" font-weight="700">${exercicios} exercícios · ${projetos} projetos · certificados</text>
-  <text x="70" y="468" font-family="${SANS}" font-size="26" fill="#9e9bb8">Grátis, sem conta na nuvem e sem cadastro.</text>
+  <text x="70" y="468" font-family="${SANS}" font-size="26" fill="#9e9bb8">Leitor de tela, Libras, teclado e perfis para TDAH.</text>
   <rect x="70" y="510" width="330" height="62" rx="12" fill="#50fa7b"/>
   <text x="235" y="551" text-anchor="middle" font-family="${SANS}" font-size="28" font-weight="800" fill="#21222c">Começar a trilha</text>
   ${badge('basico', 760, 70, 230)}

@@ -44,6 +44,12 @@ export const TERCEIROS = [
     link: 'https://br.linkedin.com/legal/privacy-policy',
   },
   {
+    nome: 'VLibras (Governo Federal)',
+    quando: 'Só se você ligar "Tradução para Libras" no painel ♿ Acessibilidade.',
+    dados: 'O navegador baixa o tradutor do servidor do VLibras, que recebe o endereço IP e o texto que você pede para traduzir. Vale a política do gov.br.',
+    link: 'https://www.gov.br/governodigital/pt-br/acessibilidade-e-usuario/vlibras',
+  },
+  {
     nome: 'Voz do navegador (🔊 Ouvir)',
     quando: 'Só se você clicar em "Ouvir".',
     dados: 'O navegador lê o enunciado em voz alta. Algumas vozes (como as "online" do Chrome e do Edge) enviam o texto ao serviço do navegador.',

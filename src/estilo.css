@@ -44,6 +44,8 @@
   --amarelo: #ffff00;
   --sobre-cor: #000;
   --foco: #ffff00;
+  --fundo-botao: #000;
+  --borda-botao: #fff;
   color-scheme: dark;
 }
 
@@ -190,6 +192,8 @@ li.tarefa.feita > label > span { opacity: 0.6; }
 /* Só para leitores de tela: some da tela, mas continua sendo lido. */
 .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 [hidden] { display: none !important; }
+/* Alvo mínimo de 24px para abrir e fechar detalhes (WCAG 2.5.8). */
+summary { min-height: 24px; }
 
 html, body { height: 100%; margin: 0; }
 
@@ -244,6 +248,8 @@ kbd {
 
 .conteudo { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .conteudo:focus { outline: none; }
+/* Títulos recebem foco ao trocar de página (para o leitor de tela); não são clicáveis. */
+h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 
 /* ---------- topo ---------- */
 .topo {
@@ -318,11 +324,12 @@ kbd {
 /* ---------- botões e chips ---------- */
 .btn {
   font: inherit;
-  border: 1px solid transparent;
+  /* Botão sem cor: fundo e borda vêm do tema (no alto contraste, preto com borda branca). */
+  border: 1px solid var(--borda-botao, transparent);
   border-radius: 6px;
   padding: 5px 14px;
   cursor: pointer;
-  background: var(--linha);
+  background: var(--fundo-botao, var(--linha));
   color: var(--texto);
   white-space: nowrap;
 }
@@ -529,9 +536,10 @@ kbd {
 .doc-tipo { border: 1px solid var(--linha); border-radius: 8px; margin: 8px 0; background: var(--fundo-escuro); }
 .doc-tipo summary { cursor: pointer; padding: 8px 10px; display: flex; gap: 10px; align-items: center; }
 .doc-tipo summary code { color: var(--verde); font-weight: 700; }
-.doc-tipo summary a { margin-left: auto; font-size: 0.82rem; }
+.doc-link { margin: 0 0 6px; font-size: 0.86rem; }
+.doc-link a { display: inline-block; padding: 4px 0; }
 .doc-tipo > :not(summary) { margin-left: 12px; margin-right: 12px; }
-.doc-tipo h4 { margin: 10px 12px 4px; font-size: 0.85rem; color: var(--ciano); }
+.doc-tipo h2 { margin: 10px 12px 4px; font-size: 0.85rem; color: var(--ciano); }
 .doc-args { margin: 0 12px 6px; padding-left: 18px; font-size: 0.86rem; }
 .doc-args li { padding: 2px 0; }
 .doc-args code { color: var(--texto); }
@@ -608,7 +616,7 @@ kbd {
   cursor: pointer;
 }
 .btn-pular:hover { border-color: var(--roxo); }
-.btn-pular kbd { font: inherit; font-size: 0.7rem; color: var(--suave); border: 1px solid var(--suave); border-radius: 3px; padding: 0 3px; margin-left: 2px; }
+.btn-pular kbd { font: inherit; font-size: 0.75rem; color: var(--suave); border: 1px solid var(--suave); border-radius: 3px; padding: 0 3px; margin-left: 2px; }
 .terminal[aria-busy="true"] { cursor: progress; }
 
 /* prompt do shell e cursor piscando */
@@ -690,7 +698,7 @@ kbd {
 .caso summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; }
 .caso summary .placar { margin-left: auto; color: var(--suave); font-size: 0.78rem; font-weight: 400; }
 .corpo-caso { padding: 0 12px 10px; border-top: 1px solid var(--linha); }
-.rotulo-caso { margin: 10px 0 4px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--suave); }
+.rotulo-caso { margin: 10px 0 4px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--suave); }
 .cenario {
   margin: 0;
   padding: 6px 10px;
@@ -710,7 +718,7 @@ kbd {
 .caso summary, .verificacao > div { min-width: 0; overflow-wrap: anywhere; }
 .verificacao { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 4px; padding: 6px 8px; border-radius: 6px; background: var(--fundo); color: var(--texto); }
 .verificacao.falha { background: color-mix(in srgb, var(--vermelho) 7%, var(--fundo)); }
-.chip-categoria { display: inline-block; margin-right: 4px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--linha); color: var(--suave); font-size: 0.7rem; vertical-align: 1px; }
+.chip-categoria { display: inline-block; margin-right: 4px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--linha); color: var(--suave); font-size: 0.75rem; vertical-align: 1px; }
 .caso .obtido, .caso .detalhe, .caso .dica { display: block; margin-top: 3px; font-size: 0.82rem; }
 .caso .obtido { color: var(--suave); }
 .caso .obtido code { color: var(--ciano); }

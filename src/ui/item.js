@@ -22,6 +22,7 @@ import { jornadaAtual, certificadosDaJornada } from './inicio.js';
 import { CERTIFICADOS } from '../certificados.js';
 import { LIMITE_DESBLOQUEIO } from '../gamificacao.js';
 import { $, esc } from './util.js';
+import { anunciar, falaDosTestes, leitorDeTela, frase } from './anuncios.js';
 
 const semPressao = () => document.documentElement.classList.contains('a11y-sem-pressao');
 const esperar = () => new Promise((r) => setTimeout(r, 0));
@@ -147,7 +148,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     el.enunciado.innerHTML = `
       ${avisoBloqueio}
       ${etapa}
-      <ol class="roteiro" aria-label="Como resolver">
+      <ol class="roteiro" aria-label="Como resolver" tabindex="0">
         <li>Leia o que fazer</li><li>Faça uma parte</li><li>▶ Plan</li><li>Confira os ✅</li><li>⬆ Enviar</li>
       </ol>
       <section class="secao secao-fazer"><h2>🎯 O que fazer</h2>${item.enunciado}</section>
@@ -213,17 +214,18 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     const args = Object.entries(def.args).filter(([n]) => n !== 'region');
     const lista = (filtro, rotulo) => {
       const itens = args.filter(filtro);
-      return itens.length ? `<h4>${rotulo}</h4><ul class="doc-args">${itens.map(([n, a]) => `<li><code>${esc(n)}</code> <span class="tipo-arg">${esc(a.tipo)}</span>${a.padrao !== undefined ? ` <span class="padrao-arg">padrão: ${esc(JSON.stringify(a.padrao))}</span>` : ''}${a.forcaNova ? ' <span class="chip chip-recria" title="Mudar este valor apaga e recria o recurso">recria</span>' : ''}${a.sensivel ? ' <span class="chip">sensível</span>' : ''}</li>`).join('')}</ul>` : '';
+      return itens.length ? `<h2>${rotulo}</h2><ul class="doc-args">${itens.map(([n, a]) => `<li><code>${esc(n)}</code> <span class="tipo-arg">${esc(a.tipo)}</span>${a.padrao !== undefined ? ` <span class="padrao-arg">padrão: ${esc(JSON.stringify(a.padrao))}</span>` : ''}${a.forcaNova ? ' <span class="chip chip-recria" title="Mudar este valor apaga e recria o recurso">recria</span>' : ''}${a.sensivel ? ' <span class="chip">sensível</span>' : ''}</li>`).join('')}</ul>` : '';
     };
     const blocos = Object.entries(def.blocos);
     return `
           <details class="doc-tipo" open>
-            <summary><code>${modo === 'data' ? 'data ' : ''}${esc(tipo)}</code> ${def.docs ? `<a href="${esc(def.docs)}" target="_blank" rel="noopener">registry ↗</a>` : ''}</summary>
+            <summary><code>${modo === 'data' ? 'data ' : ''}${esc(tipo)}</code></summary>
             ${def.descricao ? `<p>${esc(def.descricao)}</p>` : ''}
+            ${def.docs ? `<p class="doc-link"><a href="${esc(def.docs)}" target="_blank" rel="noopener noreferrer">Documentação no Terraform Registry ↗</a></p>` : ''}
             ${lista(([, a]) => a.obrigatorio, '✳️ Obrigatórios')}
             ${lista(([, a]) => !a.obrigatorio, 'Opcionais')}
-            ${blocos.length ? `<h4>Blocos</h4><ul class="doc-args">${blocos.map(([n, b]) => `<li><code>${esc(n)} { ... }</code>${b.min ? ' <span class="chip">obrigatório</span>' : ''}${b.max === 1 ? ' <span class="tipo-arg">no máximo 1</span>' : ''} — ${Object.entries(b.args).map(([an, a]) => `<code>${esc(an)}</code>${a.obrigatorio ? '*' : ''}`).join(', ') || 'livre'}</li>`).join('')}</ul>` : ''}
-            <h4>Atributos calculados (só leitura)</h4>
+            ${blocos.length ? `<h2>Blocos</h2><ul class="doc-args">${blocos.map(([n, b]) => `<li><code>${esc(n)} { ... }</code>${b.min ? ' <span class="chip">obrigatório</span>' : ''}${b.max === 1 ? ' <span class="tipo-arg">no máximo 1</span>' : ''} — ${Object.entries(b.args).map(([an, a]) => `<code>${esc(an)}</code>${a.obrigatorio ? '*' : ''}`).join(', ') || 'livre'}</li>`).join('')}</ul>` : ''}
+            <h2>Atributos calculados (só leitura)</h2>
             <p class="doc-calc">${Object.keys(def.calc).map((n) => `<code>${esc(n)}</code>`).join(' ') || '—'}</p>
           </details>`;
   }).join('')}`;
@@ -352,7 +354,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   }
 
   /** Executar pedido pelo aluno (botão ou Ctrl+Enter): mostra a aba de testes com o resultado. */
-  const executarPeloAluno = () => executar('plan', { abrirTestes: true, animar: true });
+  const executarPeloAluno = () => executar('plan', { abrirTestes: true, animar: true, falar: true });
 
   /** Abre a aba 🧪 Testes (e a descrição, se estiver oculta). */
   function abrirAbaTestes() {
@@ -361,11 +363,13 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     mostrarDesc('testes');
   }
 
-  async function executar(comando = 'plan', { abrirTestes = false, animar = false } = {}) {
+  // `falar`: só quando a pessoa pediu (botão ou atalho); as execuções automáticas (abrir
+  // o exercício, trocar de arquivo, restaurar) não interrompem o leitor de tela.
+  async function executar(comando = 'plan', { abrirTestes = false, animar = false, falar = false } = {}) {
     if (!estado.item) return;
     const item = estado.item;
     const arquivos = { ...editor.arquivos };
-    definirStatus(`terraform ${comando}…`);
+    definirStatus(`terraform ${comando}…`, { falar: false });
     await esperar();
     const inicio = performance.now();
     let r;
@@ -384,7 +388,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     }
     const ms = Math.max(1, Math.round(performance.now() - inicio));
     const animarAgora = animar && !el.janelaTerminal.hidden;
-    if (animarAgora) definirStatus(`terraform ${comando}… (Esc ou ⏩ Pular para ver tudo)`);
+    if (animarAgora) definirStatus(`terraform ${comando}… (Esc ou ⏩ Pular para ver tudo)`, { falar: false });
     const animacao = renderTerminal(r, { animar: animarAgora });
     renderEstado();
     renderSaidas(r);
@@ -392,18 +396,40 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     await animacao;
     if (estado.item !== item || estado.ultimo !== r) return;
     const resumo = r.plano?.resumo;
+    const fala = falaDoTerraform(comando, r);
+    const comTestes = item.tipo === 'problema' && comando === 'plan';
     definirStatus(r.ok
       ? `${comando}: ${resumo ? `${resumo.criar} add, ${resumo.alterar} change, ${resumo.destruir} destroy` : 'ok'} · ${ms} ms`
-      : `${comando}: ${r.diagnosticos.filter((d) => d.gravidade === 'erro').length} erro(s)`);
+      : `${comando}: ${r.diagnosticos.filter((d) => d.gravidade === 'erro').length} erro(s)`, { falar: falar && !comTestes && fala });
 
     if (item.tipo === 'licao' && !statusDe(item.id) && r.ok) {
       marcar(item.id, 'resolvido');
       aoMudarProgresso();
     }
-    if (item.tipo === 'problema' && comando === 'plan') {
-      await rodarTestes({ incluirOcultos: false });
-      if (abrirTestes && estado.item === item) abrirAbaTestes();
+    if (comTestes) {
+      const resultado = await rodarTestes({ incluirOcultos: false });
+      if (estado.item !== item) return;
+      if (falar) anunciar(`${fala} ${falarTestes(resultado, false, { codigoComErro: !r.ok })}`);
+      if (abrirTestes) abrirAbaTestes();
     }
+  }
+
+  /** O resultado do comando, falado: o que muda ou os erros (com arquivo e linha). */
+  function falaDoTerraform(comando, r) {
+    const erros = r.diagnosticos.filter((d) => d.gravidade === 'erro');
+    if (erros.length) {
+      const lidos = leitorDeTela() ? erros : erros.slice(0, 1);
+      return [
+        `terraform ${comando} com ${erros.length} ${erros.length === 1 ? 'erro' : 'erros'}.`,
+        ...lidos.map((d) => frase(`${d.resumo}${d.detalhe ? `: ${d.detalhe.replace(/[.\s]+$/, '')}` : ''}${d.arquivo ? ` (${d.arquivo}${d.linha ? `, linha ${d.linha}` : ''})` : ''}`)),
+      ].join(' ');
+    }
+    const resumo = r.plano?.resumo;
+    const avisos = r.diagnosticos.filter((d) => d.gravidade !== 'erro').length;
+    const mudancas = resumo
+      ? `${resumo.criar} para criar, ${resumo.alterar} para alterar e ${resumo.destruir} para destruir.`
+      : 'sem erros.';
+    return `terraform ${comando} concluído: ${mudancas}${avisos ? ` ${avisos} ${avisos === 1 ? 'aviso' : 'avisos'} no terminal.` : ''}`;
   }
 
   async function rodarTestes({ incluirOcultos }) {
@@ -548,6 +574,20 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     );
   }
 
+  /** O que o leitor de tela fala sobre os testes (com os nomes da aba Testes). */
+  function falarTestes(resultado, envio, extras = {}) {
+    const testes = estado.item.testes;
+    const nomes = nomesDosCasos(testes);
+    const rodados = envio ? testes : testes.filter((t) => !t.oculto);
+    return falaDosTestes(resultado, {
+      envio,
+      gentil: semPressao(),
+      detalhado: leitorDeTela(),
+      nomes: rodados.map((t) => nomes[testes.indexOf(t)]),
+      ...extras,
+    });
+  }
+
   async function enviar() {
     if (!ehProblema() || estado.ocupado) return;
     estado.ocupado = true;
@@ -557,7 +597,9 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     definirResumo('rodando…');
     definirStatus('Enviando…');
     try {
-      const { aprovado } = await rodarTestes({ incluirOcultos: true });
+      const resultado = await rodarTestes({ incluirOcultos: true });
+      const { aprovado } = resultado;
+      let conquista = '';
       marcar(estado.item.id, aprovado ? 'resolvido' : 'tentado');
       renderCabecalho();
       aoMudarProgresso();
@@ -568,12 +610,15 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
         const aviso = cert?.liberado
           ? 'Seu certificado da Sertão será cloud está liberado.'
           : `Os certificados são liberados na ordem da trilha: conclua também <b>${esc(CERTIFICADOS[cert?.falta]?.titulo ?? '')}</b> para receber o seu.`;
+        conquista = `Você concluiu o módulo ${modulo.titulo}! ${aviso.replace(/<[^>]+>/g, '')}`;
         el.testes.insertAdjacentHTML('afterbegin', `
-          <div class="comemoracao" role="status">🏆 Você concluiu o módulo <b>${esc(modulo.titulo)}</b>!
+          <div class="comemoracao">🏆 Você concluiu o módulo <b>${esc(modulo.titulo)}</b>!
             ${aviso}
             <a class="btn btn-roxo btn-pequeno" href="#/trilha">Ver no caminho</a></div>`);
       }
-      definirStatus(aprovado ? 'Aceito! 🎉' : semPressao() ? 'Ainda não passou: veja o que falta' : 'Resposta errada');
+      definirStatus(aprovado ? 'Aceito! 🎉' : semPressao() ? 'Ainda não passou: veja o que falta' : 'Resposta errada', {
+        falar: `${falarTestes(resultado, true)} ${conquista}`.trim(),
+      });
     } catch (erro) {
       console.error(erro);
       el.testes.innerHTML = `<p class="veredito falha">Erro</p><p class="veredito-sub">${esc(erro.message)}</p>`;
@@ -585,18 +630,18 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
 
   // ---------- eventos ----------
   el.executar.onclick = () => executarPeloAluno();
-  el.apply.onclick = () => executar('apply', { animar: true });
+  el.apply.onclick = () => executar('apply', { animar: true, falar: true });
   el.destroy.onclick = () => {
     if (!Object.keys(estadoAtual()?.recursos ?? {}).length) {
       definirStatus('O estado está vazio: não há nada para destruir.');
       return;
     }
-    if (confirm('terraform destroy: apagar todos os recursos do estado simulado deste exercício?')) executar('destroy', { animar: true });
+    if (confirm('terraform destroy: apagar todos os recursos do estado simulado deste exercício?')) executar('destroy', { animar: true, falar: true });
   };
   el.enviar.onclick = () => enviar();
   el.workspace.onchange = () => {
     renderEstado();
-    executar('plan', { animar: true });
+    executar('plan', { animar: true, falar: true });
   };
 
   el.restaurar.onclick = () => {

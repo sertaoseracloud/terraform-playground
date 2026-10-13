@@ -6,7 +6,7 @@ export const PROBLEMA_DO_TUTORIAL = 'tf-ola-arquivo';
 
 export const PASSOS = [
   {
-    titulo: 'Bem-vindo ao Terraform Playground 🏗️',
+    titulo: 'Bem-vindo ao DivergeTerraform 🏗️',
     texto: `<p>Aqui você aprende <b>Terraform</b> e cria infraestrutura na <b>AWS</b> e no <b>Azure</b>
       resolvendo problemas, no estilo do LeetCode.</p>
       <p>Tudo roda no seu navegador, num <b>simulador</b>: não precisa instalar nada nem ter conta na nuvem,

@@ -7,16 +7,15 @@
 // A conferência acontece no navegador de quem valida; nada é enviado a servidor.
 import {
   CERTIFICADOS, EMISSOR, ORDEM, anteriores, decodificarCertificado, extrairCodigo, validarImpresso, linkCertificado,
-  lerCertificadoXml, cadeiaCoerente, conferirAssinaturas, mensagemAssinada,
+  lerCertificadoXml, cadeiaCoerente, conferirAssinaturas, mensagemAssinada, SITE,
 } from '../certificados.js';
 import { svgBadge } from '../badges.js';
 import { textoHoras } from '../cargaHoraria.js';
-import { esc, $ } from './util.js';
+import { esc, $, dataPorExtenso } from './util.js';
 
 /** Maior XML aceito: o de um certificado tem poucos KB. */
 const MAX_XML = 512 * 1024;
 
-const dataPorExtenso = (data) => new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 const dataCurta = (data) => new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR');
 
 // Cada situação tem cor e ícone próprios: "não consegui ler" (âmbar) não é o mesmo que
@@ -172,7 +171,7 @@ function htmlPagina(temResultadoInicial) {
           <form id="form-link" class="form-validacao">
             <label for="campo-link">Link do certificado, link do badge do LinkedIn ou código</label>
             <textarea id="campo-link" rows="3" spellcheck="false" autocomplete="off"
-              placeholder="https://sertaoseracloud.github.io/terraform-playground/#/certificado/…"></textarea>
+              placeholder="${SITE}#/certificado/…"></textarea>
             <button class="btn btn-verde">🔎 Validar</button>
           </form>
           <div id="saida-link" class="saida-validacao" aria-live="polite"></div>

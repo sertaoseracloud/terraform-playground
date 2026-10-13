@@ -3,18 +3,23 @@
 // Quem precisa reagir (caminho, descrição, pausa) ouve o evento "preferencias".
 import {
   TEMAS, TAMANHOS, GRUPOS, PERFIS, PADRAO,
-  normalizarPreferencias, aplicarPreferencias, perfilAtivo, alternarPerfil,
+  normalizarPreferencias, aplicarPreferencias, perfilAtivo, alternarPerfil, preferenciasDoSistema,
 } from './preferencias.js';
 import { lerPreferencia, gravarPreferencia } from '../progresso.js';
 import { $ } from './util.js';
+import { ativarLibras } from './libras.js';
+import { anunciar } from './anuncios.js';
 
 export function iniciarAcessibilidade() {
   let prefs = normalizarPreferencias(lerPreferencia('acessibilidade'));
-  // Sem escolha salva, respeita "reduzir movimento" do sistema operacional.
-  if (!lerPreferencia('acessibilidade') && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-    prefs.reduzirMovimento = true;
-  }
+  // Sem escolha salva, segue o sistema operacional: reduzir movimento, contraste
+  // alto e modo claro.
+  if (!lerPreferencia('acessibilidade')) prefs = preferenciasDoSistema(prefs);
   aplicarPreferencias(prefs);
+  const libras = (ligar) => ativarLibras(ligar).catch(() => {
+    anunciar('Não foi possível carregar o VLibras agora. Tente de novo mais tarde.');
+  });
+  if (prefs.libras) libras(true);
 
   const dialogo = $('dialogo-a11y');
   const temas = $('a11y-temas');
@@ -53,7 +58,9 @@ export function iniciarAcessibilidade() {
   }
 
   function mudar(novas) {
+    const antes = prefs;
     prefs = { ...prefs, ...novas };
+    if (prefs.libras !== antes.libras) libras(prefs.libras);
     aplicarPreferencias(prefs);
     gravarPreferencia('acessibilidade', prefs);
     sincronizar();
@@ -78,9 +85,9 @@ export function iniciarAcessibilidade() {
     sincronizar();
     dialogo.showModal();
   };
-  // Clicar fora da janela fecha.
+  // Clicar fora da janela, ou num link para outra página do site, fecha.
   dialogo.addEventListener('click', (e) => {
-    if (e.target === dialogo) dialogo.close();
+    if (e.target === dialogo || e.target.closest('a[href^="#/"]')) dialogo.close();
   });
 
   sincronizar();

@@ -4,14 +4,15 @@
 // chega no seu tempo (com "Still creating..." nos demorados). O ritmo de cada linha vem
 // de src/tf/saida.js (campos `atraso` e `digitar`).
 //
-// Sem animação quando: o aluno pediu "Reduzir animações" (ou o sistema pede), a saída é
+// Sem animação quando: o aluno pediu "Reduzir animações" ou o modo leitor de tela (ou o sistema pede), a saída é
 // só reaberta, ou ele clica em ⏩ Pular / tecla Esc.
 import { esc } from './util.js';
 
 const USUARIO = 'aluno@sertao';
 const TECLA_MS = 34;
 
-export const semMovimento = () => document.documentElement.classList.contains('a11y-sem-movimento');
+// No modo leitor de tela a saída também chega inteira (o leitor não acompanha a digitação).
+export const semMovimento = () => ['a11y-sem-movimento', 'a11y-leitor-tela'].some((c) => document.documentElement.classList.contains(c));
 
 /** O prompt do shell, colorido como num terminal: aluno@sertao:~/pasta$ */
 function prompt(pasta) {

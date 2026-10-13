@@ -43,7 +43,7 @@
 .estatisticas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 14px; }
 .estatisticas > div { background: var(--fundo-escuro); border-radius: 8px; padding: 8px 4px; text-align: center; }
 .estatisticas .valor { display: block; font-weight: 700; }
-.estatisticas .rotulo { font-size: 0.72rem; color: var(--suave); }
+.estatisticas .rotulo { font-size: 0.75rem; color: var(--suave); }
 .btn-continuar { display: flex; flex-direction: column; align-items: center; text-decoration: none; padding: 10px; font-size: 1.05rem; border-radius: 10px; }
 .btn-continuar small { font-weight: 400; font-size: 0.8rem; color: inherit; white-space: normal; text-align: center; }
 .tudo-feito { text-align: center; font-weight: 700; color: var(--verde); }
@@ -72,7 +72,7 @@
 .bloco-certificados > summary::after { content: " ▾"; color: var(--suave); }
 .bloco-certificados:not([open]) > summary::after { content: " ▸"; }
 .bloco-certificados > summary small { color: var(--suave); font-weight: 400; }
-.nota-niveis { font-size: 0.72rem; color: var(--suave); margin: 14px 0 0; }
+.nota-niveis { font-size: 0.75rem; color: var(--suave); margin: 14px 0 0; }
 
 /* trilha */
 .caminho-titulo { font-size: 1.4rem; color: var(--roxo); margin: 0 0 16px; }
@@ -92,6 +92,7 @@
 .unidade[data-modulo="basico"] { --cor: var(--roxo); }
 .unidade[data-modulo="aws"] { --cor: var(--laranja); }
 .unidade[data-modulo="azure"] { --cor: var(--ciano); }
+.unidade[data-modulo="projetos"] { --cor: var(--verde); }
 .unidade[data-modulo="projetos"] { --cor: var(--rosa); }
 .unidade h2 { margin: 0; font-size: 1.2rem; }
 .unidade-numero { margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cor); font-weight: 700; }
@@ -113,7 +114,7 @@
 /* lição lida: 📖 em ciano, diferente do ✔ verde dos exercícios */
 .no.licao.estado-concluido .circulo { background: var(--ciano); border-bottom-color: color-mix(in srgb, var(--ciano) 55%, black); }
 .legenda-caminho { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: -6px 0 16px; font-size: 0.78rem; color: var(--suave); }
-.legenda-caminho .mini { font-style: normal; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: 0.7rem; background: var(--linha); }
+.legenda-caminho .mini { font-style: normal; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: 0.75rem; background: var(--linha); }
 .legenda-caminho .mini.ok { background: var(--verde); color: var(--sobre-cor); font-weight: 700; }
 .legenda-caminho .mini.lida { background: var(--ciano); }
 
@@ -179,7 +180,7 @@
   background: var(--fundo);
   border: 2px solid var(--roxo);
   color: var(--roxo);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   animation: flutuar 1.6s ease-in-out infinite;
@@ -302,6 +303,7 @@
   .badge-imagem svg { max-width: 180px; }
 }
 .aviso-certificado { padding: 16px; background: var(--fundo); border: 1px solid var(--linha); border-radius: 8px; }
+.aviso-certificado h1 { margin: 0 0 8px; font-size: 1.3rem; }
 .nota-certificado { color: var(--suave); font-size: 0.82rem; text-align: center; }
 
 .certificado {
@@ -422,6 +424,10 @@
 .pagina-texto h2 { margin: 26px 0 8px; color: var(--ciano); font-size: 1.1rem; }
 .pagina-texto .atualizada { margin: 4px 0 16px; color: var(--suave); font-size: 0.85rem; }
 .pagina-texto li { margin: 4px 0; }
+.tabela-atalhos { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.tabela-atalhos th, .tabela-atalhos td { padding: 6px 8px; border-bottom: 1px solid var(--linha); text-align: left; vertical-align: top; }
+.tabela-atalhos th { color: var(--suave); font-size: 0.85rem; }
+.tabela-atalhos td:first-child { white-space: nowrap; }
 .pagina-texto a { color: var(--roxo); }
 /* Links com cara de botão mantêm a cor do botão (o roxo dos links some num botão roxo). */
 .pagina-texto a.btn { color: var(--texto); text-decoration: none; }
@@ -612,7 +618,7 @@
   padding: 12px 0 0;
   border-top: 1px solid var(--linha);
 }
-.dados-validacao dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--suave); }
+.dados-validacao dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--suave); }
 .dados-validacao dd { margin: 2px 0 0; font-weight: 600; overflow-wrap: anywhere; }
 .dados-validacao .largo { grid-column: 1 / -1; }
 .dados-validacao .largo dd { font-size: 1.15rem; }

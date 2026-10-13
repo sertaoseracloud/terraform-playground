@@ -3,9 +3,8 @@
 // consentimento) e não bloqueia a tela.
 import { ATUALIZADA_EM, CONTROLADOR, DADOS_LOCAIS, TERCEIROS } from '../privacidade.js';
 import { exportarDados, apagarDados, lerPreferencia, gravarPreferencia } from '../progresso.js';
-import { esc, $ } from './util.js';
+import { esc, $, dataPorExtenso } from './util.js';
 
-const dataPorExtenso = (data) => new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 const linkExterno = (url, texto = url) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(texto)}</a>`;
 
 export function renderPrivacidade(el, { definirStatus = () => {} } = {}) {
@@ -32,7 +31,7 @@ export function renderPrivacidade(el, { definirStatus = () => {} } = {}) {
 
       <section aria-labelledby="priv-quem">
         <h2 id="priv-quem">1. Quem é responsável</h2>
-        <p>O Terraform Playground é mantido pela <b>${esc(CONTROLADOR.nome)}</b> (responsável: ${esc(CONTROLADOR.responsavel)}).
+        <p>O DivergeTerraform é mantido pela <b>${esc(CONTROLADOR.nome)}</b> (responsável: ${esc(CONTROLADOR.responsavel)}).
           Para dúvidas ou pedidos sobre seus dados, use o canal: ${linkExterno(CONTROLADOR.contato, 'issues do projeto no GitHub')}.
           Não publique dados pessoais lá: descreva o pedido sem eles.</p>
       </section>
@@ -122,7 +121,7 @@ export function renderPrivacidade(el, { definirStatus = () => {} } = {}) {
     </article>`;
 
   $('btn-baixar-dados').onclick = () => {
-    const dados = { site: 'Terraform Playground', exportadoEm: new Date().toISOString(), dados: exportarDados() };
+    const dados = { site: 'DivergeTerraform', exportadoEm: new Date().toISOString(), dados: exportarDados() };
     const url = URL.createObjectURL(new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' }));
     const a = Object.assign(document.createElement('a'), { href: url, download: 'meus-dados-terraform-playground.json' });
     document.body.append(a);

@@ -1,7 +1,7 @@
 {
   "name": "terraform-playground",
-  "version": "1.4.0",
-  "description": "Playground de Terraform (básico, AWS, Azure e projetos) rodando no navegador, com simulador próprio",
+  "version": "1.5.0",
+  "description": "DivergeTerraform: Terraform, AWS e Azure no navegador, com acessibilidade para pessoas cegas, surdas e neurodivergentes",
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prerender.mjs",
@@ -26,7 +26,8 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@resvg/resvg-js": "^2.6.2",
-    "eslint": "10.11.0",
+    "axe-core": "4.14.0",
+    "eslint": "10.12.0",
     "globals": "^17.13.0",
     "happy-dom": "^20.14.6",
     "vite": "^8.3.1",

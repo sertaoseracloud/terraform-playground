@@ -47,6 +47,7 @@ export function lerRota(hash) {
   if (caminho === 'novidades') return { tela: 'novidades' };
   if (caminho === 'instrutor') return { tela: 'instrutor' };
   if (caminho === 'apoie') return { tela: 'instrutor', ancora: 'apoie' };
+  if (caminho === 'acessibilidade') return { tela: 'acessibilidade' };
   if (caminho === 'validar') return { tela: 'validar', codigo: '' };
   if (caminho.startsWith('validar/')) return { tela: 'validar', codigo: caminho.slice(8) };
   if (caminho.startsWith('p/')) return { tela: 'item', id: decodeURIComponent(caminho.slice(2)) };

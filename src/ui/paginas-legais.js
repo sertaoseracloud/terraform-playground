@@ -1,9 +1,8 @@
 // Páginas "Licença" (#/licenca) e "Termos de uso" (#/termos), em linguagem simples.
 import { ATUALIZADA_EM, TITULAR, REPOSITORIO, CODIGO, CONTEUDO, TERCEIROS } from '../licenca.js';
 import { CONTROLADOR } from '../privacidade.js';
-import { esc } from './util.js';
+import { esc, dataPorExtenso } from './util.js';
 
-const dataPorExtenso = (data) => new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 const link = (url, texto) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(texto)}</a>`;
 
 export function renderLicenca(el) {
@@ -16,7 +15,7 @@ export function renderLicenca(el) {
       <section class="resumo-privacidade" aria-labelledby="lic-resumo">
         <h2 id="lic-resumo">Em resumo</h2>
         <ul>
-          <li>✅ O Terraform Playground é <b>software livre</b>: você pode usar, estudar, modificar e compartilhar.</li>
+          <li>✅ O DivergeTerraform é <b>software livre</b>: você pode usar, estudar, modificar e compartilhar.</li>
           <li>🔁 É <b>copyleft</b>: quem distribuir uma versão modificada, inclusive como site, precisa liberar o
             código e o conteúdo com a <b>mesma licença</b>.</li>
           <li>✍️ Ao reutilizar, <b>cite a fonte</b>: ${esc(CONTEUDO.atribuicao)}.</li>
@@ -84,7 +83,7 @@ export function renderTermos(el) {
       <section class="resumo-privacidade" aria-labelledby="ter-resumo">
         <h2 id="ter-resumo">Em resumo</h2>
         <ul>
-          <li>✅ O Terraform Playground é <b>gratuito</b> e feito para <b>aprender e ensinar</b> programação.</li>
+          <li>✅ O DivergeTerraform é <b>gratuito</b> e feito para <b>aprender e ensinar</b> programação.</li>
           <li>💾 Não há cadastro: seu progresso fica no seu navegador (veja a <a href="#/privacidade">privacidade</a>).</li>
           <li>🎓 Os certificados valem como <b>comprovante de participação</b> na trilha, não como diploma.</li>
           <li>🚫 Não use o site para prejudicar outras pessoas nem para falsificar certificados.</li>
@@ -93,7 +92,7 @@ export function renderTermos(el) {
 
       <section aria-labelledby="ter-1">
         <h2 id="ter-1">1. Aceitação</h2>
-        <p>Ao usar o Terraform Playground, você concorda com estes termos. Se não concordar, não use o site. Se você for menor
+        <p>Ao usar o DivergeTerraform, você concorda com estes termos. Se não concordar, não use o site. Se você for menor
           de idade, use com o acompanhamento de um responsável ou professor.</p>
       </section>
 
@@ -132,7 +131,7 @@ export function renderTermos(el) {
         <ul>
           <li>São emitidos pela ${esc(TITULAR)} para quem conclui os módulos da trilha, na ordem da trilha.</li>
           <li>O nome que aparece no certificado é informado por você: use o seu nome verdadeiro.</li>
-          <li>Eles comprovam a conclusão das atividades do Terraform Playground. <b>Não são diploma nem certificação
+          <li>Eles comprovam a conclusão das atividades do DivergeTerraform. <b>Não são diploma nem certificação
             reconhecida pelo MEC</b> ou por outros órgãos.</li>
           <li>Qualquer pessoa pode conferir um certificado na página <a href="#/validar">Validar certificado</a>.
             Certificados alterados deixam de valer.</li>

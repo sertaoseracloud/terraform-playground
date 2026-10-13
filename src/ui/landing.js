@@ -47,7 +47,8 @@ export function renderLanding(el) {
       <section class="hero" aria-labelledby="landing-titulo">
         <div class="hero-texto">
           <p class="hero-selo">☁️ ${esc(EMISSOR.organizacao)} apresenta</p>
-          <h1 id="landing-titulo">Aprenda <span class="destaque">Terraform</span> do zero, direto no navegador</h1>
+          <h1 id="landing-titulo">Aprenda <span class="destaque">Terraform</span> do zero, com acessibilidade para todas as pessoas</h1>
+          <p class="hero-selo-a11y">🦯 Leitor de tela · 🤟 Libras · ⌨️ Só teclado · 🧠 TDAH e dislexia</p>
           <p class="hero-sub">Uma trilha gamificada de infraestrutura como código: HCL, AWS, Azure e projetos.
             Você escreve o código, clica em <b>▶ Plan</b> e os testes dizem na hora se acertou.
             Sem instalar nada, sem conta na nuvem e sem gastar um centavo.</p>
@@ -129,7 +130,8 @@ export function renderLanding(el) {
       <section class="faixa" aria-labelledby="todos-titulo">
         <h2 id="todos-titulo">Feito para todo mundo aprender</h2>
         <div class="cartoes">
-          <article><h3>♿ Acessível</h3><p>Temas de alto contraste, texto até 175%, fonte legível, leitura em voz alta e navegação completa pelo teclado.</p></article>
+          <article><h3>🦯 Pessoas cegas</h3><p>O leitor de tela fala o resultado de cada teste, com o motivo e a dica. Navegação completa pelo teclado, alto contraste e texto até 175%.</p></article>
+          <article><h3>🤟 Pessoas surdas e mudas</h3><p>Nada depende de som nem de voz. Tradução para Libras com o VLibras, do Governo Federal. <a href="#/acessibilidade">Veja tudo sobre acessibilidade</a>.</p></article>
           <article><h3>🧠 Neurodiversidade</h3><p>Perfis prontos para TDAH, dislexia, autismo e ansiedade: modo foco, lista de tarefas, régua de leitura, lembrete de pausa e mensagens gentis.</p></article>
           <article><h3>🔒 Privado</h3><p>Sem cookies, sem rastreamento, sem cadastro. Seu progresso fica só no seu navegador. <a href="#/privacidade">Saiba mais</a>.</p></article>
           <article><h3>👩‍🏫 Para a sala de aula</h3><p>Funciona em qualquer computador com um navegador atualizado, inclusive no projetor, sem cartão de crédito nem conta na AWS ou no Azure. Mande o link direto de um exercício para a turma.</p></article>
@@ -146,7 +148,7 @@ export function renderLanding(el) {
 
       <footer class="rodape-landing">
         <p><b>${esc(EMISSOR.organizacao)}</b> · ${esc(EMISSOR.curso)} · <a href="#/novidades">Versão ${esc(VERSAO)} · Novidades</a></p>
-        <p><a href="#/instrutor">Quem é o instrutor?</a> · <a href="#/apoie">☕ Apoie o projeto</a> · <a href="#/validar">Validar certificado</a> · <a href="#/termos">Termos de uso</a> · <a href="#/privacidade">Privacidade e cookies</a> · <a href="#/licenca">Licença (AGPL-3.0 e CC BY-SA 4.0)</a> · <a href="${REPOSITORIO}" target="_blank" rel="noopener noreferrer">Código no GitHub</a></p>
+        <p><a href="#/instrutor">Quem é o instrutor?</a> · <a href="#/apoie">☕ Apoie o projeto</a> · <a href="#/validar">Validar certificado</a> · <a href="#/acessibilidade">Acessibilidade</a> · <a href="#/termos">Termos de uso</a> · <a href="#/privacidade">Privacidade e cookies</a> · <a href="#/licenca">Licença (AGPL-3.0 e CC BY-SA 4.0)</a> · <a href="${REPOSITORIO}" target="_blank" rel="noopener noreferrer">Código no GitHub</a></p>
       </footer>
     </div>`;
 }

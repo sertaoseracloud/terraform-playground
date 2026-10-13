@@ -4,17 +4,20 @@
 import { CERTIFICADOS, EMISSOR, certificadoXml, decodificarCertificado, linkLinkedInPerfil, linkLinkedInPublicar, linkPublico, textoPublicacao } from '../certificados.js';
 import { svgBadge } from '../badges.js';
 import { textoHoras } from '../cargaHoraria.js';
-import { esc } from './util.js';
+import { esc, dataPorExtenso } from './util.js';
 
-const dataPorExtenso = (data) => new Date(`${data}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 
 export function renderCertificado(el, codigo, { definirStatus = () => {} } = {}) {
   const cert = decodificarCertificado(codigo);
   if (!cert) {
     el.innerHTML = `
       <div class="certificado-pagina">
-        <div class="w3-panel aviso-certificado"><p>Este link de certificado não é válido.</p>
-        <p><a href="#/trilha">← Voltar para a trilha</a></p></div>
+        <div class="aviso-certificado">
+          <h1>Certificado não encontrado</h1>
+          <p>Este link de certificado não é válido. Confira se ele foi copiado inteiro ou
+            <a href="#/validar">valide pelo código</a>.</p>
+          <p><a href="#/trilha">← Voltar para a trilha</a></p>
+        </div>
       </div>`;
     return null;
   }
@@ -73,8 +76,8 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
               </ul>` : ''}
           </details>
           <div class="acoes-certificado" ${confere ? '' : 'hidden'}>
-            <a class="btn btn-linkedin" href="${esc(linkLinkedInPublicar(cert, url))}" target="_blank" rel="noopener">in Publicar no LinkedIn</a>
-            <a class="btn btn-linkedin-contorno" href="${esc(linkLinkedInPerfil(cert, url))}" target="_blank" rel="noopener">＋ Adicionar ao perfil</a>
+            <a class="btn btn-linkedin" href="${esc(linkLinkedInPublicar(cert, url))}" target="_blank" rel="noopener noreferrer">in Publicar no LinkedIn</a>
+            <a class="btn btn-linkedin-contorno" href="${esc(linkLinkedInPerfil(cert, url))}" target="_blank" rel="noopener noreferrer">＋ Adicionar ao perfil</a>
             <button type="button" class="btn btn-fantasma" id="btn-copiar-certificado">🔗 Copiar link</button>
             <button type="button" class="btn btn-fantasma" id="btn-copiar-texto">📝 Copiar texto do post</button>
             <button type="button" class="btn btn-fantasma" id="btn-imprimir">🖨️ Imprimir / PDF</button>

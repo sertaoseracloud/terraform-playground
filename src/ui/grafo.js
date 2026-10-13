@@ -70,12 +70,12 @@ export function desenharGrafo(el, r) {
   el.innerHTML = `
     <p class="legenda-grafo">A seta vai de quem <b>usa</b> um valor para quem <b>fornece</b> o valor. O Terraform cria primeiro o que está à esquerda.</p>
     <div class="area-grafo">
-      <svg viewBox="0 0 ${largura} ${altura}" width="${largura}" height="${altura}" role="img" aria-label="Grafo de dependências com ${nos.length} blocos">
+      <svg viewBox="0 0 ${largura} ${altura}" width="${largura}" height="${altura}" role="img" aria-label="Grafo de dependências com ${nos.length} blocos. A mesma informação está na lista em texto logo abaixo.">
         <defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
         ${linhas}${caixas}
       </svg>
     </div>
-    <details><summary>Lista de dependências (texto)</summary>
+    <details class="lista-grafo" ${document.documentElement.classList.contains('a11y-leitor-tela') ? 'open' : ''}><summary>Lista de dependências (texto)</summary>
       <ul>${arestas.map((a) => `<li><code>${esc(a.de)}</code> usa <code>${esc(a.para)}</code></li>`).join('') || '<li>Nenhum bloco depende de outro.</li>'}</ul>
     </details>`;
 }

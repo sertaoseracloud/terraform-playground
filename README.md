@@ -1,4 +1,4 @@
-# 🏗️ Terraform Playground
+# 🏗️ DivergeTerraform
 
 Trilha de exercícios no estilo LeetCode para aprender **Terraform → AWS → Azure → Projetos** em aula.
 O Terraform roda **simulado dentro do navegador**: `init`, `validate`, `plan`, `apply` e `destroy` com a
@@ -6,6 +6,8 @@ mesma saída do Terraform de verdade, mas **sem conta na nuvem, sem credenciais 
 O site é estático e fica no GitHub Pages.
 
 **Acesse:** https://sertaoseracloud.github.io/terraform-playground/
+
+**Acessível para todas as pessoas.** O nome vem de *neurodivergente*: a plataforma foi feita para pessoas cegas (o leitor de tela fala o resultado de cada teste), surdas e mudas (nada depende de som ou de voz, com tradução para Libras pelo VLibras) e neurodivergentes (perfis para TDAH, dislexia, autismo e ansiedade). A meta é a WCAG 2.2 nível AA, conferida com o axe-core a cada versão. Detalhes na página **Acessibilidade** do site (`#/acessibilidade`).
 
 ## O que tem
 
@@ -192,11 +194,11 @@ roda o lint e os testes, faz o build e publica no GitHub Pages.
 
 ## Licença
 
-O Terraform Playground é **software livre com copyleft**:
+O DivergeTerraform é **software livre com copyleft**:
 
 - **Código**: [GNU AGPL-3.0-or-later](LICENSE).
 - **Conteúdo didático** (lições, exercícios, projetos, glossário): [CC BY-SA 4.0](LICENSE-CONTEUDO.md).
-  Crédito sugerido: "Terraform Playground, Sertão será cloud (CC BY-SA 4.0)".
+  Crédito sugerido: "DivergeTerraform, Sertão será cloud (CC BY-SA 4.0)".
 - **Fora da licença**: o nome, a marca e o logotipo da Sertão será cloud e a emissão de certificados
   em nome dela.
 
