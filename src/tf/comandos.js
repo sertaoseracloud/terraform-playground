@@ -5,6 +5,7 @@ import { executarTerraform } from './motor.js';
 import { analisarExpressao } from './parser.js';
 import { avaliar } from './avaliador.js';
 import { VERSAO_TERRAFORM } from './esquema/index.js';
+import { formatarHcl, diferencaDeLinhas } from './formatar.js';
 import {
   linhasDoInit, linhasDoPlano, linhasDaPergunta, linhasDoApply, linhasDosDiagnosticos,
   seguePara, temMudancas, formatarValor, comoTfstate,
@@ -326,6 +327,23 @@ function graph(ctx) {
   ctx.abrirGrafo?.(r);
 }
 
+/** terraform fmt: arruma os .tf e .tfvars no editor e lista os que mudaram. */
+function fmt(ctx, { flags }) {
+  const arquivos = ctx.arquivos();
+  const novos = { ...arquivos };
+  const saida = [];
+  for (const nome of Object.keys(arquivos).sort()) {
+    if (!/\.(tf|tfvars)$/.test(nome)) continue;
+    const formatado = formatarHcl(arquivos[nome]);
+    if (formatado === arquivos[nome]) continue;
+    saida.push(nome);
+    if (flags.has('diff')) saida.push(...diferencaDeLinhas(nome, arquivos[nome], formatado));
+    novos[nome] = formatado;
+  }
+  if (!flags.has('check') && saida.length) ctx.trocarArquivos(novos);
+  if (saida.length) ctx.escrever(`${saida.join('\n')}\n`);
+}
+
 function version(ctx) {
   const init = ctx.inicializado() ?? {};
   const provedores = Object.entries(init).sort(([a], [b]) => (a < b ? -1 : 1)).map(([fonte, v]) => `+ provider registry.terraform.io/${fonte} v${v}`);
@@ -336,6 +354,7 @@ function version(ctx) {
 export const SUBCOMANDOS = {
   init: (ctx) => init(ctx),
   validate: (ctx) => validate(ctx),
+  fmt: (ctx, o) => fmt(ctx, o),
   plan: (ctx, o) => plan(ctx, o),
   apply: (ctx, o) => aplicar(ctx, 'apply', o),
   destroy: (ctx, o) => aplicar(ctx, 'destroy', o),
@@ -391,6 +410,7 @@ export function completarComando(texto, ctx) {
   else if (partes[1] === 'output') opcoes = Object.keys((ctx.estado() ?? vazio()).saidas ?? {}).sort();
   else if (['apply', 'destroy'].includes(partes[1])) opcoes = ['-auto-approve', '-var'];
   else if (partes[1] === 'plan') opcoes = ['-destroy', '-var'];
+  else if (partes[1] === 'fmt') opcoes = ['-check', '-diff'];
   else opcoes = [];
   return opcoes.filter((o) => o.startsWith(ultima)).map((o) => antes + o);
 }

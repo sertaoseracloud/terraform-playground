@@ -920,7 +920,7 @@ export const moduloBasico = {
         }
 
         locals {
-          prefixo   = "sertao-\${var.ambiente}"
+          prefixo    = "sertao-\${var.ambiente}"
           servidores = var.ambiente == "prod" ? 3 : 1
           tags = {
             projeto  = "sertao"
@@ -1450,7 +1450,7 @@ export const moduloBasico = {
         <p>Para pegar um atributo de todas as instâncias, use o <b>splat</b>: <code>random_pet.nome[*].id</code>.</p>`,
       codigo: tf`
         resource "random_pet" "servidor" {
-          count = 3
+          count  = 3
           prefix = "srv\${count.index}"
         }
 
