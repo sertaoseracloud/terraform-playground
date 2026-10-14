@@ -65,6 +65,16 @@ O site é estático e fica no GitHub Pages.
   replacement`, `# forces replacement`, `(known after apply)`) e os erros saem na caixa `╷ │ ╵`, com
   uma explicação em português embaixo. O ritmo de cada linha vem de `src/tf/saida.js`, e a animação,
   de `src/ui/terminal.js`.
+- **Terminal interativo** (`src/tf/comandos.js`): o prompt aceita `terraform init`, `validate`,
+  `fmt [-check] [-diff]`, `plan [-var 'x=1'] [-destroy]`, `apply`/`destroy [-auto-approve]` (mostram o
+  plano e só seguem com `yes`; o que é aplicado é o plano mostrado), `output [-json] [-raw]`,
+  `show [-json]`, `state list`/`state show`, `workspace list/show/select/new/delete`, `graph`, `console`
+  (expressões com variáveis, locals, funções e o estado), `version` e `-help`, além de `ls`, `cat`,
+  `clear` e `help`. O `init` é um passo de verdade: com um provedor novo no código, os outros comandos
+  dão o erro `Inconsistent dependency lock file` (os botões rodam o `init` antes). Variável obrigatória
+  sem valor é perguntada no terminal (`var.nome` / `Enter a value:`). Teclas: ↑/↓ histórico, Tab
+  completa (inclusive endereços do estado), Ctrl+C cancela, Ctrl+L limpa, Esc pula a animação ou sai do
+  terminal. Os botões ▶ Plan, ✔ Apply e 🗑 Destroy digitam o comando.
 - **Abas de saída**: 🖥️ Terminal, 🕸️ **Grafo** de dependências (SVG), 📦 **Estado** (com exportação
   `terraform.tfstate` v4) e 📤 **Outputs**. O estado de cada exercício fica salvo no navegador, por
   workspace; **Limpar estado** recomeça do zero.

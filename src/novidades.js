@@ -10,6 +10,16 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.6.0',
+    data: '2026-10-14',
+    titulo: 'Um terminal de verdade',
+    resumo: 'Digite os comandos do Terraform no terminal, como no seu computador: init, plan, apply com yes, fmt, console, state e mais.',
+    grupos: [
+      { titulo: '🖥️ Terminal', itens: ['O prompt aceita terraform init, validate, fmt, plan, apply, destroy, output, show, state, workspace, graph, console e version, além de ls, cat, clear e help.', 'O apply e o destroy mostram o plano e esperam você digitar yes (ou use -auto-approve).', 'O init virou um passo de verdade: com um provedor novo no código, o Terraform pede terraform init de novo.', 'Faltou o valor de uma variável? O Terraform pergunta no terminal, como no de verdade.', 'Setas para o histórico, Tab para completar, Ctrl+C para cancelar, Ctrl+L para limpar.', 'Os botões Plan, Apply e Destroy continuam: eles digitam o comando para você.'] },
+      { titulo: '♿ Acessibilidade', itens: ['O campo do terminal tem rótulo e a pergunta do apply é falada.', 'Esc pula a animação ou tira o foco do terminal (o Tab completa comandos).'] },
+    ],
+  },
+  {
     versao: '1.5.1',
     data: '2026-10-14',
     titulo: 'Solução só depois de tentar',
