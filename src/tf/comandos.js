@@ -1,7 +1,9 @@
 // Os comandos do terminal: `terraform init/validate/plan/apply/destroy/output/show/state/
 // workspace/graph/version` e o shell (`ls`, `cat`, `clear`, `help`), sobre o motor
 // (executarTerraform) e o estado simulado. Tudo que é tela vem do `ctx` (veja rodarComando).
-import { executarTerraform } from './motor.js';
+import { executarTerraform, avaliarNoConsole } from './motor.js';
+import { ehDesconhecido, ehObjeto, ehConjunto } from './valores.js';
+import { textoDoNumero } from './funcoes.js';
 import { analisarExpressao } from './parser.js';
 import { avaliar } from './avaliador.js';
 import { VERSAO_TERRAFORM } from './esquema/index.js';
@@ -344,13 +346,52 @@ function fmt(ctx, { flags }) {
   if (saida.length) ctx.escrever(`${saida.join('\n')}\n`);
 }
 
+/** Um valor como o `terraform console` imprime: listas e mapas em várias linhas, com vírgula. */
+export function valorDoConsole(v, recuo = '') {
+  if (ehDesconhecido(v)) return '(known after apply)';
+  if (v === null || v === undefined) return 'null';
+  if (typeof v === 'string') {
+    if (!v.includes('\n')) return JSON.stringify(v);
+    return `<<EOT\n${v.replace(/\n$/, '')}\nEOT`;
+  }
+  if (typeof v === 'number') return textoDoNumero(v);
+  if (typeof v === 'boolean') return String(v);
+  const dentro = `${recuo}  `;
+  if (Array.isArray(v)) {
+    if (!v.length) return ehConjunto(v) ? 'toset([])' : '[]';
+    const itens = v.map((x) => `${dentro}${valorDoConsole(x, dentro)},`).join('\n');
+    return `${ehConjunto(v) ? 'toset(' : ''}[\n${itens}\n${recuo}]${ehConjunto(v) ? ')' : ''}`;
+  }
+  if (ehObjeto(v)) {
+    const chaves = Object.keys(v).sort();
+    if (!chaves.length) return '{}';
+    const largura = Math.max(...chaves.map((k) => JSON.stringify(k).length));
+    return `{\n${chaves.map((k) => `${dentro}${JSON.stringify(k).padEnd(largura)} = ${valorDoConsole(v[k], dentro)}`).join('\n')}\n${recuo}}`;
+  }
+  return String(v);
+}
+
+/** terraform console: lê expressões no prompt `>` até `exit` ou Ctrl+D. */
+async function console_(ctx) {
+  const r = await comInit(ctx, 'plan');
+  if (!r) return;
+  for (;;) {
+    const texto = await ctx.perguntar('> ', 'Expressão do terraform console');
+    if (texto === null || texto.trim() === 'exit') return;
+    if (!texto.trim()) continue;
+    const [resultado] = avaliarNoConsole(ctx.arquivos(), { estado: ctx.estado() ?? undefined, workspace: ctx.workspace(), semente: ctx.semente }, [texto]);
+    if (resultado.ok) ctx.escrever(`${valorDoConsole(resultado.valor)}\n`);
+    else await ctx.mostrar(erro(resultado.erro.resumo, resultado.erro.detalhe));
+  }
+}
+
 function version(ctx) {
   const init = ctx.inicializado() ?? {};
   const provedores = Object.entries(init).sort(([a], [b]) => (a < b ? -1 : 1)).map(([fonte, v]) => `+ provider registry.terraform.io/${fonte} v${v}`);
   ctx.escrever(`Terraform v${VERSAO_TERRAFORM}\non linux_amd64\n${provedores.length ? `${provedores.join('\n')}\n` : ''}`);
 }
 
-/** Subcomandos que ainda não existem no simulador entram aqui (fmt e console, nas próximas tarefas). */
+/** Os subcomandos do `terraform` que o simulador conhece. */
 export const SUBCOMANDOS = {
   init: (ctx) => init(ctx),
   validate: (ctx) => validate(ctx),
@@ -363,6 +404,7 @@ export const SUBCOMANDOS = {
   state: (ctx, o) => state(ctx, o),
   workspace: (ctx, o) => workspace(ctx, o),
   graph: (ctx) => graph(ctx),
+  console: (ctx) => console_(ctx),
   version: (ctx) => version(ctx),
 };
 

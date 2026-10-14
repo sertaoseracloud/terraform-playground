@@ -29,6 +29,17 @@ export function executarTerraform(arquivos, opcoes = {}) {
   return new Execucao(arquivos, opcoes).rodar();
 }
 
+/**
+ * terraform console: avalia cada texto com a configuração (variáveis, locals, data sources,
+ * funções) e o estado, como o plan veria. Devolve `{ ok, valor }` ou `{ ok: false, erro }`.
+ */
+export function avaliarNoConsole(arquivos, opcoes, textos) {
+  const r = executarTerraform(arquivos, { ...opcoes, comando: 'plan', console: textos });
+  if (r.console) return r.console;
+  const primeiro = r.diagnosticos.find((d) => d.gravidade === 'erro');
+  return textos.map(() => ({ ok: false, erro: { resumo: primeiro?.resumo ?? 'Invalid configuration', detalhe: primeiro?.detalhe ?? '' } }));
+}
+
 // =====================================================================
 // Diagnósticos (erros e avisos no formato do Terraform)
 // =====================================================================
@@ -402,6 +413,7 @@ class Execucao {
     this.grafo = { nos: new Map(), arestas: [] };
     this.provedoresUsados = new Map();
     this.falhasApply = [];
+    this.textosConsole = opcoes.console ?? null;
   }
 
   rodar() {
@@ -431,6 +443,12 @@ class Execucao {
     if (this.diag.temErros) return this.finalizar({ ...base, ok: false, fase: 'plan' });
 
     this.raiz.avaliarTudo();
+    if (this.textosConsole) {
+      // O console vê o que o plan veria: monta o plano (os recursos ficam com os valores
+      // planejados ou os do estado) e avalia cada expressão no escopo da raiz.
+      this.montarPlano();
+      return this.finalizar({ ...base, ok: true, fase: 'console', console: this.textosConsole.map((t) => this.avaliarConsole(t)) });
+    }
     // Todo provider declarado é validado, mesmo que nenhum recurso o use.
     for (const chave of this.configsProvedor.keys()) this.configProvedor(chave);
     if (this.diag.temErros) return this.finalizar({ ...base, ok: false, fase: 'plan' });
@@ -441,6 +459,17 @@ class Execucao {
     let estado = this.estadoAnterior;
     if (this.comando === 'apply' || this.comando === 'destroy') estado = this.aplicar(plano);
     return this.finalizar({ ...base, ok: !this.diag.temErros, fase: this.comando, plano, estado });
+  }
+
+  avaliarConsole(texto) {
+    try {
+      return { ok: true, valor: avaliar(analisarExpressao(texto), this.raiz.contexto('<console>')) };
+    } catch (erro) {
+      if (erro instanceof ErroAvaliacao || erro instanceof ErroValor || erro instanceof ErroHCL) {
+        return { ok: false, erro: { resumo: erro.resumo ?? erro.message, detalhe: erro.detalhe ?? '' } };
+      }
+      throw erro;
+    }
   }
 
   finalizar(resultado) {
