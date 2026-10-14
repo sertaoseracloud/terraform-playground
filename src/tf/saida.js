@@ -8,12 +8,8 @@ import { ehDesconhecido, ehObjeto, ehConjunto, comoHcl, textoDoNumero } from './
 
 const SIMBOLO = { criar: '+', alterar: '~', destruir: '-', substituir: '-/+', substituirAntes: '+/-', importar: ' ', ler: '<=', esquecer: '.' };
 
-/**
- * Linhas do terminal para um resultado de executarTerraform.
- * `primeiraVez`: o init baixa os provedores (senão reaproveita os já instalados, como no
- * segundo `terraform init` de uma pasta).
- */
-export function linhasDoResultado(r, { primeiraVez = true } = {}) {
+/** Uma lista de linhas com `add(texto, classe, { atraso, digitar })` e `pausar(ms)`. */
+function criarLinhas() {
   const L = [];
   let espera = 0;
   const add = (texto, classe = '', ritmo = {}) => {
@@ -26,10 +22,56 @@ export function linhasDoResultado(r, { primeiraVez = true } = {}) {
   };
   /** A próxima linha espera `ms` (o Terraform "pensando"). */
   const pausar = (ms) => { espera += ms; };
-  const comando = (texto, atraso = 250) => add(`$ ${texto}`, 'comando', { digitar: 2, atraso });
+  return { L, add, pausar };
+}
 
-  // ---------- init ----------
-  comando('terraform init', 0);
+/** `$ terraform ...` como se fosse digitado. */
+export function linhaDoComando(texto, atraso = 0) {
+  return { texto: `$ ${texto}`, classe: 'comando', digitar: 2, ...(atraso ? { atraso } : {}) };
+}
+
+/**
+ * Linhas do terminal para um resultado de executarTerraform: a sessão inteira (init,
+ * workspace, o comando, a pergunta com o "yes" digitado e o apply), como a correção e o
+ * terminal animado mostram. O terminal interativo usa as partes (linhasDoInit, linhasDoPlano...).
+ * `primeiraVez`: o init baixa os provedores (senão reaproveita os já instalados, como no
+ * segundo `terraform init` de uma pasta).
+ */
+export function linhasDoResultado(r, { primeiraVez = true } = {}) {
+  const L = [linhaDoComando('terraform init'), ...linhasDoInit(r, { primeiraVez })];
+  if (r.fase === 'init') return L;
+  if (r.fase === 'validate') return [...L, ...linhasDosDiagnosticos(r.diagnosticos)];
+  if (r.workspace && r.workspace !== 'default') {
+    L.push(linhaDoComando(`terraform workspace select ${r.workspace}`, 250));
+    L.push({ texto: `Switched to workspace "${r.workspace}".`, classe: 'sucesso', atraso: 120 }, { texto: '', classe: '' });
+  }
+  L.push(linhaDoComando(`terraform ${r.comando === 'destroy' ? 'destroy' : r.comando === 'apply' ? 'apply' : 'plan'}`, 350));
+  L.push({ texto: '', classe: '' }, ...linhasDoPlano(r));
+  if (!seguePara(r)) return L;
+  if (temMudancas(r)) {
+    L.push(...linhasDaPergunta(r).slice(0, -1));
+    L.push({ texto: '  Enter a value: yes', classe: 'forte', digitar: 17, atraso: 650 }, { texto: '', classe: '' });
+  }
+  return [...L, ...linhasDoApply(r)];
+}
+
+/** Depois do plano, o apply/destroy segue (para a pergunta ou direto para o apply)? */
+export function seguePara(r) {
+  if (r.comando !== 'apply' && r.comando !== 'destroy') return false;
+  if (!r.plano) return false;
+  return !(r.comando === 'destroy' && r.diagnosticos.some((d) => d.gravidade === 'erro'));
+}
+
+/** As caixas ╷ │ Error: … ╵ de cada diagnóstico. */
+export function linhasDosDiagnosticos(lista) {
+  const { L, add } = criarLinhas();
+  for (const d of lista) caixa(d, add);
+  return L;
+}
+
+/** O bloco do `terraform init` (sem a linha do comando). Com erro no init, as caixas dele. */
+export function linhasDoInit(r, { primeiraVez = true } = {}) {
+  const { L, add } = criarLinhas();
   add('');
   add('Initializing the backend...', 'titulo', { atraso: 160 });
   if (r.init?.backend?.tipo && r.init.backend.tipo !== 'local') {
@@ -64,22 +106,16 @@ export function linhasDoResultado(r, { primeiraVez = true } = {}) {
     add('Terraform has been successfully initialized!', 'sucesso forte', { atraso: 90 });
   }
   add('');
+  if (errosInit) for (const d of r.diagnosticos) caixa(d, add);
+  return L;
+}
 
-  if (r.fase === 'init' || r.fase === 'validate') {
-    for (const d of r.diagnosticos) caixa(d, add);
-    return L;
-  }
-
-  // ---------- workspace ----------
-  if (r.workspace && r.workspace !== 'default') {
-    comando(`terraform workspace select ${r.workspace}`);
-    add(`Switched to workspace "${r.workspace}".`, 'sucesso', { atraso: 120 });
-    add('');
-  }
-
-  // ---------- plan / apply / destroy ----------
-  comando(`terraform ${r.comando === 'destroy' ? 'destroy' : r.comando === 'apply' ? 'apply' : 'plan'}`, 350);
-  add('');
+/**
+ * O plano de um plan/apply/destroy (sem a linha do comando): leituras, ações, resumo e
+ * avisos. Os erros aparecem aqui, menos os do apply (a API recusou), que vêm no linhasDoApply.
+ */
+export function linhasDoPlano(r) {
+  const { L, add, pausar } = criarLinhas();
   const avisos = r.diagnosticos.filter((d) => d.gravidade === 'aviso');
   const erros = r.diagnosticos.filter((d) => d.gravidade === 'erro');
   if (!r.plano) {
@@ -91,14 +127,21 @@ export function linhasDoResultado(r, { primeiraVez = true } = {}) {
   pausar(450);
   escreverPlano(r, add);
   for (const d of avisos) caixa(d, add);
-  if (erros.length && r.comando !== 'apply') {
-    for (const d of erros) caixa(d, add);
-    return L;
-  }
-  if (r.comando === 'apply' || r.comando === 'destroy') {
-    if (temMudancas(r)) escreverConfirmacao(r, add);
-    escreverApply(r, erros, add);
-  }
+  if (erros.length && r.comando !== 'apply') for (const d of erros) caixa(d, add);
+  return L;
+}
+
+/** "Do you want to perform these actions?" até o "  Enter a value: " (sem a resposta). */
+export function linhasDaPergunta(r) {
+  const { L, add } = criarLinhas();
+  escreverConfirmacao(r, add);
+  return L;
+}
+
+/** O que vem depois do "yes": o progresso de cada recurso, o resumo e os outputs. */
+export function linhasDoApply(r) {
+  const { L, add } = criarLinhas();
+  escreverApply(r, r.diagnosticos.filter((d) => d.gravidade === 'erro'), add);
   return L;
 }
 
@@ -122,11 +165,12 @@ function escreverLeituras(r, add) {
 
 const idDe = (valor) => (valor?.id !== undefined && valor.id !== null && !ehDesconhecido(valor.id) && valor.id !== '' ? ` [id=${valor.id}]` : '');
 
-function temMudancas(r) {
+/** O plano muda alguma coisa? (Sem mudanças, o apply não pergunta.) */
+export function temMudancas(r) {
   return r.plano.acoes.some((a) => a.acao !== 'nada') || r.plano.saidas.some((s) => s.acao !== 'nada') || r.plano.movidos.length > 0;
 }
 
-/** "Do you want to perform these actions?" e o "yes" digitado. */
+/** "Do you want to perform these actions?" até o "Enter a value: " (a resposta vem do terminal). */
 function escreverConfirmacao(r, add) {
   const ws = r.workspace && r.workspace !== 'default' ? ` in workspace "${r.workspace}"` : '';
   if (r.comando === 'destroy') {
@@ -139,8 +183,7 @@ function escreverConfirmacao(r, add) {
     add('  Only \'yes\' will be accepted to approve.');
   }
   add('');
-  add('  Enter a value: yes', 'forte', { digitar: 17, atraso: 650 });
-  add('');
+  add('  Enter a value: ', 'forte');
 }
 
 export function textoDoResultado(r) {
