@@ -18,6 +18,7 @@ export const DADOS_LOCAIS = [
   { chave: 'atividade', dado: 'Dias em que você estudou (até 400)', finalidade: 'Sequência de dias 🔥' },
   { chave: 'nome', dado: 'Nome que você digitou para o certificado', finalidade: 'Aparecer no certificado e no painel' },
   { chave: 'rascunho:*', dado: 'O código que você escreveu em cada exercício', finalidade: 'Não perder seu trabalho ao fechar a aba' },
+  { chave: 'tentativa', dado: 'Quanto tempo você passou tentando cada exercício (só com ele aberto)', finalidade: 'Mostrar a aba Solução depois do tempo estimado do exercício' },
   { chave: 'tarefas:*', dado: 'Tarefas marcadas na lista de cada exercício', finalidade: 'Lembrar o que você já fez' },
   { chave: 'estado:*', dado: 'O estado simulado do Terraform (terraform.tfstate) de cada exercício e workspace', finalidade: 'O próximo plan comparar com o que já foi "criado"' },
   { chave: 'pref:*', dado: 'Preferências: acessibilidade, layout, tutorial visto, aviso de privacidade', finalidade: 'Abrir o site do jeito que você deixou' },

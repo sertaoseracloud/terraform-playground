@@ -69,6 +69,15 @@ export const gravarNome = (nome) => gravar('nome', nome.trim());
 export const lerTarefas = (id) => ler(`tarefas:${id}`, []);
 export const gravarTarefas = (id, indices) => gravar(`tarefas:${id}`, indices);
 
+// ---------- tempo de tentativa (segundos com o exercício aberto; libera a aba Solução) ----------
+export const lerTentativa = (id) => ler('tentativa', {})[id] ?? 0;
+export function somarTentativa(id, segundos) {
+  const tempos = ler('tentativa', {});
+  tempos[id] = (tempos[id] ?? 0) + Math.max(0, segundos);
+  gravar('tentativa', tempos);
+  return tempos[id];
+}
+
 // ---------- rascunhos de código ----------
 export const lerRascunho = (id) => ler(`rascunho:${id}`);
 export const gravarRascunho = (id, arquivos) => gravar(`rascunho:${id}`, arquivos);

@@ -10,6 +10,23 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.5.1',
+    data: '2026-10-14',
+    titulo: 'Solução só depois de tentar',
+    resumo: 'A aba Solução aparece depois do tempo estimado de cada exercício, e só enquanto ele não estiver resolvido.',
+    grupos: [
+      {
+        titulo: '🧠 Aprender tentando',
+        itens: [
+          'A aba Solução aparece depois do tempo estimado do exercício (o ⏱ ~15, 30 ou 45 min ao lado da dificuldade). Até lá, a descrição diz quanto falta.',
+          'O tempo conta só com o exercício aberto e a aba do navegador visível, e soma as vezes em que você voltou a ele.',
+          'Depois que o exercício é resolvido, a aba Solução não aparece mais.',
+          'No perfil sem pressão, o aviso não mostra contagem de minutos; o leitor de tela avisa quando a solução fica disponível.',
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.5.0',
     data: '2026-10-13',
     titulo: 'Agora é DivergeTerraform: acessível para todas as pessoas',

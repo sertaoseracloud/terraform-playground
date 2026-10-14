@@ -47,7 +47,7 @@ export const PASSOS = [
     alvo: '#painel-descricao',
     titulo: 'O enunciado',
     texto: `<p>Leia o que o problema pede. A aba <b>📘 Docs</b> mostra os argumentos de cada tipo de recurso
-      usado (obrigatórios, opcionais e quais forçam a recriação), e a <b>Solução</b> ajuda quando você travar.</p>
+      usado (obrigatórios, opcionais e quais forçam a recriação), e a <b>Solução</b> aparece depois do tempo estimado do exercício (o ⏱), se você ainda não resolveu.</p>
       <p>O botão <b>🔊</b> lê o enunciado em voz alta.</p>`,
   },
   {
