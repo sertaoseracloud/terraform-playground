@@ -15,7 +15,9 @@ export const ATALHOS = [
   ['Ctrl + F', 'Procura no código (dentro do editor)'],
   ['Ctrl + Alt + G', 'Vai para uma linha do código (dentro do editor)'],
   ['← → Home End', 'Troca de aba (Descrição, Testes, Terminal...)'],
-  ['Esc', 'Fecha janelas e pula a animação do terminal'],
+  ['Esc', 'Fecha janelas; no terminal, pula a animação ou sai dele (o Tab lá completa comandos)'],
+  ['↑ ↓ no terminal', 'Comandos anteriores'],
+  ['Ctrl + C / Ctrl + L no terminal', 'Cancela (inclusive a pergunta do apply) / limpa o terminal'],
 ];
 
 export function renderDeclaracaoAcessibilidade(el) {
@@ -33,7 +35,7 @@ export function renderDeclaracaoAcessibilidade(el) {
       <ul>
         <li>Feito para os leitores de tela NVDA, JAWS e Narrador (Windows), VoiceOver (macOS e iPhone) e TalkBack (Android), com a marcação padrão do W3C: títulos, regiões, rótulos e avisos falados.</li>
         <li>Cada tela tem título, regiões nomeadas (Descrição, Código, Saída) e um link "Pular para o conteúdo". Ao trocar de página, o foco vai para o título dela.</li>
-        <li>Quando você roda o código ou envia, o leitor fala o resultado: quantos casos passaram, qual falhou, o motivo e a dica. O terminal não é lido letra por letra.</li>
+        <li>Quando você roda o código ou envia, o leitor fala o resultado: quantos casos passaram, qual falhou, o motivo e a dica. O terminal não é lido letra por letra: só a saída nova é anunciada, o campo de digitação diz o que espera ("Comando do terminal", "Resposta do Terraform: digite yes para aprovar", "Expressão do terraform console") e a pergunta do apply é falada.</li>
         <li>No painel ♿ Acessibilidade, o perfil <b>🦯 Leitor de tela</b> tira as animações do terminal e faz o leitor falar todas as falhas, não só a primeira.</li>
         <li>O grafo de dependências e o QR Code do PIX têm versão em texto (lista de dependências e código copia e cola).</li>
         <li>Temas de alto contraste e claro, texto até 175% e fonte Atkinson Hyperlegible. O site segue o modo claro e o contraste alto do seu sistema.</li>

@@ -94,6 +94,14 @@ export const gravarEstado = (chave, estado) => {
 };
 export const apagarEstado = (chave) => remover(`estado:${chave}`);
 
+// ---------- terraform init (os provedores "baixados" em cada exercício) ----------
+export const lerInicializado = (id) => ler(`init:${id}`, null);
+export const gravarInicializado = (id, mapa) => gravar(`init:${id}`, mapa);
+
+// ---------- histórico do terminal (as setas ↑/↓), até 100 comandos ----------
+export const lerHistorico = () => ler('historico', []);
+export const gravarHistorico = (lista) => gravar('historico', lista.slice(-100));
+
 // ---------- preferências (layout, acessibilidade, tutorial) ----------
 export const lerPreferencia = (chave, padrao = null) => ler(`pref:${chave}`, padrao);
 export const gravarPreferencia = (chave, valor) => gravar(`pref:${chave}`, valor);

@@ -1,15 +1,18 @@
 // Tela de uma lição, exercício ou do playground livre.
-// ▶ Plan, ✔ Apply e 🗑 Destroy rodam o simulador de Terraform (src/tf/) no próprio
-// navegador. O estado (terraform.tfstate simulado) fica salvo por exercício.
+// O terminal é interativo: a pessoa digita os comandos do Terraform no prompt (src/tf/
+// comandos.js roda o simulador no próprio navegador). ▶ Plan, ✔ Apply e 🗑 Destroy são
+// atalhos que digitam o comando (com o terraform init antes, quando precisa). O estado
+// (terraform.tfstate simulado) fica salvo por exercício e workspace.
 import { minutosDoItem } from '../cargaHoraria.js';
 import { buscarItem, modulos, vizinhos, DIFICULDADES } from '../conteudo/trilha.js';
 import { linkItem, linkCompartilhado } from '../compartilhar.js';
 import { corrigir } from '../corrigir.js';
-import { executarTerraform } from '../tf/motor.js';
-import { linhasDoResultado, comoTfstate, formatarValor } from '../tf/saida.js';
+import { linhaDoComando, comoTfstate, formatarValor } from '../tf/saida.js';
+import { rodarComando, precisaDeInit, completarComando } from '../tf/comandos.js';
 import { buscarTipo } from '../tf/esquema/index.js';
 import {
   statusDe, marcar, lerRascunho, gravarRascunho, apagarRascunho, lerEstado, gravarEstado, apagarEstado,
+  lerInicializado, gravarInicializado, lerHistorico, gravarHistorico,
 } from '../progresso.js';
 import { EditorArquivos } from './editor.js';
 import { iniciarLeitura } from './acessibilidade.js';
@@ -62,21 +65,18 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     workspace: $('workspace'),
   };
 
-  const estado = { item: null, ocupado: false, origem: null, ultimo: null };
+  const estado = { item: null, ocupado: false, origem: null, ultimo: null, ultimoComando: null };
 
-  // Terminal animado. O primeiro `terraform init` de cada exercício baixa os provedores;
-  // os seguintes reaproveitam, como numa pasta de verdade.
+  // O terminal: a animação de sempre + o prompt digitável (histórico, Tab, Ctrl+C/D/L, Esc).
   const terminal = criarTerminal(el.terminal, {
     aoMudar: (animando) => { el.pular.hidden = !animando; },
+    campo: $('campo-terminal'),
+    rotulo: $('prompt-terminal'),
+    historico: lerHistorico(),
+    aoMudarHistorico: gravarHistorico,
+    completar: (texto) => (estado.item ? completarComando(texto, criarCtx(estado.item, shell.vez)) : []),
   });
-  const iniciados = new Set();
   el.pular.onclick = () => terminal.pular();
-  el.terminal.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && terminal.animando) {
-      e.preventDefault();
-      terminal.pular();
-    }
-  });
 
   let salvarTimer;
   const editor = new EditorArquivos({
@@ -336,23 +336,157 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
       renderSolucao();
       renderTestesPendentes();
     }
-    terminal.limpar();
     el.tituloTerminal.textContent = `aluno@sertao: ~/${item.id}`;
     mostrarDesc('enunciado');
     mostrarSaida('terminal');
     renderEstado();
-    executar();
+    // O que estava no terminal do exercício anterior (um apply esperando o yes) é cancelado.
+    executar('plan', { abrindo: true });
     return true;
   }
 
-  // ---------- execução ----------
-  /** Mostra a saída; com `animar`, termina quando a animação acaba (ou o aluno pula). */
-  function renderTerminal(r, { animar }) {
-    const id = estado.item.id;
-    const linhas = linhasDoResultado(r, { primeiraVez: !iniciados.has(id) });
-    iniciados.add(id);
-    return terminal.mostrar(linhas, { animar, pasta: id });
+  // ---------- o shell do terminal ----------
+  // Cada "vez" é uma sessão do shell: trocar de exercício ou apertar um botão começa outra,
+  // e os comandos da anterior param de mexer na tela (um apply esperando o yes é cancelado).
+  const shell = { vez: 0, atual: null, animar: false };
+
+  /** O que os comandos (src/tf/comandos.js) usam da tela, enquanto a sessão `vez` valer. */
+  function criarCtx(item, vez) {
+    const vivo = () => shell.vez === vez && estado.item === item;
+    const id = item.id;
+    const chave = () => `${id}@${el.workspace.value}`;
+    return {
+      arquivos: () => ({ ...editor.arquivos }),
+      trocarArquivos: (novos) => {
+        if (!vivo()) return;
+        editor.carregar(novos);
+        gravarRascunho(id, novos);
+      },
+      estado: () => lerEstado(chave()) ?? null,
+      gravarEstado: (e) => {
+        if (!vivo()) return;
+        gravarEstado(chave(), e);
+        renderEstado();
+      },
+      workspace: () => el.workspace.value,
+      trocarWorkspace: (nome) => {
+        if (!vivo()) return;
+        el.workspace.value = nome;
+        renderEstado();
+      },
+      workspaces: () => [...el.workspace.options].map((o) => o.value),
+      criarWorkspace: (nome) => {
+        if (!vivo()) return;
+        el.workspace.add(new Option(nome, nome));
+        el.workspace.value = nome;
+        renderEstado();
+      },
+      apagarWorkspace: (nome) => {
+        if (!vivo()) return;
+        apagarEstado(`${id}@${nome}`);
+        [...el.workspace.options].find((o) => o.value === nome)?.remove();
+      },
+      inicializado: () => lerInicializado(id),
+      gravarInicializado: (mapa) => { if (vivo()) gravarInicializado(id, mapa); },
+      semente: id,
+      mostrar: (linhas) => (vivo() ? terminal.mostrar(linhas, { animar: shell.animar && !el.janelaTerminal.hidden, pasta: id }) : Promise.resolve()),
+      escrever: (texto, classe) => { if (vivo()) terminal.escrever(texto, classe); },
+      perguntar: (prompt, rotulo) => {
+        if (!vivo()) return Promise.resolve(null);
+        const resposta = terminal.ler({ prompt, rotulo, historico: false });
+        // A pergunta recebe o foco (quem clicou em ✔ Apply digita o yes ali) e é falada.
+        terminal.focar();
+        if (/yes/.test(rotulo)) anunciar('O Terraform pergunta se pode continuar. Digite yes e aperte Enter para aprovar.');
+        return resposta;
+      },
+      abrirGrafo: (r) => {
+        if (!vivo()) return;
+        estado.ultimo = r;
+        mostrarSaida('grafo');
+      },
+      aoResultado: (r, comando) => { if (vivo()) depoisDoComando(r, comando); },
+      limpar: () => { if (vivo()) terminal.limpar(); },
+    };
   }
+
+  /** Roda uma linha no simulador; um erro do próprio simulador vai para o terminal. */
+  async function rodarLinha(texto, ctx) {
+    try {
+      await rodarComando(texto, ctx);
+    } catch (erro) {
+      console.error(erro);
+      ctx.escrever(`Erro interno do simulador: ${erro.message}\n`, 'erro');
+      definirStatus('Erro interno do simulador');
+    }
+  }
+
+  /** O prompt: lê e roda comandos até a sessão mudar. */
+  async function laco(item, vez) {
+    const ctx = criarCtx(item, vez);
+    while (shell.vez === vez && estado.item === item) {
+      const linha = await terminal.ler({ pasta: item.id, rotulo: 'Comando do terminal' });
+      if (shell.vez !== vez || estado.item !== item) return;
+      if (linha === null) continue;
+      shell.animar = true; // os comandos digitados também animam
+      shell.atual = rodarLinha(linha, ctx);
+      await shell.atual;
+    }
+  }
+
+  /** Para o que estiver no terminal e espera o comando em andamento terminar (sem escrever). */
+  async function pararShell() {
+    shell.vez++;
+    terminal.pular();
+    terminal.cancelarLeitura();
+    await shell.atual;
+  }
+
+  /**
+   * Digita os comandos no terminal, um depois do outro, como se a pessoa tivesse digitado
+   * (os botões e o abrir do exercício). Depois, o prompt volta.
+   */
+  async function digitarComandos(textos, { animar = false, limpar = false } = {}) {
+    await pararShell();
+    const item = estado.item;
+    const vez = shell.vez;
+    if (limpar) terminal.limpar();
+    const ctx = criarCtx(item, vez);
+    shell.animar = animar;
+    shell.atual = (async () => {
+      for (const texto of textos) {
+        if (shell.vez !== vez) return;
+        await ctx.mostrar([linhaDoComando(texto)]);
+        await rodarLinha(texto, ctx);
+      }
+    })();
+    await shell.atual;
+    const valendo = shell.vez === vez && estado.item === item;
+    if (valendo) laco(item, vez);
+    return valendo;
+  }
+
+  /** Com o terraform init antes, se o código precisar (pasta nova ou provedor novo). */
+  const comInit = (textos) => (precisaDeInit(criarCtx(estado.item, shell.vez)) ? ['terraform init', ...textos] : textos);
+
+  /** Depois de cada plan/apply/destroy (pelos botões ou digitado): estado, outputs, status, progresso. */
+  function depoisDoComando(r, comando) {
+    estado.ultimo = r;
+    estado.ultimoComando = { r, comando };
+    renderEstado();
+    renderSaidas(r);
+    if (!el.grafo.hidden) desenharGrafo(el.grafo, r);
+    const resumo = r.plano?.resumo;
+    definirStatus(r.ok
+      ? `${comando}: ${resumo ? `${resumo.criar} add, ${resumo.alterar} change, ${resumo.destruir} destroy` : 'ok'}`
+      : `${comando}: ${r.diagnosticos.filter((d) => d.gravidade === 'erro').length} erro(s)`, { falar: false });
+    const item = estado.item;
+    if (item.tipo === 'licao' && !statusDe(item.id) && r.ok) {
+      marcar(item.id, 'resolvido');
+      aoMudarProgresso();
+    }
+  }
+
+  // ---------- execução ----------
 
   function renderEstado() {
     const atual = estadoAtual();
@@ -393,49 +527,25 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     mostrarDesc('testes');
   }
 
-  // `falar`: só quando a pessoa pediu (botão ou atalho); as execuções automáticas (abrir
-  // o exercício, trocar de arquivo, restaurar) não interrompem o leitor de tela.
-  async function executar(comando = 'plan', { abrirTestes = false, animar = false, falar = false } = {}) {
+  // Os botões digitam os comandos no terminal. `falar`: só quando a pessoa pediu (botão ou
+  // atalho); as execuções automáticas (abrir o exercício, restaurar) não interrompem o leitor
+  // de tela. `abrindo`: terraform init + terraform plan, num terminal limpo.
+  async function executar(comando = 'plan', { abrirTestes = false, animar = false, falar = false, abrindo = false, antes = [] } = {}) {
     if (!estado.item) return;
     const item = estado.item;
-    const arquivos = { ...editor.arquivos };
-    definirStatus(`terraform ${comando}…`, { falar: false });
-    await esperar();
-    const inicio = performance.now();
-    let r;
-    try {
-      r = executarTerraform(arquivos, { comando, estado: estadoAtual(), workspace: el.workspace.value, semente: item.id });
-    } catch (erro) {
-      console.error(erro);
-      terminal.texto(`Erro interno do simulador: ${erro.message}`);
-      definirStatus('Erro interno do simulador');
+    estado.ultimoComando = null;
+    definirStatus(animar ? `terraform ${comando}… (Esc ou ⏩ Pular para ver tudo)` : `terraform ${comando}…`, { falar: false });
+    const textos = abrindo ? ['terraform init', 'terraform plan'] : [...antes, ...comInit([`terraform ${comando}`])];
+    const valendo = await digitarComandos(textos, { animar, limpar: abrindo });
+    if (!valendo || estado.item !== item) return;
+    const r = estado.ultimoComando?.comando === comando ? estado.ultimoComando.r : null;
+    if (!r) {
+      definirStatus(`terraform ${comando}: cancelado ou com erro (veja o terminal)`, { falar: falar && `terraform ${comando} não foi concluído. Veja o terminal.` });
       return;
     }
-    if (estado.item !== item) return;
-    estado.ultimo = r;
-    if ((comando === 'apply' || comando === 'destroy') && r.plano) {
-      gravarEstado(chaveEstado(), r.estado);
-    }
-    const ms = Math.max(1, Math.round(performance.now() - inicio));
-    const animarAgora = animar && !el.janelaTerminal.hidden;
-    if (animarAgora) definirStatus(`terraform ${comando}… (Esc ou ⏩ Pular para ver tudo)`, { falar: false });
-    const animacao = renderTerminal(r, { animar: animarAgora });
-    renderEstado();
-    renderSaidas(r);
-    if (!el.grafo.hidden) desenharGrafo(el.grafo, r);
-    await animacao;
-    if (estado.item !== item || estado.ultimo !== r) return;
-    const resumo = r.plano?.resumo;
     const fala = falaDoTerraform(comando, r);
     const comTestes = item.tipo === 'problema' && comando === 'plan';
-    definirStatus(r.ok
-      ? `${comando}: ${resumo ? `${resumo.criar} add, ${resumo.alterar} change, ${resumo.destruir} destroy` : 'ok'} · ${ms} ms`
-      : `${comando}: ${r.diagnosticos.filter((d) => d.gravidade === 'erro').length} erro(s)`, { falar: falar && !comTestes && fala });
-
-    if (item.tipo === 'licao' && !statusDe(item.id) && r.ok) {
-      marcar(item.id, 'resolvido');
-      aoMudarProgresso();
-    }
+    if (falar && !comTestes) anunciar(fala);
     if (comTestes) {
       const resultado = await rodarTestes({ incluirOcultos: false });
       if (estado.item !== item) return;
@@ -661,18 +771,13 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
 
   // ---------- eventos ----------
   el.executar.onclick = () => executarPeloAluno();
+  // Apply e Destroy digitam o comando: o Terraform mostra o plano e espera o yes no terminal.
   el.apply.onclick = () => executar('apply', { animar: true, falar: true });
-  el.destroy.onclick = () => {
-    if (!Object.keys(estadoAtual()?.recursos ?? {}).length) {
-      definirStatus('O estado está vazio: não há nada para destruir.');
-      return;
-    }
-    if (confirm('terraform destroy: apagar todos os recursos do estado simulado deste exercício?')) executar('destroy', { animar: true, falar: true });
-  };
+  el.destroy.onclick = () => executar('destroy', { animar: true, falar: true });
   el.enviar.onclick = () => enviar();
   el.workspace.onchange = () => {
     renderEstado();
-    executar('plan', { animar: true, falar: true });
+    executar('plan', { animar: true, falar: true, antes: [`terraform workspace select ${el.workspace.value}`] });
   };
 
   el.restaurar.onclick = () => {
@@ -707,5 +812,6 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     redesenharDescricao: () => estado.item && renderDescricao(),
     /** Saiu da tela do exercício: a animação do terminal termina na hora. */
     sair: () => terminal.pular(),
+    terminal,
   };
 }

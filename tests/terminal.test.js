@@ -98,7 +98,7 @@ describe('terminal animado', () => {
 
   const linhas = () => linhasDoResultado(executarTerraform(BUCKET, { comando: 'apply' }));
 
-  it('digita o comando aos poucos e termina com o prompt e o cursor', async () => {
+  it('digita o comando aos poucos; no fim o cursor desenhado sai (o prompt de verdade é o campo)', async () => {
     const mudancas = [];
     const t = criarTerminal(pre, { aoMudar: (a) => mudancas.push(a) });
     const fim = t.mostrar(linhas(), { pasta: 'aula' });
@@ -108,8 +108,8 @@ describe('terminal animado', () => {
     await vi.runAllTimersAsync();
     await fim;
     expect(pre.textContent).toContain('Apply complete! Resources: 2 added');
-    expect(pre.lastElementChild.className).toBe('cursor');
-    expect(pre.textContent.trimEnd().endsWith('aluno@sertao:~/aula$')).toBe(true);
+    expect(pre.querySelector('.cursor')).toBeNull();
+    expect(pre.textContent.endsWith('\n')).toBe(true);
     expect(pre.getAttribute('aria-busy')).toBe('false');
     expect(mudancas).toEqual([true, false]);
   });
@@ -132,13 +132,20 @@ describe('terminal animado', () => {
     expect(pre.textContent).toContain('Apply complete!');
   });
 
-  it('uma execução nova cancela a anterior', async () => {
+  it('limpar cancela a animação em andamento', async () => {
     const t = criarTerminal(pre);
     t.mostrar(linhas(), { pasta: 'aula' });
     await vi.advanceTimersByTimeAsync(500);
+    t.limpar();
     await t.mostrar([{ texto: '$ terraform plan', classe: 'comando' }], { animar: false, pasta: 'aula' });
     await vi.runAllTimersAsync();
-    expect(pre.textContent).not.toContain('init');
-    expect(pre.textContent).toContain('terraform plan');
+    expect(pre.textContent).toBe('aluno@sertao:~/aula$ terraform plan\n');
+  });
+
+  it('a saída nova é acrescentada (o terminal guarda o que já rodou)', async () => {
+    const t = criarTerminal(pre);
+    await t.mostrar([{ texto: '$ terraform init', classe: 'comando' }], { animar: false, pasta: 'aula' });
+    await t.mostrar([{ texto: '$ terraform plan', classe: 'comando' }], { animar: false, pasta: 'aula' });
+    expect(pre.textContent).toBe('aluno@sertao:~/aula$ terraform init\naluno@sertao:~/aula$ terraform plan\n');
   });
 });

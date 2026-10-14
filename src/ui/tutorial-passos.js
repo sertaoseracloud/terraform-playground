@@ -66,6 +66,9 @@ export const PASSOS = [
     texto: `<p>Mostra a saída do Terraform, em inglês, igual à de verdade: <code>terraform init</code>,
       o plano com <span class="l-criar">+ criar</span>, <span class="l-alterar">~ alterar</span> e
       <span class="l-destruir">- destruir</span>, e os erros com a linha e uma explicação em português.</p>
+      <p>É um terminal de verdade: digite <code>terraform plan</code>, <code>terraform apply</code> (ele pergunta e só segue com <code>yes</code>),
+      <code>terraform fmt</code>, <code>terraform console</code>, <code>terraform state list</code>... e <code>help</code> para ver todos.
+      Os botões ▶ Plan, ✔ Apply e 🗑 Destroy digitam o comando para você. <kbd>Esc</kbd> sai do terminal.</p>
       <p>As outras abas mostram o <b>🕸️ Grafo</b> de dependências, o <b>📦 Estado</b> (terraform.tfstate)
       e os <b>📤 Outputs</b>. O seletor 🗂 troca o <b>workspace</b>.</p>`,
   },

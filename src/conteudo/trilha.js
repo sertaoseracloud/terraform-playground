@@ -25,6 +25,8 @@ export const LIVRE = {
     terraform.tfvars) e pastas de módulos (modulos/rede/main.tf).</p>
     <p><b>▶ Plan</b> mostra o que mudaria, <b>✔ Apply</b> "cria" os recursos no estado simulado e
     <b>🗑 Destroy</b> apaga tudo. O estado fica <b>salvo no seu navegador</b>; use <b>Limpar estado</b> para recomeçar.</p>
+    <p>No terminal você também pode digitar os comandos: <code>terraform apply</code> (responda <code>yes</code>),
+    <code>terraform fmt</code>, <code>terraform console</code>, <code>terraform output</code>... Digite <code>help</code> para ver todos.</p>
     <p>Provedores disponíveis: aws, azurerm, random, local, null, tls, archive e o embutido terraform_data.</p>`,
   arquivos: {
     'main.tf': tf`

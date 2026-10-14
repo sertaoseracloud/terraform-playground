@@ -123,6 +123,13 @@ function errosDeInit(r, ctx) {
   ].join('\n'));
 }
 
+/** O código atual precisa de `terraform init` (pasta nova ou provedor novo)? Os botões usam. */
+export function precisaDeInit(ctx) {
+  if (!ctx.inicializado()) return true;
+  const r = executarTerraform(ctx.arquivos(), { comando: 'plan', estado: ctx.estado() ?? undefined, workspace: ctx.workspace(), semente: ctx.semente });
+  return r.fase === 'init' || errosDeInit(r, ctx) !== null;
+}
+
 /** Variável obrigatória sem valor: o Terraform pergunta no terminal, como no de verdade. */
 const VARIAVEL_FALTANDO = /^A variável "([^"]+)" não tem default/;
 

@@ -584,6 +584,28 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   font-variant-ligatures: none; /* como num terminal: "..." continua sendo três pontos */
 }
 .terminal .linha { display: inline; }
+.terminal:focus-within, .terminal:focus-visible { outline: 2px solid var(--roxo); outline-offset: -2px; }
+.saida-terminal { margin: 0; font: inherit; white-space: pre; }
+.saida-terminal[aria-busy="true"] { cursor: progress; }
+/* o prompt e o campo na mesma linha, como num terminal */
+.linha-prompt { display: flex; align-items: baseline; }
+.prompt-terminal { white-space: pre; }
+.campo-terminal {
+  flex: 1;
+  min-width: 4ch;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  color: var(--texto);
+  background: transparent;
+  caret-color: var(--texto);
+}
+.campo-terminal:focus { outline: none; } /* o contorno fica no terminal inteiro (:focus-within) */
+.campo-terminal:disabled { opacity: 0; }
+@keyframes piscar-caret { 50% { caret-color: transparent; } }
+.campo-terminal:focus { animation: piscar-caret 1.05s steps(1) infinite; }
+:root.a11y-sem-movimento .campo-terminal:focus { animation: none; }
+@media (prefers-reduced-motion: reduce) { .campo-terminal:focus { animation: none; } }
 
 /* janela do terminal: barra com as "luzes", o título (usuário e pasta) e o ⏩ Pular */
 .janela-terminal { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--fundo-mais-escuro); }
@@ -617,7 +639,6 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 }
 .btn-pular:hover { border-color: var(--roxo); }
 .btn-pular kbd { font: inherit; font-size: 0.75rem; color: var(--suave); border: 1px solid var(--suave); border-radius: 3px; padding: 0 3px; margin-left: 2px; }
-.terminal[aria-busy="true"] { cursor: progress; }
 
 /* prompt do shell e cursor piscando */
 .p-usuario { color: var(--verde); font-weight: 700; }

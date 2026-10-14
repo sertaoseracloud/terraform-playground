@@ -21,6 +21,8 @@ export const DADOS_LOCAIS = [
   { chave: 'tentativa', dado: 'Quanto tempo você passou tentando cada exercício (só com ele aberto)', finalidade: 'Mostrar a aba Solução depois do tempo estimado do exercício' },
   { chave: 'tarefas:*', dado: 'Tarefas marcadas na lista de cada exercício', finalidade: 'Lembrar o que você já fez' },
   { chave: 'estado:*', dado: 'O estado simulado do Terraform (terraform.tfstate) de cada exercício e workspace', finalidade: 'O próximo plan comparar com o que já foi "criado"' },
+  { chave: 'init:*', dado: 'Os provedores que o terraform init "baixou" em cada exercício', finalidade: 'Saber se é preciso rodar terraform init de novo' },
+  { chave: 'historico', dado: 'Os últimos 100 comandos que você digitou no terminal', finalidade: 'As setas ↑/↓ do terminal' },
   { chave: 'pref:*', dado: 'Preferências: acessibilidade, layout, tutorial visto, aviso de privacidade', finalidade: 'Abrir o site do jeito que você deixou' },
 ];
 

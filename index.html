@@ -64,8 +64,8 @@
         </div>
         <div class="acoes">
           <button id="btn-executar" class="btn btn-roxo" title="terraform plan: mostra o que vai mudar e roda os testes visíveis (Ctrl+Enter)" aria-keyshortcuts="Control+Enter" disabled>▶ Plan</button>
-          <button id="btn-apply" class="btn btn-ciano" title="terraform apply: cria ou altera os recursos no estado simulado"><span aria-hidden="true">✔</span><span class="rotulo-btn"> Apply</span></button>
-          <button id="btn-destroy" class="btn btn-fantasma btn-perigo" title="terraform destroy: apaga tudo o que está no estado simulado"><span aria-hidden="true">🗑</span><span class="rotulo-btn"> Destroy</span></button>
+          <button id="btn-apply" class="btn btn-ciano" title="Digita terraform apply no terminal: ele mostra o plano e espera você digitar yes"><span aria-hidden="true">✔</span><span class="rotulo-btn"> Apply</span></button>
+          <button id="btn-destroy" class="btn btn-fantasma btn-perigo" title="Digita terraform destroy no terminal: ele mostra o que vai apagar e espera você digitar yes"><span aria-hidden="true">🗑</span><span class="rotulo-btn"> Destroy</span></button>
           <button id="btn-enviar" class="btn btn-verde" title="Rodar todos os casos de teste, inclusive os ocultos (Ctrl+Shift+Enter)" aria-keyshortcuts="Control+Shift+Enter" disabled>⬆ Enviar</button>
           <button id="btn-resetar-estado" class="btn btn-fantasma" title="Apagar o estado simulado (como se nada tivesse sido criado)" aria-label="Limpar estado"><span aria-hidden="true">⟲</span><span class="rotulo-btn" aria-hidden="true"> Limpar estado</span></button>
           <button id="btn-restaurar" class="btn btn-fantasma" title="Voltar ao código original" aria-label="Restaurar código original"><span aria-hidden="true">↺</span><span class="rotulo-btn" aria-hidden="true"> Restaurar</span></button>
@@ -132,7 +132,10 @@
               <span class="titulo-terminal" id="titulo-terminal">aluno@sertao: ~/terraform</span>
               <button type="button" class="btn-pular" id="btn-pular" hidden title="Mostrar o resto da saída agora (Esc)">⏩ Pular <kbd>Esc</kbd></button>
             </div>
-            <pre id="saida-terminal" class="terminal" tabindex="0" aria-label="Saída do terminal" aria-busy="false"></pre>
+            <div id="terminal" class="terminal" role="region" aria-label="Terminal" tabindex="-1">
+              <pre id="saida-terminal" class="saida-terminal" role="log" aria-live="polite" aria-busy="false"></pre>
+              <div class="linha-prompt"><span id="prompt-terminal" class="prompt-terminal"></span><input id="campo-terminal" class="campo-terminal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Comando do terminal"></div>
+            </div>
           </div>
           <div id="saida-grafo" class="saida grafo" hidden tabindex="0"></div>
           <div id="saida-estado" class="saida estado" hidden tabindex="0"></div>
