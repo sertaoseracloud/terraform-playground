@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.7.0',
+    data: '2026-10-14',
+    titulo: 'O certificado traz o progresso de volta',
+    resumo: 'Trocou de computador ou limpou o navegador? Valide o seu certificado aqui e o progresso dos módulos dele volta.',
+    grupos: [
+      { titulo: '↩️ Restaurar o progresso', itens: ['Ao validar um certificado pelo link ou código, aparece o botão "Restaurar o meu progresso neste navegador".', 'O progresso só volta se o nome salvo neste navegador for igual ao do certificado, com os mesmos acentos e maiúsculas.', 'Voltam o módulo do certificado e os anteriores da trilha, nas datas do certificado: o certificado emitido de novo é o mesmo. Nada do que já está no navegador é apagado.'] },
+    ],
+  },
+  {
     versao: '1.6.0',
     data: '2026-10-14',
     titulo: 'Um terminal de verdade',

@@ -114,6 +114,10 @@ O site é estático e fica no GitHub Pages.
   link de validação vê o resultado primeiro, com o badge, os dados e a cadeia como linha do tempo.
   As cores separam "válido" (verde), "alterado" (vermelho), "não consegui ler / faltam dados" (âmbar)
   e "link antigo" (ciano), e mudar o texto apaga o resultado anterior.
+- **↩️ Restaurar o progresso pelo certificado**: ao validar um certificado válido pelo link ou código,
+  quem tem neste navegador o **mesmo nome** do certificado (acentos e maiúsculas contam) restaura o
+  módulo e os anteriores da cadeia, nas datas do certificado. O certificado emitido de novo é o mesmo;
+  nada do que já está no navegador é apagado (`src/restaurar.js`).
 - **📄 XML do certificado** e **✍️ assinatura Ed25519** com a chave pública em `chave-publica-ed25519.txt`.
 - **A palavra secreta nunca entra no código nem no site.** Ela fica no secret
   `CERTIFICADO_SEGREDO` do GitHub Actions; o build injeta só um valor derivado dela
