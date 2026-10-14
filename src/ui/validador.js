@@ -12,6 +12,11 @@ import {
 import { svgBadge } from '../badges.js';
 import { textoHoras } from '../cargaHoraria.js';
 import { esc, $, dataPorExtenso } from './util.js';
+import { modulos } from '../conteudo/trilha.js';
+import { lerNome, restaurarItens } from '../progresso.js';
+import { planoDeRestauracao, situacaoDoNome, itensDoPlano } from '../restaurar.js';
+import { pedirNome } from './inicio.js';
+import { anunciar } from './anuncios.js';
 
 /** Maior XML aceito: o de um certificado tem poucos KB. */
 const MAX_XML = 512 * 1024;
@@ -142,6 +147,86 @@ export function resultadoDoImpresso(dados) {
   return caixa({ situacao: valido ? 'valido' : 'invalido', titulo: valido ? 'Selo confere' : 'Não confere', texto: esc(motivo), corpo: nota });
 }
 
+const contar = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+
+/**
+ * Bloco "Restaurar o progresso" de um certificado válido. O progresso só volta se o nome
+ * salvo neste navegador for igual ao do certificado (acentos e maiúsculas contam).
+ */
+export function blocoRestaurar(cert, codigo, nomeSalvo = lerNome()) {
+  const situacao = situacaoDoNome(cert, nomeSalvo);
+  let corpo;
+  if (situacao === 'sem-nome') {
+    corpo = `
+      <p>Este certificado pode trazer o seu progresso de volta para este navegador. Antes, salve aqui o seu nome
+        <b>exatamente como está no certificado</b>, com os mesmos acentos e maiúsculas.</p>
+      <p><button type="button" class="btn btn-roxo btn-pequeno" data-nome-restaurar>✏️ Salvar o meu nome</button></p>`;
+  } else if (situacao === 'nome-diferente') {
+    corpo = `
+      <p>O progresso só volta quando o nome salvo neste navegador é igual ao do certificado, com os mesmos acentos e maiúsculas.</p>
+      <dl class="dados-validacao">
+        <div class="largo"><dt>No certificado</dt><dd>${esc(cert.nome)}</dd></div>
+        <div class="largo"><dt>Neste navegador</dt><dd>${esc(String(nomeSalvo).trim())}</dd></div>
+      </dl>
+      <p><button type="button" class="btn btn-roxo btn-pequeno" data-nome-restaurar>✏️ Trocar o nome deste navegador</button></p>`;
+  } else {
+    const plano = planoDeRestauracao(cert, modulos);
+    corpo = `
+      <p>Estes módulos voltam como concluídos, nas datas do certificado. Nada do que já está neste navegador é apagado.</p>
+      <ul class="lista-restaurar">
+        ${plano.map((b) => `<li><b>${esc(b.titulo)}</b> · ${contar(b.exercicios, 'exercício', 'exercícios')} e ${contar(b.licoes, 'lição', 'lições')} · concluído em ${dataCurta(b.data)}</li>`).join('')}
+      </ul>
+      <p><button type="button" class="btn btn-verde" data-restaurar>↩️ Restaurar o meu progresso neste navegador</button></p>`;
+  }
+  return `
+    <section class="restaurar-progresso" data-codigo="${esc(codigo)}">
+      <h3 tabindex="-1">↩️ Restaurar o progresso neste navegador</h3>
+      ${corpo}
+    </section>`;
+}
+
+/** Resultado do link com o bloco de restaurar (só quando o selo confere). */
+function resultadoComRestauracao(texto) {
+  const codigo = extrairCodigo(texto);
+  const cert = codigo && decodificarCertificado(codigo);
+  return resultadoDoLink(texto) + (cert?.selo === 'confere' ? blocoRestaurar(cert, codigo) : '');
+}
+
+/** Cliques do bloco: salvar o nome (e redesenhar) ou restaurar. */
+function ligarRestauracao(el, aoRestaurar) {
+  el.onclick = async (e) => {
+    const bloco = e.target.closest('.restaurar-progresso');
+    if (!bloco) return;
+    const { codigo } = bloco.dataset;
+    const cert = decodificarCertificado(codigo);
+    const redesenhar = () => {
+      const novo = document.createRange().createContextualFragment(blocoRestaurar(cert, codigo)).firstElementChild;
+      bloco.replaceWith(novo);
+      novo.querySelector('h3').focus();
+    };
+    if (e.target.closest('[data-nome-restaurar]')) {
+      await pedirNome();
+      redesenhar();
+      return;
+    }
+    if (!e.target.closest('[data-restaurar]')) return;
+    if (situacaoDoNome(cert, lerNome()) !== 'pode') { redesenhar(); return; } // o nome mudou noutra aba
+    const plano = planoDeRestauracao(cert, modulos);
+    const ok = restaurarItens(itensDoPlano(plano));
+    const texto = ok
+      ? `Pronto: ${contar(plano.length, 'módulo voltou', 'módulos voltaram')} para este navegador, com as datas do certificado.`
+      : 'Este navegador não deixou o site guardar o progresso (aba anônima ou dados bloqueados). Tente numa janela normal.';
+    bloco.innerHTML = `
+      <h3 tabindex="-1">↩️ Restaurar o progresso neste navegador</h3>
+      <p>${ok ? '✅' : '⚠️'} ${esc(texto)}</p>
+      ${ok ? '<p><a class="btn btn-roxo btn-pequeno" href="#/trilha">Ir para a trilha</a></p>' : ''}`;
+    // Foco no próximo passo: o link da trilha; se não deu certo, o título do aviso.
+    (bloco.querySelector('a') ?? bloco.querySelector('h3')).focus();
+    anunciar(texto);
+    if (ok) aoRestaurar();
+  };
+}
+
 const METODOS = [
   { id: 'link', rotulo: 'Link ou código', icone: '🔗' },
   { id: 'impresso', rotulo: 'Impresso ou PDF', icone: '🖨️' },
@@ -243,9 +328,10 @@ function mostrar(saida, html) {
   saida.firstElementChild?.scrollIntoView?.({ block: 'nearest', behavior: reduzir ? 'auto' : 'smooth' });
 }
 
-export function renderValidador(el, codigoInicial = '') {
+export function renderValidador(el, codigoInicial = '', { aoRestaurar = () => {} } = {}) {
   el.innerHTML = htmlPagina(Boolean(codigoInicial));
   ligarAbas(el);
+  ligarRestauracao(el, aoRestaurar);
 
   // 1. Link ou código. Mudou o texto? O resultado antigo some (não vale para o texto novo).
   const campoLink = $('campo-link');
@@ -253,7 +339,7 @@ export function renderValidador(el, codigoInicial = '') {
   campoLink.oninput = () => { saidaLink.innerHTML = ''; };
   $('form-link').onsubmit = (e) => {
     e.preventDefault();
-    mostrar(saidaLink, resultadoDoLink(campoLink.value));
+    mostrar(saidaLink, resultadoComRestauracao(campoLink.value));
   };
 
   // 2. Impresso ou PDF.
@@ -303,5 +389,5 @@ export function renderValidador(el, codigoInicial = '') {
     mostrar(saidaXml, resultadoDoXml(campoXml.value));
   };
 
-  if (codigoInicial) $('resultado-inicial').innerHTML = resultadoDoLink(codigoInicial);
+  if (codigoInicial) $('resultado-inicial').innerHTML = resultadoComRestauracao(codigoInicial);
 }

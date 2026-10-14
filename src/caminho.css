@@ -659,6 +659,20 @@
 .cadeia-validacao .atual .nome-elo { font-weight: 700; }
 .acoes-validacao { margin: 14px 0 0; }
 .nota-validacao { font-size: 0.85rem; color: var(--suave); }
+.restaurar-progresso {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border: 1px solid var(--linha);
+  border-left: 4px solid var(--verde);
+  border-radius: 12px;
+}
+.restaurar-progresso h3 { margin: 0 0 8px; }
+/* O título só recebe foco por script (tabindex="-1"); botões e links mantêm o contorno do site. */
+.restaurar-progresso h3:focus { outline: none; }
+/* Os botões daqui têm texto longo: no celular, quebram a linha em vez de passar da borda. */
+.restaurar-progresso .btn { white-space: normal; max-width: 100%; text-align: left; }
+.lista-restaurar { margin: 8px 0 12px; padding-left: 1.2rem; }
+.lista-restaurar li { margin: 4px 0; }
 
 /* lista simples de certificados anteriores (página do certificado e validador) */
 .anteriores { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }

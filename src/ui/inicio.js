@@ -37,7 +37,7 @@ export function resumoProgresso() {
 
 // ---------- nome do aluno (para os certificados) ----------
 
-function pedirNome({ obrigatorio = false } = {}) {
+export function pedirNome({ obrigatorio = false } = {}) {
   const dialogo = $('dialogo-nome');
   const campo = $('campo-nome');
   campo.value = lerNome();

@@ -130,7 +130,7 @@ function navegar() {
     return;
   }
   if (rota.tela === 'validar') {
-    renderValidador(telaValidador, rota.codigo);
+    renderValidador(telaValidador, rota.codigo, { aoRestaurar: atualizarProgressoTopo });
     mostrarTela(telaValidador);
     marcarMenu('validar');
     definirPagina({

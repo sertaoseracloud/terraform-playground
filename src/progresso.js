@@ -53,6 +53,25 @@ export function dataDe(id) {
   return datas[id];
 }
 
+/**
+ * Restaura itens resolvidos (pelo certificado, em #/validar): cada um fica resolvido na
+ * data dada, mesmo se já estava resolvido em outro dia, porque a data do certificado é a
+ * que vale. Não conta como atividade do dia (a 🔥 não muda). Devolve false se o navegador
+ * não deixou gravar.
+ */
+export function restaurarItens(itens) {
+  const progresso = ler('progresso', {});
+  const datas = ler('datas', {});
+  for (const { id, data } of itens) {
+    progresso[id] = 'resolvido';
+    datas[id] = data;
+  }
+  gravar('progresso', progresso);
+  gravar('datas', datas);
+  const salvo = ler('progresso', {});
+  return itens.every(({ id }) => salvo[id] === 'resolvido');
+}
+
 // ---------- dias com atividade (sequência 🔥) ----------
 function registrarAtividade() {
   const dias = new Set(ler('atividade', []));
