@@ -1,0 +1,59 @@
+/* Cenários da trilha (src/ui/cenarios): o mapa de tiles em pixel art atrás do caminho de cada
+   módulo, com os personagens andando de tile em tile. Nunca recebe clique nem foco, e o caminho,
+   os nós e os rótulos mantêm as cores de sempre. */
+.com-cenario { position: relative; isolation: isolate; padding-bottom: 18px; }
+.cenario {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* clip (e não hidden): hidden viraria contêiner de rolagem e o palco não acompanharia a tela */
+  overflow: clip;
+  border-radius: 14px;
+  pointer-events: none;
+}
+/* O módulo tem milhares de pixels: o palco (mapa + personagens) tem a altura da tela e fica
+   preso no topo enquanto o aluno percorre o módulo; no módulo seguinte, entra o próximo cenário. */
+.cenario-palco { position: sticky; top: 0; height: 100vh; overflow: clip; }
+.cenario-mundo { position: absolute; top: 0; }
+.cenario-mapa { position: absolute; left: 0; top: 0; opacity: .45; image-rendering: pixelated; }
+/* Véu atrás do texto: o cabeçalho do módulo e a legenda de cada nó ficam legíveis sobre o mapa. */
+.com-cenario .unidade { background: color-mix(in srgb, var(--cor) 10%, var(--fundo)); }
+.com-cenario .legenda { background: color-mix(in srgb, var(--fundo) 88%, transparent); border-radius: 6px; padding: 0 6px; }
+
+/* Personagens: cada um ocupa um tile e anda um tile por passo (0,4 s), como no Tibia. */
+.personagem {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  transition: transform .4s linear;
+  will-change: transform;
+}
+.personagem canvas { display: block; width: 32px; height: 32px; image-rendering: pixelated; }
+/* Quem voa fica um pouco acima do chão, com a sombra no tile. */
+.mov-voar::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 34px;
+  width: 16px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 25%);
+}
+.saltando canvas { animation: cen-salto .4s ease-out; }
+@keyframes cen-salto { 50% { transform: translateY(-12px) rotate(-20deg); } }
+
+/* Módulo bloqueado: mapa desbotado; os personagens não andam (palco.js). */
+.bloqueada .cenario { filter: grayscale(1); opacity: .2; }
+
+/* Menos movimento: sem deslize entre os tiles (o palco também não cria o temporizador). */
+@media (prefers-reduced-motion: reduce) {
+  .personagem, .saltando canvas { transition: none; animation: none; }
+}
+
+/* Temas: no suave, cores calmas; no alto contraste, o palco desenha só contornos. */
+[data-tema="suave"] .cenario { filter: saturate(.5) brightness(.9); }
+[data-tema="alto-contraste"] .cenario-mapa { opacity: 1; }
+[data-tema="alto-contraste"] .personagem { transition: none; }

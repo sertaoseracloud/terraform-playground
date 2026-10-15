@@ -6,6 +6,7 @@ import '@fontsource/atkinson-hyperlegible/latin-400.css';
 import '@fontsource/atkinson-hyperlegible/latin-700.css';
 import './estilo.css';
 import './caminho.css';
+import './cenarios.css';
 import './landing.css';
 
 import { lerRota } from './compartilhar.js';
