@@ -84,6 +84,15 @@ describe('mapa', () => {
     }
   });
 
+  it('entre dois nós, a estrada faz uma volta, para um lado e depois para o outro (um caminho sinuoso)', () => {
+    const caminho = [{ c: 20, l: 2.5 }, { c: 20, l: 12.5 }, { c: 20, l: 22.5 }];
+    const faixa = estradaPorLinha(40, 25, caminho);
+    const centro = (l) => (faixa[l][0] + faixa[l][1] + 1) / 2;
+    expect(Math.abs(centro(7) - 20)).toBeGreaterThanOrEqual(2);
+    expect(Math.abs(centro(17) - 20)).toBeGreaterThanOrEqual(2);
+    expect(Math.sign(centro(7) - 20)).toBe(-Math.sign(centro(17) - 20));
+  });
+
   it('nós repetidos na mesma linha ou fora do mapa não quebram a curva', () => {
     const faixa = estradaPorLinha(20, 10, [{ c: 8, l: 3 }, { c: 12, l: 3 }, { c: 50, l: -4 }, { c: 9, l: 30 }]);
     expect(faixa).toHaveLength(10);

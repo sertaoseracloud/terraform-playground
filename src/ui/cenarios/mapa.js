@@ -31,6 +31,8 @@ export function colunasDaEstrada(colunas, raio = 112) {
 
 /** Até quantos tiles da curva é estrada (a faixa tem uns 5 tiles: cobre o nó e a legenda). */
 export const RAIO_ESTRADA = 2;
+/** Quantos tiles a estrada se afasta da reta entre dois nós, no meio do trecho. */
+export const SINUOSIDADE = 3;
 
 /** Catmull-Rom em uma dimensão: o valor entre p1 e p2, com p0 e p3 dando a curvatura. */
 const catmull = (p0, p1, p2, p3, t) => 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t);
@@ -56,7 +58,8 @@ export function estradaPorLinha(colunas, linhas, caminho = []) {
     const i = pontos.findIndex((p, k) => y >= p.l && y <= pontos[k + 1].l);
     const p = (k) => pontos[Math.max(0, Math.min(pontos.length - 1, k))].c;
     const t = (y - pontos[i].l) / (pontos[i + 1].l - pontos[i].l);
-    return catmull(p(i - 1), p(i), p(i + 1), p(i + 2), t);
+    // Entre dois nós, a estrada faz uma volta (zero nos nós), um trecho para cada lado: um caminho sinuoso.
+    return catmull(p(i - 1), p(i), p(i + 1), p(i + 2), t) + SINUOSIDADE * Math.sin(Math.PI * t) * (i % 2 ? -1 : 1);
   };
   // Sobra pelo menos 1 tile de chão de cada lado.
   const minimo = RAIO_ESTRADA + 1;
