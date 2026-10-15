@@ -10,6 +10,16 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.10.1',
+    data: '2026-10-15',
+    titulo: 'A vila cabe no mapa',
+    resumo: 'O número de moradores da vila agora acompanha o tamanho do mapa: quanto mais alto o módulo, mais gente cabe nele.',
+    grupos: [
+      { titulo: '🏘️ Vila', itens: ['Cabem 10 personagens por tela de altura do módulo (4 no celular). Antes eram no máximo 30 por módulo, e num módulo comprido quase não sobrava lugar para os filhos e os filhotes.'] },
+    ],
+  },
+
+  {
     versao: '1.10.0',
     data: '2026-10-15',
     titulo: 'A trilha virou uma vila',
