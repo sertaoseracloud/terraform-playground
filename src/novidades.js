@@ -10,6 +10,16 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.9.0',
+    data: '2026-10-15',
+    titulo: 'Cenários com a cara de cada módulo',
+    resumo: 'Os mapas da trilha agora falam do assunto de cada módulo: um canteiro de obras no básico, um porto de contêineres na AWS e um céu de nuvens na Azure.',
+    grupos: [
+      { titulo: '🗺️ Cenários', itens: ['Terraform básico num canteiro de obras (é ele que constrói a infraestrutura), AWS num porto laranja cheio de contêineres e Azure num céu de nuvens. Projetos continua na cidade à noite.', 'Personagens novos: mestre de obras e engenheira, estivador, rebocador na água e gaivota, técnica, balão e pipa.'] },
+      { titulo: '♿ Acessibilidade', itens: ['Continua só decoração: o leitor de tela não lê os cenários, e o caminho mantém as cores e o contraste em todos os temas.'] },
+    ],
+  },
+  {
     versao: '1.8.0',
     data: '2026-10-15',
     titulo: 'A trilha virou um mapa',
