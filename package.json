@@ -1,6 +1,6 @@
 {
   "name": "terraform-playground",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "DivergeTerraform: Terraform, AWS e Azure no navegador, com acessibilidade para pessoas cegas, surdas e neurodivergentes",
   "scripts": {
     "dev": "vite",

@@ -10,6 +10,16 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.8.0',
+    data: '2026-10-15',
+    titulo: 'A trilha virou um mapa',
+    resumo: 'Cada módulo da trilha tem agora o seu cenário em pixel art, com personagens andando por ele de quadradinho em quadradinho.',
+    grupos: [
+      { titulo: '🗺️ Cenários', itens: ['Terraform básico no sertão, AWS no fogo de um vulcão, Azure no gelo de uma geleira e Projetos na cidade à noite.', 'O mapa é feito de tiles em pixel art, como nos RPGs clássicos, com água, lava, objetos e uma estrada embaixo do caminho dos exercícios.', 'Personagens andam pelo mapa um passo de cada vez, sem entrar na água nem pisar no caminho: vaqueiro, cabrita, salamandra, pinguim, robozinho e outros.'] },
+      { titulo: '♿ Acessibilidade', itens: ['Os cenários são só decoração: o leitor de tela não os lê e o caminho mantém as cores e o contraste.', 'Com "reduzir movimento" (no sistema ou no painel ♿), os personagens ficam parados. No alto contraste, o mapa vira contorno.'] },
+    ],
+  },
+  {
     versao: '1.7.0',
     data: '2026-10-14',
     titulo: 'O certificado traz o progresso de volta',
