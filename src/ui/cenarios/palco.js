@@ -6,12 +6,12 @@ import { CENARIOS } from './index.js';
 import { TILE, gerarMapa, sorteador, tileEm } from './mapa.js';
 import { proximoPasso, posicoesIniciais } from './fisica.js';
 import { desenharSprite, misturar } from './pixel.js';
+import { vila, comCasas, MAX_PERSONAGENS } from './vila.js';
 
 const PASSO_MS = 400;
 const ALTURA_VOO = 8;
 // O canvas tem limite de altura: 1000 linhas (32 mil pixels) cobrem qualquer módulo.
 const MAX_LINHAS = 1000;
-const MAX_PERSONAGENS = 30;
 
 function movimentoReduzido(janela) {
   const raiz = document.documentElement;
@@ -77,6 +77,7 @@ function desenharMapa(canvas, mapa, cen, semente) {
         ctx.strokeStyle = contorno;
         if (t.tipo === 'bloqueio') ctx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
         if (t.tipo === 'objeto') desenharSprite(ctx, cen.objetos[t.variante], x, y, { cor: contorno });
+        if (t.tipo === 'casa') desenharSprite(ctx, cen.casa, x, y, { cor: contorno });
         continue;
       }
       if (t.tipo === 'estrada') textura(ctx, x, y, cen.estrada.cores, cen.estrada.padrao, sortear);
@@ -87,14 +88,17 @@ function desenharMapa(canvas, mapa, cen, semente) {
         const base = misturar(cores[0], cores[t.tipo === 'chao' ? t.variante : 0], 0.35);
         textura(ctx, x, y, [base, cores[1], cores[2]], 'terra', sortear);
         if (t.tipo === 'objeto') desenharSprite(ctx, cen.objetos[t.variante], x, y);
+        if (t.tipo === 'casa') desenharSprite(ctx, cen.casa, x, y);
       }
     }
   }
-  // Meio-fio: uma linha escura de cada lado da estrada.
-  const estrada = mapa.tiles.slice(0, mapa.colunas).map((t, c) => (t.tipo === 'estrada' ? c : null)).filter((c) => c !== null);
+  // Meio-fio: uma linha escura na borda da estrada, em cada linha do mapa (a estrada faz curvas).
   ctx.fillStyle = contorno ?? cen.estrada.cores[1];
-  ctx.fillRect(Math.min(...estrada) * TILE, 0, 2, mapa.linhas * TILE);
-  ctx.fillRect((Math.max(...estrada) + 1) * TILE - 2, 0, 2, mapa.linhas * TILE);
+  for (let l = 0; l < mapa.linhas; l++) {
+    const [de, ate] = mapa.estrada[l];
+    ctx.fillRect(de * TILE, l * TILE, 2, TILE);
+    ctx.fillRect((ate + 1) * TILE - 2, l * TILE, 2, TILE);
+  }
 }
 
 // ---------- personagens ----------
@@ -105,7 +109,9 @@ function desenharPersonagem(el, def, estado) {
   if (ctx) {
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, TILE, TILE);
-    desenharSprite(ctx, def.quadros[estado.quadro], 0, 0, { espelhar: estado.olhaEsquerda, cor: altoContraste() ? corSuave() : undefined });
+    // Filho e filhote: o desenho do pai ou da mãe pela metade, no pé do tile.
+    const [x, y, escala] = def.pequeno ? [TILE / 4, TILE / 2, 1] : [0, 0, 2];
+    desenharSprite(ctx, def.quadros[estado.quadro], x, y, { escala, espelhar: estado.olhaEsquerda, cor: altoContraste() ? corSuave() : undefined });
   }
   const sobe = def.movimento === 'voar' ? ALTURA_VOO : 0;
   el.style.transform = `translate(${estado.c * TILE}px, ${estado.l * TILE - sobe}px)`;
@@ -113,21 +119,44 @@ function desenharPersonagem(el, def, estado) {
 
 // ---------- um palco por módulo ----------
 
+/** 100vw: a camada vai da borda esquerda da área da trilha até a direita (sem layout, fica no módulo). */
+function alargar(camada) {
+  const area = camada.closest('.tela-inicio') ?? document.documentElement;
+  const r = area.getBoundingClientRect();
+  if (!r.width) return;
+  const secao = camada.parentElement.getBoundingClientRect();
+  camada.style.setProperty('--cenario-desvio', `${Math.round(r.left - secao.left)}px`);
+  camada.style.setProperty('--cenario-largura', `${area.clientWidth}px`);
+}
+
+/** O centro de cada nó do módulo, em tiles do mundo (sem layout, nenhum: a estrada fica reta). */
+function medirCaminho(camada, palco, esquerdaDoMundo) {
+  const base = palco.getBoundingClientRect();
+  return [...camada.parentElement.querySelectorAll('.trilha .no .circulo')].map((el) => el.getBoundingClientRect())
+    .filter((r) => r.width)
+    .map((r) => ({ c: (r.left + r.width / 2 - base.left - esquerdaDoMundo) / TILE, l: (r.top + r.height / 2 - base.top) / TILE }));
+}
+
 function montar(camada, janela) {
   const cen = CENARIOS[camada.dataset.cenario];
   const palco = camada.querySelector('.cenario-palco');
   const { semente } = camada.dataset;
   palco.replaceChildren();
+  alargar(camada);
   const largura = palco.clientWidth || janela.innerWidth || 1280;
   const altura = palco.clientHeight || janela.innerHeight || 800;
   const colunas = Math.max(1, Math.ceil(largura / TILE));
   const linhas = Math.min(MAX_LINHAS, Math.max(1, Math.ceil(altura / TILE)));
-  const mapa = gerarMapa({ colunas, linhas, cenario: cen, semente });
+  const esquerdaDoMundo = (largura - colunas * TILE) / 2;
+  const caminho = medirCaminho(camada, palco, esquerdaDoMundo);
+  const base = gerarMapa({ colunas, linhas, cenario: cen, semente, caminho });
+  const daVila = vila({ mapa: base, cenario: cen, semente, feitos: Number(camada.dataset.feitos) || 0 });
+  const mapa = comCasas(base, daVila.casas);
 
   // O mundo tem colunas inteiras de 32px: centraliza para a estrada ficar embaixo dos nós.
   const mundo = document.createElement('div');
   mundo.className = 'cenario-mundo';
-  mundo.style.left = `${(largura - colunas * TILE) / 2}px`;
+  mundo.style.left = `${esquerdaDoMundo}px`;
   const canvas = document.createElement('canvas');
   canvas.className = 'cenario-mapa';
   canvas.width = colunas * TILE;
@@ -137,14 +166,17 @@ function montar(camada, janela) {
   desenharMapa(canvas, mapa, cen, semente);
 
   const sortear = sorteador(`${semente}-passos`);
-  // 3 personagens (1 no celular) por tela de altura, para ter sempre alguém andando à vista.
+  // 3 personagens (1 no celular) por tela de altura; depois, os filhos e os filhotes da vila, até o limite.
   const porTela = (janela.innerWidth ?? 1280) < 600 ? 1 : 3;
   const telas = Math.max(1, Math.round(altura / (janela.innerHeight || 800)));
-  const defs = Array.from({ length: Math.min(MAX_PERSONAGENS, porTela * telas) }, (_, i) => cen.personagens[i % porTela]);
+  const deSempre = Array.from({ length: porTela * telas }, (_, i) => cen.personagens[i % porTela]);
+  const porId = Object.fromEntries(cen.personagens.map((p) => [p.id, p]));
+  const pequenos = [...daVila.filhos.map((f) => porId[f.pai]), ...daVila.filhotes.map((f) => porId[f.mae])].map((p) => ({ ...p, pequeno: true }));
+  const defs = [...deSempre, ...pequenos].slice(0, MAX_PERSONAGENS);
   const personagens = posicoesIniciais(mapa, defs, sortear).map((estado, i) => {
     if (!estado) return null;
     const el = document.createElement('span');
-    el.className = `personagem personagem-${i + 1} mov-${defs[i].movimento}`;
+    el.className = `personagem personagem-${i + 1} mov-${defs[i].movimento}${defs[i].pequeno ? ' pequeno' : ''}`;
     const tela = document.createElement('canvas');
     tela.width = TILE;
     tela.height = TILE;

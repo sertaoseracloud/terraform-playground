@@ -1,6 +1,7 @@
 // ⚓ Porto laranja: cais de concreto, a água, os contêineres e o guindaste do porto (a AWS e as suas caixas).
 import { sprite, passo } from './pixel.js';
 import { pessoa } from './comuns.js';
+import { conteiner as casaConteiner } from './casas.js';
 
 const conteineres = sprite({ o: '#f28c28', d: '#c26a14', b: '#3d6fb5', n: '#2c518a' }, `
 ................
@@ -81,9 +82,10 @@ export const porto = {
   estrada: { cores: ['#6b6b6b', '#5a5a5a', '#7a7a7a'], padrao: 'pedras' },
   bloqueio: { cor: '#2f7fbf', borda: '#1f5a8a', brilho: '#cfeeff' },
   objetos: [conteineres, guindaste],
+  casa: casaConteiner,
   personagens: [
-    { id: 'estivador', movimento: 'andar', quadros: pessoa({ cabeca: 'justo', chapeu: '#f28c28', pele: '#c68b59', roupa: '#2f3e5c', calca: '#3b2a20' }) },
-    { id: 'rebocador', movimento: 'nadar', quadros: [rebocador, passo(rebocador, 'nadar')] },
-    { id: 'gaivota', movimento: 'voar', quadros: [gaivota, passo(gaivota, 'voar')] },
+    { id: 'estivador', movimento: 'andar', tipo: 'pessoa', quadros: pessoa({ cabeca: 'justo', chapeu: '#f28c28', pele: '#c68b59', roupa: '#2f3e5c', calca: '#3b2a20' }) },
+    { id: 'rebocador', movimento: 'nadar', tipo: 'animal', quadros: [rebocador, passo(rebocador, 'nadar')] },
+    { id: 'gaivota', movimento: 'voar', tipo: 'animal', quadros: [gaivota, passo(gaivota, 'voar')] },
   ],
 };

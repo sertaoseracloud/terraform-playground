@@ -4,12 +4,19 @@
 .com-cenario { position: relative; isolation: isolate; padding-bottom: 18px; }
 .cenario {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  /* 100vw: o palco mede a área da trilha e põe a camada de uma borda à outra (palco.js, alargar). */
+  left: var(--cenario-desvio, 0px);
+  width: var(--cenario-largura, 100%);
   z-index: -1;
   overflow: clip;
-  border-radius: 14px;
   pointer-events: none;
 }
+/* A camada passa da coluna dos módulos: a área da trilha não ganha rolagem horizontal, e a coluna
+   da esquerda (perfil, Continuar, certificados) fica acima do mapa, com o fundo do tema. */
+.tela-inicio { overflow-x: hidden; }
+.painel-jogador { z-index: 1; }
 /* O palco (mapa + personagens) cobre o módulo inteiro, que tem várias telas de altura, e rola
    junto com o conteúdo: o mapa sobe quando a página sobe. No módulo seguinte, entra o próximo cenário. */
 .cenario-palco { position: absolute; inset: 0; overflow: clip; }

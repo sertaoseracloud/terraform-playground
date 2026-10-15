@@ -54,4 +54,12 @@ describe('física', () => {
     const passo = mestre.find((p, i) => i > 0 && !p.parado);
     expect(Math.abs(passo.direcao[0]) + Math.abs(passo.direcao[1])).toBe(1);
   });
+
+  it('com a estrada curva, ninguém começa nela', () => {
+    const c = CENARIOS[Object.keys(CENARIOS)[0]];
+    const caminho = [{ c: 14.5, l: 3.5 }, { c: 24.5, l: 12.5 }, { c: 15.5, l: 21.5 }];
+    const mapa = gerarMapa({ colunas: 40, linhas: 25, cenario: c, semente: 'curva', caminho });
+    const ps = posicoesIniciais(mapa, Array(12).fill(c.personagens[0]), sorteador('curva'));
+    for (const p of ps.filter(Boolean)) expect(tileEm(mapa, p.c, p.l).tipo).not.toBe('estrada');
+  });
 });

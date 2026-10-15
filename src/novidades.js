@@ -10,6 +10,18 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.10.0',
+    data: '2026-10-15',
+    titulo: 'A trilha virou uma vila',
+    resumo: 'O mapa de cada módulo ocupa a tela toda, a estrada faz curvas pelo caminho dos exercícios, e cada exercício resolvido faz a vila crescer.',
+    grupos: [
+      { titulo: '🏘️ Vila', itens: ['A cada exercício resolvido, alguém constrói uma casa, nasce um filho ou um animal tem um filhote, nessa ordem.', 'A vila sai do seu progresso: ao restaurar pelo certificado, ela volta igual, sem nada a mais guardado no navegador.'] },
+      { titulo: '🗺️ Mapa', itens: ['O mapa vai de uma borda à outra da tela, também por trás da coluna da esquerda.', 'A estrada faz curvas e passa por baixo de cada exercício do caminho.'] },
+      { titulo: '♿ Acessibilidade', itens: ['Continua só decoração: o leitor de tela não lê a vila, e os personagens param com "reduzir movimento" e no alto contraste.'] },
+    ],
+  },
+
+  {
     versao: '1.9.1',
     data: '2026-10-15',
     titulo: 'O cenário rola junto com a página',

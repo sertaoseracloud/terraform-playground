@@ -1,6 +1,6 @@
 // Mapa de tiles dos cenários: determinístico, com a estrada embaixo dos nós e espaço livre dos dois lados.
 import { describe, it, expect } from 'vitest';
-import { gerarMapa, colunasDaEstrada, sorteador, tileEm, TILE } from '../src/ui/cenarios/mapa.js';
+import { gerarMapa, colunasDaEstrada, estradaPorLinha, sorteador, tileEm, TILE } from '../src/ui/cenarios/mapa.js';
 import { sprite, passo, misturar, LADO } from '../src/ui/cenarios/pixel.js';
 import { CENARIOS } from '../src/ui/cenarios/index.js';
 
@@ -61,6 +61,49 @@ describe('mapa', () => {
       const livres = (lado) => m.tiles.filter((t, i) => t.tipo === 'chao' && (lado ? i % colunas > Math.max(...estrada) : i % colunas < Math.min(...estrada))).length;
       expect(livres(false)).toBeGreaterThanOrEqual(linhas);
       expect(livres(true)).toBeGreaterThanOrEqual(linhas);
+    }
+  });
+
+  it('sem caminho, a estrada de cada linha é a faixa reta de hoje', () => {
+    const cols = colunasDaEstrada(40);
+    expect(estradaPorLinha(40, 5)).toEqual(Array(5).fill([Math.min(...cols), Math.max(...cols)]));
+  });
+
+  it('com o caminho em ziguezague, o tile de cada nó é estrada, e a faixa tem até 5 tiles', () => {
+    const caminho = [{ c: 17.5, l: 2.5 }, { c: 22.5, l: 6.5 }, { c: 16.5, l: 10.5 }, { c: 23.5, l: 14.5 }];
+    const faixa = estradaPorLinha(40, 18, caminho);
+    for (const { c, l } of caminho) {
+      const [de, ate] = faixa[Math.floor(l)];
+      expect(Math.floor(c)).toBeGreaterThanOrEqual(de);
+      expect(Math.floor(c)).toBeLessThanOrEqual(ate);
+    }
+    for (const [de, ate] of faixa) {
+      expect(ate - de + 1).toBeLessThanOrEqual(5);
+      expect(de).toBeGreaterThanOrEqual(1);
+      expect(ate).toBeLessThanOrEqual(38);
+    }
+  });
+
+  it('nós repetidos na mesma linha ou fora do mapa não quebram a curva', () => {
+    const faixa = estradaPorLinha(20, 10, [{ c: 8, l: 3 }, { c: 12, l: 3 }, { c: 50, l: -4 }, { c: 9, l: 30 }]);
+    expect(faixa).toHaveLength(10);
+    for (const [de, ate] of faixa) {
+      expect(Number.isInteger(de) && Number.isInteger(ate) && de <= ate).toBe(true);
+      expect(de).toBeGreaterThanOrEqual(1);
+      expect(ate).toBeLessThanOrEqual(18);
+    }
+  });
+
+  it('com caminho, a estrada do mapa segue a faixa de cada linha, e manchas e objetos ficam a 2 tiles dela', () => {
+    const caminho = [{ c: 14.5, l: 3.5 }, { c: 24.5, l: 12.5 }, { c: 15.5, l: 21.5 }];
+    const m = gerarMapa({ colunas: 40, linhas: 25, cenario: CENARIOS.porto, semente: 'php', caminho });
+    for (let l = 0; l < 25; l++) {
+      const [de, ate] = m.estrada[l];
+      for (let c = 0; c < 40; c++) {
+        const t = tileEm(m, c, l);
+        expect(t.tipo === 'estrada').toBe(c >= de && c <= ate);
+        if (t.tipo === 'bloqueio' || t.tipo === 'objeto') expect(c <= de - 2 || c >= ate + 2).toBe(true);
+      }
     }
   });
 

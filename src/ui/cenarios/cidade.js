@@ -1,6 +1,7 @@
 // 🌃 Cidade à noite: calçada, asfalto, postes acesos e caixas da obra.
 import { sprite, passo } from './pixel.js';
 import { pessoa } from './comuns.js';
+import { predio as casaPredio } from './casas.js';
 
 const poste = sprite({ k: '#2f3340', y: '#ffd166' }, `
 ......kkkk......
@@ -81,9 +82,10 @@ export const cidade = {
   estrada: { cores: ['#3a3d47', '#30333c', '#454852'], padrao: 'liso' },
   bloqueio: null,
   objetos: [poste, caixa],
+  casa: casaPredio,
   personagens: [
-    { id: 'operaria', movimento: 'andar', quadros: pessoa({ cabeca: 'justo', chapeu: '#f5c518', pele: '#8d5a3b', roupa: '#f28c28', calca: '#2f3e5c' }) },
-    { id: 'robozinho', movimento: 'andar', quadros: [robozinho, passo(robozinho, 'andar')] },
-    { id: 'gato', movimento: 'andar', quadros: [gato, passo(gato, 'andar')] },
+    { id: 'operaria', movimento: 'andar', tipo: 'pessoa', quadros: pessoa({ cabeca: 'justo', chapeu: '#f5c518', pele: '#8d5a3b', roupa: '#f28c28', calca: '#2f3e5c' }) },
+    { id: 'robozinho', movimento: 'andar', tipo: 'animal', quadros: [robozinho, passo(robozinho, 'andar')] },
+    { id: 'gato', movimento: 'andar', tipo: 'animal', quadros: [gato, passo(gato, 'andar')] },
   ],
 };
