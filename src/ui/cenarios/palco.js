@@ -6,7 +6,7 @@ import { CENARIOS } from './index.js';
 import { TILE, gerarMapa, sorteador, tileEm } from './mapa.js';
 import { proximoPasso, posicoesIniciais } from './fisica.js';
 import { desenharSprite, misturar } from './pixel.js';
-import { vila, comCasas, MAX_PERSONAGENS } from './vila.js';
+import { vila, comCasas, PERSONAGENS_POR_TELA } from './vila.js';
 
 const PASSO_MS = 400;
 const ALTURA_VOO = 8;
@@ -166,13 +166,16 @@ function montar(camada, janela) {
   desenharMapa(canvas, mapa, cen, semente);
 
   const sortear = sorteador(`${semente}-passos`);
-  // 3 personagens (1 no celular) por tela de altura; depois, os filhos e os filhotes da vila, até o limite.
-  const porTela = (janela.innerWidth ?? 1280) < 600 ? 1 : 3;
+  // 3 personagens (1 no celular) por tela de altura; depois, os filhos e os filhotes da vila. O limite
+  // é proporcional ao espaço: 10 por tela de altura (4 no celular), então a vila cresce com o módulo.
+  const celular = (janela.innerWidth ?? 1280) < 600;
+  const porTela = celular ? 1 : 3;
   const telas = Math.max(1, Math.round(altura / (janela.innerHeight || 800)));
+  const limite = telas * PERSONAGENS_POR_TELA[celular ? 'celular' : 'normal'];
   const deSempre = Array.from({ length: porTela * telas }, (_, i) => cen.personagens[i % porTela]);
   const porId = Object.fromEntries(cen.personagens.map((p) => [p.id, p]));
   const pequenos = [...daVila.filhos.map((f) => porId[f.pai]), ...daVila.filhotes.map((f) => porId[f.mae])].map((p) => ({ ...p, pequeno: true }));
-  const defs = [...deSempre, ...pequenos].slice(0, MAX_PERSONAGENS);
+  const defs = [...deSempre, ...pequenos].slice(0, limite);
   const personagens = posicoesIniciais(mapa, defs, sortear).map((estado, i) => {
     if (!estado) return null;
     const el = document.createElement('span');

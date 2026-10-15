@@ -66,8 +66,10 @@ vila({ mapa, cenario, semente, feitos }) → { casas: [{ c, l }], filhos: [{ pai
   sem animal: o filhote vira filho.
 - **Desenho:** filho e filhote usam o sprite do pai ou da mãe com `escala 1` (16 px), no pé do tile de
   32 px, e andam com as mesmas regras do pai ou da mãe.
-- **Limite:** no máximo **30** personagens por módulo. Primeiro os de sempre (3 por tela, 1 no celular);
-  depois filhos e filhotes até o limite.
+- **Limite:** proporcional ao espaço, **10 personagens por tela de altura** do módulo (4 no celular).
+  Primeiro os de sempre (3 por tela, 1 no celular); depois filhos e filhotes até o limite. Assim a
+  vila cresce com o módulo: num módulo de 9 telas cabem 63 filhos e filhotes. (Revisão a pedido do
+  usuário: antes era um teto fixo de 30, que num módulo alto deixava só 3 vagas para a vila.)
 - **Módulo bloqueado:** nenhum exercício feito, então a vila é vazia (e continua cinza, como hoje).
 - **Dados:** `inicio.js` conta os exercícios concluídos do módulo e passa `htmlDoCenario(id, semente,
   feitos)`, que grava `data-feitos` na camada.
@@ -97,7 +99,7 @@ os objetos.
 ## Testes
 
 - `vila`: mesma semente e progresso dão a mesma vila; a vila de *n + 1* contém a de *n*; o ciclo
-  casa → filho → filhote; o limite de 30; as trocas sem pessoa ou sem animal; ninguém pisa numa casa.
+  casa → filho → filhote; o limite proporcional ao espaço (10 por tela, 4 no celular); as trocas sem pessoa ou sem animal; ninguém pisa numa casa.
 - Estrada: com nós em zigue-zague, o tile de cada nó é estrada; sem nós, igual a hoje (testes atuais).
 - Cada cenário tem `casa` 16×16 e personagens com `tipo`.
 - Palco: `data-feitos` vira casas, filhos e filhotes no DOM; filhos e filhotes têm a classe `pequeno`.

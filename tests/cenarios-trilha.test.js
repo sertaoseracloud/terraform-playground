@@ -138,18 +138,40 @@ describe('palco: personagens e temporizador', () => {
     delete palco.clientHeight; // a trilha é montada uma vez só para o arquivo inteiro
   });
 
-  it('a vila do módulo: filhos e filhotes pequenos entram depois dos de sempre, até 30', () => {
+  it('a vila do módulo: filhos e filhotes pequenos entram depois dos de sempre', () => {
     const camadaEl = document.querySelector('.cenario');
     const palco = camadaEl.querySelector('.cenario-palco');
     camadaEl.dataset.feitos = '7'; // 3 casas, 2 filhos e 2 filhotes
-    let r = ligarCenarios(tela(), { janela: janelaFalsa() });
+    const r = ligarCenarios(tela(), { janela: janelaFalsa() });
     expect(palco.querySelectorAll('.personagem.pequeno')).toHaveLength(4);
     expect(palco.querySelectorAll('.personagem:not(.pequeno)').length).toBeLessThanOrEqual(3);
     r.desligar();
-    camadaEl.dataset.feitos = '200';
-    r = ligarCenarios(tela(), { janela: janelaFalsa() });
-    expect(palco.querySelectorAll('.personagem').length).toBeLessThanOrEqual(30);
-    r.desligar();
+    camadaEl.dataset.feitos = '0';
+  });
+
+  it('o limite de personagens é proporcional ao espaço: 10 por tela de altura (4 no celular)', () => {
+    const camadaEl = document.querySelector('.cenario');
+    const palco = camadaEl.querySelector('.cenario-palco');
+    const contar = (altura, largura) => {
+      Object.defineProperty(palco, 'clientHeight', { value: altura, configurable: true });
+      const r = ligarCenarios(tela(), { janela: janelaFalsa({ largura }) });
+      const n = [palco.querySelectorAll('.personagem').length, palco.querySelectorAll('.personagem.pequeno').length];
+      r.desligar();
+      return n;
+    };
+    // 300 feitos: 100 casas, 100 filhos e 100 filhotes, mais do que cabe. O total fica no limite
+    // (um de sempre que salta ou nada pode não achar água num módulo alto); os da vila enchem o resto.
+    camadaEl.dataset.feitos = '300';
+    const [umaTela, vilaUmaTela] = contar(800, 1280); // 1 tela: 3 de sempre + 7 da vila
+    expect(umaTela).toBeLessThanOrEqual(10);
+    expect(vilaUmaTela).toBe(7);
+    const [noveTelas, vilaNoveTelas] = contar(7200, 1280); // 9 telas: a vila cresce com o módulo
+    expect(noveTelas).toBeLessThanOrEqual(90);
+    expect(vilaNoveTelas).toBe(63);
+    const [celular, vilaCelular] = contar(2400, 375); // celular, 3 telas: 4 por tela, 1 de sempre por tela
+    expect(celular).toBeLessThanOrEqual(12);
+    expect(vilaCelular).toBe(9);
+    delete palco.clientHeight; // a trilha é montada uma vez só para o arquivo inteiro
     camadaEl.dataset.feitos = '0';
   });
 

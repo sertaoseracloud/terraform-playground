@@ -3,7 +3,8 @@
 // semente do módulo e do número de exercícios feitos, e a de n + 1 contém a de n.
 import { sorteador, tileEm } from './mapa.js';
 
-export const MAX_PERSONAGENS = 30;
+/** O limite de personagens é proporcional ao espaço: tantos por tela de altura do módulo. */
+export const PERSONAGENS_POR_TELA = { normal: 10, celular: 4 };
 const CICLO = ['casa', 'filho', 'filhote'];
 
 /** Onde dá para construir: chão a até 3 tiles da estrada, embaralhado uma vez pela semente. */
