@@ -1,6 +1,7 @@
 // ☁️ Céu de nuvens: nuvens claras e azuladas, os vãos do céu, a torre de servidores e o raio (a nuvem da Azure).
 import { sprite, passo } from './pixel.js';
 import { pessoa } from './comuns.js';
+import { nuvem as casaNuvem } from './casas.js';
 
 const servidores = sprite({ k: '#2f3340', g: '#4a5060', l: '#4dd0e1', y: '#7ee787' }, `
 ................
@@ -81,9 +82,10 @@ export const ceu = {
   estrada: { cores: ['#b3cae5', '#a5bfdd', '#c2d5eb'], padrao: 'liso' },
   bloqueio: { cor: '#6fa8dc', borda: '#3d78b5', brilho: '#cfe6ff' },
   objetos: [servidores, raio],
+  casa: casaNuvem,
   personagens: [
-    { id: 'tecnica', movimento: 'andar', quadros: pessoa({ cabeca: 'justo', chapeu: '#2b1d14', pele: '#8d5a3b', roupa: '#0078d4', calca: '#2b2b2b' }) },
-    { id: 'balao', movimento: 'voar', quadros: [balao, passo(balao, 'voar')] },
-    { id: 'pipa', movimento: 'voar', quadros: [pipa, passo(pipa, 'voar')] },
+    { id: 'tecnica', movimento: 'andar', tipo: 'pessoa', quadros: pessoa({ cabeca: 'justo', chapeu: '#2b1d14', pele: '#8d5a3b', roupa: '#0078d4', calca: '#2b2b2b' }) },
+    { id: 'balao', movimento: 'voar', tipo: 'animal', quadros: [balao, passo(balao, 'voar')] },
+    { id: 'pipa', movimento: 'voar', tipo: 'animal', quadros: [pipa, passo(pipa, 'voar')] },
   ],
 };

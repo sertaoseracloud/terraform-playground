@@ -11,10 +11,10 @@ export const CENARIOS = Object.fromEntries([canteiro, porto, ceu, cidade].map((c
 
 /**
  * Camada decorativa do cenário (ou '' se o módulo não tem cenário). A semente (o id do módulo)
- * faz cada módulo ter sempre o mesmo mapa. O palco tem a altura da tela e acompanha a rolagem:
- * o módulo tem milhares de pixels.
+ * faz cada módulo ter sempre o mesmo mapa, e `feitos` (os exercícios resolvidos do módulo) faz a
+ * vila crescer (vila.js). O palco cobre o módulo inteiro e rola junto com a página.
  */
-export function htmlDoCenario(id, semente = id) {
+export function htmlDoCenario(id, semente = id, feitos = 0) {
   if (!CENARIOS[id]) return '';
-  return `<div class="cenario cenario-${id}" aria-hidden="true" data-cenario="${id}" data-semente="${semente}"><div class="cenario-palco"></div></div>`;
+  return `<div class="cenario cenario-${id}" aria-hidden="true" data-cenario="${id}" data-semente="${semente}" data-feitos="${feitos}"><div class="cenario-palco"></div></div>`;
 }

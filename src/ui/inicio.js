@@ -172,7 +172,9 @@ function unidade(m, anterior, atual, cert) {
   } else {
     nos = m.itens.map(no).join('');
   }
-  const cenario = htmlDoCenario(CENARIO_DO_MODULO[m.id], m.id);
+  // A vila do cenário cresce com os exercícios resolvidos do módulo (src/ui/cenarios/vila.js).
+  const feitos = m.itens.filter((i) => i.tipo === 'problema' && i.estado === 'concluido').length;
+  const cenario = htmlDoCenario(CENARIO_DO_MODULO[m.id], m.id, feitos);
   return `
     <section class="bloco-unidade ${cenario ? 'com-cenario' : ''} ${m.desbloqueado ? '' : 'bloqueada'} ${atual ? 'unidade-atual' : ''}" id="unidade-${m.id}" aria-labelledby="titulo-${m.id}">${cenario}
       ${cabecalho.replace('<h2>', `<h2 id="titulo-${m.id}">`)}

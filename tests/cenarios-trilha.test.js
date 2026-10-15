@@ -138,6 +138,50 @@ describe('palco: personagens e temporizador', () => {
     delete palco.clientHeight; // a trilha é montada uma vez só para o arquivo inteiro
   });
 
+  it('a vila do módulo: filhos e filhotes pequenos entram depois dos de sempre, até 30', () => {
+    const camadaEl = document.querySelector('.cenario');
+    const palco = camadaEl.querySelector('.cenario-palco');
+    camadaEl.dataset.feitos = '7'; // 3 casas, 2 filhos e 2 filhotes
+    let r = ligarCenarios(tela(), { janela: janelaFalsa() });
+    expect(palco.querySelectorAll('.personagem.pequeno')).toHaveLength(4);
+    expect(palco.querySelectorAll('.personagem:not(.pequeno)').length).toBeLessThanOrEqual(3);
+    r.desligar();
+    camadaEl.dataset.feitos = '200';
+    r = ligarCenarios(tela(), { janela: janelaFalsa() });
+    expect(palco.querySelectorAll('.personagem').length).toBeLessThanOrEqual(30);
+    r.desligar();
+    camadaEl.dataset.feitos = '0';
+  });
+
+  it('100vw: com layout, a camada vai da borda esquerda da trilha até a direita', () => {
+    const camadaEl = document.querySelector('.cenario');
+    const secao = camadaEl.parentElement;
+    const telaEl = tela();
+    const retangulo = (left, width) => () => ({ left, width, top: 0, height: 800, right: left + width, bottom: 800, x: left, y: 0 });
+    Object.defineProperty(telaEl, 'getBoundingClientRect', { value: retangulo(0, 1280), configurable: true });
+    Object.defineProperty(telaEl, 'clientWidth', { value: 1265, configurable: true });
+    Object.defineProperty(secao, 'getBoundingClientRect', { value: retangulo(442, 800), configurable: true });
+    const { desligar } = ligarCenarios(telaEl, { janela: janelaFalsa() });
+    expect(camadaEl.style.getPropertyValue('--cenario-desvio')).toBe('-442px');
+    expect(camadaEl.style.getPropertyValue('--cenario-largura')).toBe('1265px');
+    desligar();
+    for (const el of [telaEl, secao]) delete el.getBoundingClientRect;
+    delete telaEl.clientWidth;
+  });
+
+  it('módulo bloqueado com progresso: a vila monta, mas o módulo não ganha temporizador próprio', () => {
+    const bloco = document.querySelector('.bloco-unidade');
+    bloco.classList.add('bloqueada');
+    bloco.querySelector('.cenario').dataset.feitos = '5';
+    const j = janelaFalsa();
+    const { desligar } = ligarCenarios(tela(), { janela: j });
+    expect(bloco.querySelectorAll('.personagem.pequeno').length).toBeGreaterThan(0);
+    expect(j.intervalos).toBe(1); // um só para a página, como sempre
+    desligar();
+    bloco.classList.remove('bloqueada');
+    bloco.querySelector('.cenario').dataset.feitos = '0';
+  });
+
   it('montado com a tela escondida (largura 0), refaz o mapa com a largura de verdade quando aparece', () => {
     const j = janelaFalsa();
     let avisar = null;
@@ -174,6 +218,14 @@ describe('CSS dos cenários', () => {
     expect(css).toMatch(/\.cenario-palco\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0/);
     expect(css).not.toMatch(/sticky|100vh/);
     expect(css).toMatch(/\.com-cenario \.legenda[^{]*\{[^}]*background/);
+  });
+
+  it('100vw: a camada usa as medidas do palco, sem rolagem horizontal, e a coluna da esquerda fica acima', () => {
+    expect(css).toMatch(/\.cenario\s*\{[^}]*left:\s*var\(--cenario-desvio/);
+    expect(css).toMatch(/\.cenario\s*\{[^}]*width:\s*var\(--cenario-largura/);
+    expect(css).not.toMatch(/\.cenario\s*\{[^}]*border-radius/);
+    expect(css).toMatch(/\.tela-inicio\s*\{[^}]*overflow-x:\s*hidden/);
+    expect(css).toMatch(/\.painel-jogador\s*\{[^}]*z-index:\s*1/);
   });
 
   it('pixel art sem suavização e passo de 0,4 s, que some quando pedem menos movimento', () => {

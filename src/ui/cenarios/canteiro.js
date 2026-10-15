@@ -1,6 +1,7 @@
 // 🏗️ Canteiro de obras: terra batida, tábuas, cones com fita, o guindaste e a pilha de blocos (o Terraform constrói a infraestrutura).
 import { sprite, passo } from './pixel.js';
 import { pessoa } from './comuns.js';
+import { obra as casaObra } from './casas.js';
 
 const guindaste = sprite({ y: '#f5c518', k: '#2b2b2b' }, `
 ................
@@ -63,9 +64,10 @@ export const canteiro = {
   estrada: { cores: ['#7a5a3a', '#5f452c', '#8f6c48'], padrao: 'tabuas' },
   bloqueio: { cor: '#f28c28', borda: '#2b2b2b', brilho: '#f5c518' },
   objetos: [guindaste, blocos],
+  casa: casaObra,
   personagens: [
-    { id: 'mestre-de-obras', movimento: 'andar', quadros: pessoa({ cabeca: 'justo', chapeu: '#f5c518', pele: '#8d5a3b', roupa: '#f28c28', calca: '#2f3e5c' }) },
-    { id: 'engenheira', movimento: 'andar', quadros: pessoa({ cabeca: 'justo', chapeu: '#f4f4f4', pele: '#c68b59', roupa: '#5a3e6b', calca: '#2b2b2b' }) },
-    { id: 'passaro', movimento: 'voar', quadros: [passaro, passo(passaro, 'voar')] },
+    { id: 'mestre-de-obras', movimento: 'andar', tipo: 'pessoa', quadros: pessoa({ cabeca: 'justo', chapeu: '#f5c518', pele: '#8d5a3b', roupa: '#f28c28', calca: '#2f3e5c' }) },
+    { id: 'engenheira', movimento: 'andar', tipo: 'pessoa', quadros: pessoa({ cabeca: 'justo', chapeu: '#f4f4f4', pele: '#c68b59', roupa: '#5a3e6b', calca: '#2b2b2b' }) },
+    { id: 'passaro', movimento: 'voar', tipo: 'animal', quadros: [passaro, passo(passaro, 'voar')] },
   ],
 };

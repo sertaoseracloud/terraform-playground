@@ -7,6 +7,7 @@ import { LADO } from '../src/ui/cenarios/pixel.js';
 
 const IDS = ['canteiro', 'porto', 'ceu', 'cidade'];
 const COM_BLOQUEIO = ['canteiro', 'porto', 'ceu'];
+const PESSOAS = ['mestre-de-obras', 'engenheira', 'estivador', 'tecnica', 'operaria'];
 const camada = (id, semente) => {
   const div = document.createElement('div');
   div.innerHTML = htmlDoCenario(id, semente);
@@ -34,6 +35,13 @@ describe('cenários', () => {
       expect(p.quadros).toHaveLength(2);
       expect(p.quadros.every(spriteValido)).toBe(true);
     }
+    expect(spriteValido(c.casa)).toBe(true);
+    for (const p of c.personagens) expect(['pessoa', 'animal']).toContain(p.tipo);
+  });
+
+  it('quem é pessoa em cada cenário', () => {
+    const pessoas = Object.values(CENARIOS).flatMap((c) => c.personagens.filter((p) => p.tipo === 'pessoa').map((p) => p.id)).sort();
+    expect(pessoas).toEqual(PESSOAS.sort());
   });
 
   it.each(IDS)('%s: no máximo 12 KB', (id) => {
@@ -49,6 +57,13 @@ describe('cenários', () => {
     expect(el.textContent.trim()).toBe('');
     expect(el.querySelector('a, button, input, [tabindex], title, text, [id]')).toBeNull();
     expect(el.querySelector('.cenario-palco')).not.toBeNull();
+  });
+
+  it('a camada leva os exercícios feitos (a vila sai deles)', () => {
+    expect(camada(IDS[0], 'basico').dataset.feitos).toBe('0');
+    const div = document.createElement('div');
+    div.innerHTML = htmlDoCenario(IDS[0], 'basico', 7);
+    expect(div.firstElementChild.dataset.feitos).toBe('7');
   });
 
   it('id desconhecido não quebra a trilha', () => {
