@@ -150,7 +150,7 @@ function montar(camada, janela) {
     return p;
   }).filter(Boolean);
 
-  return { camada, canvas, mapa, cen, semente, sortear, personagens, visivel: false, bloqueado: Boolean(camada.closest('.bloqueada')) };
+  return { camada, canvas, mapa, cen, semente, sortear, personagens, largura: palco.clientWidth, visivel: false, bloqueado: Boolean(camada.closest('.bloqueada')) };
 }
 
 function andar(palco, janela) {
@@ -184,8 +184,12 @@ export function ligarCenarios(raiz, { janela = window } = {}) {
   const observador = janela.IntersectionObserver
     ? new janela.IntersectionObserver((entradas) => {
       for (const e of entradas) {
-        const p = palcos.find((x) => x.camada === e.target);
-        if (p) p.visivel = e.isIntersecting;
+        const i = palcos.findIndex((x) => x.camada === e.target);
+        if (i < 0) continue;
+        // Montado com a tela escondida (largura 0)? Refaz com a largura de verdade, para a estrada ficar sob os nós.
+        const largura = palcos[i].camada.querySelector('.cenario-palco').clientWidth;
+        if (e.isIntersecting && largura && largura !== palcos[i].largura) palcos[i] = montar(palcos[i].camada, janela);
+        palcos[i].visivel = e.isIntersecting;
       }
     })
     : null;

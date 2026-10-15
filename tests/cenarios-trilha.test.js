@@ -103,6 +103,20 @@ describe('palco: personagens e temporizador', () => {
     desligar();
   });
 
+  it('montado com a tela escondida (largura 0), refaz o mapa com a largura de verdade quando aparece', () => {
+    const j = janelaFalsa();
+    let avisar = null;
+    j.IntersectionObserver = class { constructor(cb) { avisar = cb; } observe() {} disconnect() {} };
+    const { desligar } = ligarCenarios(tela(), { janela: j });
+    const camada = document.querySelector('.cenario');
+    const palco = camada.querySelector('.cenario-palco');
+    expect(palco.querySelector('.cenario-mundo').style.left).toBe('0px'); // 1280 da janela, 40 colunas
+    Object.defineProperty(palco, 'clientWidth', { value: 700, configurable: true });
+    avisar([{ target: camada, isIntersecting: true }]);
+    expect(palco.querySelector('.cenario-mundo').style.left).toBe('-2px'); // (700 - 22 × 32) / 2
+    desligar();
+  });
+
   it.each([
     ['prefers-reduced-motion', () => janelaFalsa({ reduzir: true })],
     ['a11y-sem-movimento', () => { document.documentElement.classList.add('a11y-sem-movimento'); return janelaFalsa(); }],
