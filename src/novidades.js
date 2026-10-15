@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.9.1',
+    data: '2026-10-15',
+    titulo: 'O cenário rola junto com a página',
+    resumo: 'O mapa de cada módulo agora cobre o módulo de cima a baixo e sobe junto com o conteúdo quando você rola a página.',
+    grupos: [
+      { titulo: '🗺️ Cenários', itens: ['O mapa não fica mais parado atrás da página: ele vai no mesmo sentido da rolagem, como se fosse o chão do módulo.', 'Há personagens em toda a altura do módulo (3 por tela, 1 no celular), então sempre tem alguém andando à vista.'] },
+    ],
+  },
+  {
     versao: '1.9.0',
     data: '2026-10-15',
     titulo: 'Cenários com a cara de cada módulo',
