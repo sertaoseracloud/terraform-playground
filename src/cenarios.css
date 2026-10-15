@@ -6,14 +6,13 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  /* clip (e não hidden): hidden viraria contêiner de rolagem e o palco não acompanharia a tela */
   overflow: clip;
   border-radius: 14px;
   pointer-events: none;
 }
-/* O módulo tem milhares de pixels: o palco (mapa + personagens) tem a altura da tela e fica
-   preso no topo enquanto o aluno percorre o módulo; no módulo seguinte, entra o próximo cenário. */
-.cenario-palco { position: sticky; top: 0; height: 100vh; overflow: clip; }
+/* O palco (mapa + personagens) cobre o módulo inteiro, que tem várias telas de altura, e rola
+   junto com o conteúdo: o mapa sobe quando a página sobe. No módulo seguinte, entra o próximo cenário. */
+.cenario-palco { position: absolute; inset: 0; overflow: clip; }
 .cenario-mundo { position: absolute; top: 0; }
 .cenario-mapa { position: absolute; left: 0; top: 0; opacity: .45; image-rendering: pixelated; }
 /* Véu atrás do texto: o cabeçalho do módulo e a legenda de cada nó ficam legíveis sobre o mapa. */

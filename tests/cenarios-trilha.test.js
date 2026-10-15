@@ -103,6 +103,41 @@ describe('palco: personagens e temporizador', () => {
     desligar();
   });
 
+  it('o cenário cobre o módulo inteiro: um mapa da altura do módulo e 3 personagens por tela', () => {
+    const palco = document.querySelector('.cenario-palco');
+    Object.defineProperty(palco, 'clientHeight', { value: 2400, configurable: true });
+    const { desligar } = ligarCenarios(tela(), { janela: janelaFalsa() });
+    expect(palco.querySelector('.cenario-mapa').height).toBe(2400); // 75 linhas de 32px
+    expect(palco.querySelectorAll('.personagem').length).toBeGreaterThanOrEqual(7);
+    expect(palco.querySelectorAll('.personagem').length).toBeLessThanOrEqual(9);
+    desligar();
+    delete palco.clientHeight; // a trilha é montada uma vez só para o arquivo inteiro
+  });
+
+  it('no celular, 1 personagem por tela de altura', () => {
+    const palco = document.querySelector('.cenario-palco');
+    Object.defineProperty(palco, 'clientHeight', { value: 2400, configurable: true });
+    const { desligar } = ligarCenarios(tela(), { janela: janelaFalsa({ largura: 375 }) });
+    expect(palco.querySelectorAll('.personagem').length).toBe(3);
+    desligar();
+    delete palco.clientHeight; // a trilha é montada uma vez só para o arquivo inteiro
+  });
+
+  it('o módulo mudou de altura: refaz o mapa quando aparece', () => {
+    const j = janelaFalsa();
+    let avisar = null;
+    j.IntersectionObserver = class { constructor(cb) { avisar = cb; } observe() {} disconnect() {} };
+    const { desligar } = ligarCenarios(tela(), { janela: j });
+    const camada = document.querySelector('.cenario');
+    const palco = camada.querySelector('.cenario-palco');
+    expect(palco.querySelector('.cenario-mapa').height).toBe(800);
+    Object.defineProperty(palco, 'clientHeight', { value: 1600, configurable: true });
+    avisar([{ target: camada, isIntersecting: true }]);
+    expect(palco.querySelector('.cenario-mapa').height).toBe(1600);
+    desligar();
+    delete palco.clientHeight; // a trilha é montada uma vez só para o arquivo inteiro
+  });
+
   it('montado com a tela escondida (largura 0), refaz o mapa com a largura de verdade quando aparece', () => {
     const j = janelaFalsa();
     let avisar = null;
@@ -135,7 +170,9 @@ describe('CSS dos cenários', () => {
   it('não rouba o clique, acompanha a rolagem e mantém o véu da legenda', () => {
     expect(css).toMatch(/\.cenario\s*\{[^}]*pointer-events:\s*none/);
     expect(css).toMatch(/\.cenario\s*\{[^}]*overflow:\s*clip/);
-    expect(css).toMatch(/\.cenario-palco\s*\{[^}]*position:\s*sticky[^}]*height:\s*100vh/);
+    // O palco cobre o módulo inteiro (mais que uma tela) e rola junto com o conteúdo.
+    expect(css).toMatch(/\.cenario-palco\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0/);
+    expect(css).not.toMatch(/sticky|100vh/);
     expect(css).toMatch(/\.com-cenario \.legenda[^{]*\{[^}]*background/);
   });
 

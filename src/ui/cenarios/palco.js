@@ -9,6 +9,9 @@ import { desenharSprite, misturar } from './pixel.js';
 
 const PASSO_MS = 400;
 const ALTURA_VOO = 8;
+// O canvas tem limite de altura: 1000 linhas (32 mil pixels) cobrem qualquer módulo.
+const MAX_LINHAS = 1000;
+const MAX_PERSONAGENS = 30;
 
 function movimentoReduzido(janela) {
   const raiz = document.documentElement;
@@ -118,7 +121,7 @@ function montar(camada, janela) {
   const largura = palco.clientWidth || janela.innerWidth || 1280;
   const altura = palco.clientHeight || janela.innerHeight || 800;
   const colunas = Math.max(1, Math.ceil(largura / TILE));
-  const linhas = Math.max(1, Math.ceil(altura / TILE));
+  const linhas = Math.min(MAX_LINHAS, Math.max(1, Math.ceil(altura / TILE)));
   const mapa = gerarMapa({ colunas, linhas, cenario: cen, semente });
 
   // O mundo tem colunas inteiras de 32px: centraliza para a estrada ficar embaixo dos nós.
@@ -134,8 +137,10 @@ function montar(camada, janela) {
   desenharMapa(canvas, mapa, cen, semente);
 
   const sortear = sorteador(`${semente}-passos`);
-  const quantos = (janela.innerWidth ?? 1280) < 600 ? 1 : 3;
-  const defs = cen.personagens.slice(0, quantos);
+  // 3 personagens (1 no celular) por tela de altura, para ter sempre alguém andando à vista.
+  const porTela = (janela.innerWidth ?? 1280) < 600 ? 1 : 3;
+  const telas = Math.max(1, Math.round(altura / (janela.innerHeight || 800)));
+  const defs = Array.from({ length: Math.min(MAX_PERSONAGENS, porTela * telas) }, (_, i) => cen.personagens[i % porTela]);
   const personagens = posicoesIniciais(mapa, defs, sortear).map((estado, i) => {
     if (!estado) return null;
     const el = document.createElement('span');
@@ -150,7 +155,7 @@ function montar(camada, janela) {
     return p;
   }).filter(Boolean);
 
-  return { camada, canvas, mapa, cen, semente, sortear, personagens, largura: palco.clientWidth, visivel: false, bloqueado: Boolean(camada.closest('.bloqueada')) };
+  return { camada, canvas, mapa, cen, semente, sortear, personagens, largura: palco.clientWidth, altura: palco.clientHeight, visivel: false, bloqueado: Boolean(camada.closest('.bloqueada')) };
 }
 
 function andar(palco, janela) {
@@ -186,9 +191,11 @@ export function ligarCenarios(raiz, { janela = window } = {}) {
       for (const e of entradas) {
         const i = palcos.findIndex((x) => x.camada === e.target);
         if (i < 0) continue;
-        // Montado com a tela escondida (largura 0)? Refaz com a largura de verdade, para a estrada ficar sob os nós.
-        const largura = palcos[i].camada.querySelector('.cenario-palco').clientWidth;
-        if (e.isIntersecting && largura && largura !== palcos[i].largura) palcos[i] = montar(palcos[i].camada, janela);
+        // Montado com a tela escondida (largura 0)? Refaz com a largura de verdade, para a estrada ficar
+        // sob os nós. O módulo mudou de altura? Refaz para o mapa cobrir o módulo inteiro.
+        const { clientWidth: largura, clientHeight: altura } = palcos[i].camada.querySelector('.cenario-palco');
+        const mudou = (largura && largura !== palcos[i].largura) || (altura && altura !== palcos[i].altura);
+        if (e.isIntersecting && mudou) palcos[i] = montar(palcos[i].camada, janela);
         palcos[i].visivel = e.isIntersecting;
       }
     })
@@ -207,7 +214,7 @@ export function ligarCenarios(raiz, { janela = window } = {}) {
   }) : null;
   mutacao?.observe(document.documentElement, { attributes: true, attributeFilter: ['data-tema', 'class'] });
 
-  // A largura mudou: refaz os mapas (com uma espera, para não refazer a cada pixel).
+  // A janela mudou de tamanho: refaz os mapas (com uma espera, para não refazer a cada pixel).
   let espera = null;
   const aoRedimensionar = () => {
     janela.clearTimeout(espera);
