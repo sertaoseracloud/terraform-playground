@@ -50,15 +50,29 @@ Nada disso atrapalha:
 | | `pyspark` | `fogo` |
 | | `alem` (fase 5) | `rio` |
 | | `projetos` (fase 6) | `cidade` |
-| DivergePHP | `html` | `sertao` |
-| | `w3css` | `jardim` |
-| | `php` | `fogo` |
-| | `pdo` | `gelo` |
+| DivergePHP | `html` | `tipografia` |
+| | `w3css` | `feira` |
+| | `php` | `forja` |
+| | `pdo` | `arquivo` |
 | | `projetos` | `cidade` |
-| DivergeTerraform | `basico` | `sertao` |
-| | `aws` | `fogo` |
-| | `azure` | `gelo` |
+| DivergeTerraform | `basico` | `canteiro` |
+| | `aws` | `porto` |
+| | `azure` | `ceu` |
 | | `projetos` | `cidade` |
+
+> **Revisão de 2026-10-15: cada site com os seus cenários.** Os cenários da tabela de cima ficam
+> no DivergePython. O PHP e o Terraform ganharam cenários com o tema do assunto (só `cidade` é de
+> todos), no mesmo formato: chão, estrada, bloqueio, 2 objetos e 3 personagens em 16×16.
+>
+> | Site | Id | Cenário | Chão / estrada | Bloqueio | Objetos | Personagens |
+> |---|---|---|---|---|---|---|
+> | PHP | `tipografia` | 🖨️ Tipografia | papel creme, tábuas | tinta derramada | prensa, caixa de tipos | tipógrafa, aprendiz, letra "A" (saltando na tinta) |
+> | PHP | `feira` | 🧵 Feira de tecidos | lona colorida, pedras | rolos de pano | barraca listrada, carretel | costureira, vendedor, borboleta (voando) |
+> | PHP | `forja` | ⚒️ Forja | pedra escura, pedras | brasas | bigorna, martelo | ferreira, ajudante, elefantinho azul do PHP |
+> | PHP | `arquivo` | 🗄️ Arquivo | madeira, tábuas | pilhas de pastas | gaveteiro, fichário | arquivista, mensageiro, coruja (voando) |
+> | Terraform | `canteiro` | 🏗️ Canteiro de obras | terra batida, tábuas | cones e fita | guindaste, pilha de blocos | mestre de obras, engenheira, pássaro (voando) |
+> | Terraform | `porto` | ⚓ Porto laranja | cais de concreto, pedras | água | contêineres, guindaste do porto | estivador, rebocador (na água), gaivota (voando) |
+> | Terraform | `ceu` | ☁️ Céu de nuvens | nuvem clara, nuvem azulada | vão do céu | torre de servidores, raio | técnica, balão e pipa (voando) |
 
 O cartão "em breve" dos módulos futuros (`PROXIMOS_MODULOS`) fica sem cenário. O cenário só
 aparece quando o módulo existe.

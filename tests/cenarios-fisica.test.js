@@ -35,8 +35,8 @@ describe('física', () => {
     });
   });
 
-  it('quem anda nunca entra na água; voadores podem; peixe e jangadeiro nunca saem dela', () => {
-    const { mapa } = simular('rio', 1);
+  it('quem anda nunca entra na água; voadores podem; o rebocador nunca sai dela', () => {
+    const { mapa } = simular('porto', 1);
     const agua = mapa.tiles.findIndex((t) => t.tipo === 'bloqueio');
     const [c, l] = [agua % mapa.colunas, Math.floor(agua / mapa.colunas)];
     expect(podePisar(mapa, 'andar', c, l)).toBe(false);
@@ -47,11 +47,11 @@ describe('física', () => {
   });
 
   it('os personagens se mexem (não ficam parados para sempre) e viram para onde andam', () => {
-    const { historico } = simular('sertao', 200);
-    const vaqueiro = historico[0];
-    const andou = new Set(vaqueiro.map((p) => `${p.c},${p.l}`)).size;
+    const { historico } = simular('canteiro', 200);
+    const mestre = historico[0];
+    const andou = new Set(mestre.map((p) => `${p.c},${p.l}`)).size;
     expect(andou).toBeGreaterThan(10);
-    const passo = vaqueiro.find((p, i) => i > 0 && !p.parado);
+    const passo = mestre.find((p, i) => i > 0 && !p.parado);
     expect(Math.abs(passo.direcao[0]) + Math.abs(passo.direcao[1])).toBe(1);
   });
 });
