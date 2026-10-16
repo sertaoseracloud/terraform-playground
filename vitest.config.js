@@ -12,6 +12,7 @@ export default defineConfig({
     __SEMENTE_ED25519__: JSON.stringify(SEMENTE_TESTES),
     __CHAVE_PUBLICA_ED25519__: JSON.stringify(chavePublicaDe(SEMENTE_TESTES)),
     __VERSAO__: JSON.stringify(versaoDoPacote()),
+    __HOMOLOGACAO__: 'false',
   },
   test: { testTimeout: 60000, hookTimeout: 120000 },
 });

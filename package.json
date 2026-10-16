@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "badges": "node scripts/gerar-badges.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "conferir-build": "node scripts/conferir-build.mjs"
   },
   "type": "module",
   "dependencies": {

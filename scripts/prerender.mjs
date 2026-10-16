@@ -3,7 +3,8 @@
 //   - troca o bloco <!-- seo:inicio --> … <!-- seo:fim --> do <head> pelas meta tags
 //     e pelos dados estruturados (src/seo.js);
 //   - escreve a landing page já em HTML dentro de <main id="tela-landing">;
-//   - gera dist/sitemap.xml.
+//   - gera dist/sitemap.xml;
+//   - na homologação (HOMOLOGACAO=1), põe noindex e não gera o sitemap.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { metaTags, sitemap } from '../src/seo.js';
 import { versaoDoPacote } from './plugin-historico.mjs';
@@ -12,15 +13,19 @@ import { versaoDoPacote } from './plugin-historico.mjs';
 globalThis.__VERSAO__ = versaoDoPacote();
 const { renderLanding } = await import('../src/ui/landing.js');
 
-export function prerender(html) {
+export function prerender(html, { homologacao = false } = {}) {
   const seo = /<!-- seo:inicio -->[\s\S]*?<!-- seo:fim -->/;
   if (!seo.test(html)) throw new Error('index.html sem o bloco <!-- seo:inicio --> … <!-- seo:fim -->');
   const landing = { innerHTML: '' };
   renderLanding(landing); // sem progresso salvo: mostra "Começar a trilha"
   const vazio = /(<main id="tela-landing"[^>]*>)\s*(<\/main>)/;
   if (!vazio.test(html)) throw new Error('index.html sem <main id="tela-landing"></main> vazio');
+  // Na homologação, o robots "index, follow" do site principal vira noindex.
+  const meta = homologacao
+    ? metaTags().replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex">')
+    : metaTags();
   return html
-    .replace(seo, `<!-- seo:inicio (gerado por scripts/prerender.mjs) -->\n  ${metaTags()}\n  <!-- seo:fim -->`)
+    .replace(seo, `<!-- seo:inicio (gerado por scripts/prerender.mjs) -->\n  ${meta}\n  <!-- seo:fim -->`)
     .replace(vazio, (_, abre, fecha) => `${abre}${landing.innerHTML}${fecha}`);
 }
 
@@ -28,7 +33,12 @@ export function prerender(html) {
 if (process.argv[1]?.endsWith('prerender.mjs')) {
   const dist = new URL('../dist/', import.meta.url);
   const arquivo = new URL('index.html', dist);
-  writeFileSync(arquivo, prerender(readFileSync(arquivo, 'utf8')));
-  writeFileSync(new URL('sitemap.xml', dist), sitemap(new Date().toISOString().slice(0, 10)));
-  console.log('prerender: <head> com SEO, landing em HTML e sitemap.xml');
+  const homologacao = process.env.HOMOLOGACAO === '1';
+  writeFileSync(arquivo, prerender(readFileSync(arquivo, 'utf8'), { homologacao }));
+  if (homologacao) {
+    console.log('prerender (homologação): <head> com SEO e noindex, landing em HTML, sem sitemap.xml');
+  } else {
+    writeFileSync(new URL('sitemap.xml', dist), sitemap(new Date().toISOString().slice(0, 10)));
+    console.log('prerender: <head> com SEO, landing em HTML e sitemap.xml');
+  }
 }
