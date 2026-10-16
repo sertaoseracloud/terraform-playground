@@ -3,7 +3,6 @@
 // bloqueio), o site continua funcionando, só não lembra.
 import { PREFIXO_ARMAZENAMENTO as PREFIXO } from './ambiente.js';
 
-
 function ler(chave, padrao = null) {
   try {
     const valor = localStorage.getItem(PREFIXO + chave);

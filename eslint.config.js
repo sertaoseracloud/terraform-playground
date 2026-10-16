@@ -4,7 +4,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist/', 'node_modules/', 'public/', '.vitest/'] },
+  { ignores: ['dist/', 'node_modules/', 'public/', '.vitest/', 'coverage/', 'playwright-report/', 'test-results/'] },
   js.configs.recommended,
   {
     languageOptions: {

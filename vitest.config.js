@@ -17,6 +17,7 @@ export default defineConfig({
   test: {
     testTimeout: 60000,
     hookTimeout: 120000,
+    exclude: ['**/node_modules/**', 'tests/e2e/**'], // os E2E rodam no Playwright
     // Limites = a cobertura medida em 2026-10-16, arredondada para baixo: só pode subir.
     coverage: {
       provider: 'v8',
