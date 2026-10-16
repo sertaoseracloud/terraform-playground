@@ -125,8 +125,10 @@ export function iniciarTutorial({ telaAtual }) {
   // Primeira visita: abre sozinho quando a pessoa entra na trilha ou num exercício
   // (não na landing, na privacidade nem em links de código compartilhado ou de certificado).
   const talvezAbrir = () => {
+    if ($('dialogo-apoio')?.open) return;
     if (!dialogo.open && !lerPreferencia('tutorial-visto') && /^#\/(trilha|p\/|livre)/.test(location.hash)) abrir();
   };
+  $('dialogo-apoio')?.addEventListener('close', talvezAbrir);
   talvezAbrir();
   window.addEventListener('hashchange', talvezAbrir);
 
