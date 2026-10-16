@@ -2,6 +2,7 @@
 // seção resumida da landing. O conteúdo vem de src/instrutor.js e src/apoio.js.
 import { INSTRUTOR } from '../instrutor.js';
 import { PIX, apoioDisponivel, codigoPix, svgQrCode } from '../apoio.js';
+import { REPOSITORIO } from '../licenca.js';
 import { esc } from './util.js';
 
 const linkExterno = (l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.rotulo)} ↗</a>`;
@@ -38,19 +39,22 @@ export function secaoInstrutor() {
 }
 
 /** Caixa de apoio: QR Code e código copia e cola (ou "em breve", sem chave configurada). */
-export function caixaApoio() {
+export function caixaApoio({ prefix = '' } = {}) {
+  const id = (nome) => `${prefix}${nome}`;
+  const estrela = `<p class="acoes-apoio"><a class="btn btn-estrela-github" href="${REPOSITORIO}" title="Abre o GitHub em uma janela separada">⭐ Dê uma estrela no GitHub</a></p>`;
   if (!apoioDisponivel()) {
     return `
-      <section class="caixa-apoio" id="apoie" aria-labelledby="apoio-titulo">
-        <h2 id="apoio-titulo">☕ Apoie o projeto</h2>
-        <p>Em breve você poderá apoiar o projeto com um PIX de qualquer valor.</p>
+      <section class="caixa-apoio" id="${id('apoie')}" aria-labelledby="${id('apoio-titulo')}">
+        <h2 id="${id('apoio-titulo')}"${prefix ? ' tabindex="-1" autofocus' : ''}>☕ Apoie o projeto</h2>
+        <p id="${id('apoio-mensagem')}">Em breve você poderá apoiar o projeto com um PIX de qualquer valor.</p>
+        ${estrela}
       </section>`;
   }
   const codigo = codigoPix();
   return `
-    <section class="caixa-apoio" id="apoie" aria-labelledby="apoio-titulo">
-      <h2 id="apoio-titulo">☕ Apoie o projeto</h2>
-      <p>Os playgrounds são gratuitos, sem anúncios e sem cadastro. Se eles te ajudaram, você pode apoiar com
+    <section class="caixa-apoio" id="${id('apoie')}" aria-labelledby="${id('apoio-titulo')}">
+      <h2 id="${id('apoio-titulo')}"${prefix ? ' tabindex="-1" autofocus' : ''}>☕ Apoie o projeto</h2>
+      <p id="${id('apoio-mensagem')}">Os playgrounds são gratuitos, sem anúncios e sem cadastro. Se eles te ajudaram, você pode apoiar com
         um PIX de qualquer valor para ${esc(PIX.instituicao)}. O apoio é voluntário e não muda nada no acesso ao site nem nos certificados.</p>
       <div class="pix">
         <figure class="qr-pix">
@@ -63,13 +67,44 @@ export function caixaApoio() {
             <li>Leia o QR Code ou escolha <b>PIX copia e cola</b> e cole o código abaixo.</li>
             <li>Digite o valor que quiser e confirme. Recebedor: <b>${esc(PIX.nome)}</b>.</li>
           </ol>
-          <label for="codigo-pix">PIX copia e cola</label>
-          <textarea id="codigo-pix" class="codigo-pix" rows="4" readonly spellcheck="false">${esc(codigo)}</textarea>
-          <p><button type="button" class="btn btn-verde" id="btn-copiar-pix">📋 Copiar código PIX</button>
-            <span class="aviso-copia" id="aviso-copia-pix" role="status"></span></p>
+          <label for="${id('codigo-pix')}">PIX copia e cola</label>
+          <textarea id="${id('codigo-pix')}" class="codigo-pix" rows="4" readonly spellcheck="false">${esc(codigo)}</textarea>
+          <p><button type="button" class="btn btn-verde" id="${id('btn-copiar-pix')}">📋 Copiar código PIX</button>
+            <span class="aviso-copia" id="${id('aviso-copia-pix')}" role="status"></span></p>
         </div>
       </div>
+      ${estrela}
     </section>`;
+}
+
+export function ativarCopiaPix(el, { prefix = '' } = {}) {
+  const botao = el.querySelector(`#${prefix}btn-copiar-pix`);
+  if (!botao) return;
+  const campo = el.querySelector(`#${prefix}codigo-pix`);
+  const aviso = el.querySelector(`#${prefix}aviso-copia-pix`);
+  botao.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(campo.value);
+    } catch {
+      campo.select();
+      document.execCommand?.('copy');
+    }
+    aviso.textContent = '✅ Código copiado. Cole no app do banco, em PIX copia e cola.';
+  };
+}
+
+export function ativarLinkEstrela(el) {
+  el.querySelectorAll('.btn-estrela-github').forEach((link) => {
+    link.addEventListener('click', (evento) => {
+      evento.preventDefault();
+      const janela = window.open(link.href, 'github-star', 'popup=yes,width=900,height=700');
+      if (!janela) {
+        window.location.assign(link.href);
+        return;
+      }
+      janela.opener = null;
+    });
+  });
 }
 
 /** Página completa: perfil, atuação, formação e o apoio. */
@@ -115,19 +150,7 @@ export function renderInstrutor(el, { ancora } = {}) {
       ${caixaApoio()}
     </article>`;
 
-  const botao = el.querySelector('#btn-copiar-pix');
-  if (botao) {
-    const campo = el.querySelector('#codigo-pix');
-    const aviso = el.querySelector('#aviso-copia-pix');
-    botao.onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(campo.value);
-      } catch {
-        campo.select();
-        document.execCommand?.('copy');
-      }
-      aviso.textContent = '✅ Código copiado. Cole no app do banco, em PIX copia e cola.';
-    };
-  }
+  ativarCopiaPix(el);
+  ativarLinkEstrela(el);
   if (ancora === 'apoie') el.querySelector('#apoie')?.scrollIntoView?.({ block: 'start' });
 }

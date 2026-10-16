@@ -787,10 +787,11 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .dialogo h2 { margin: 0 0 10px; color: var(--roxo); font-size: 1.15rem; }
 .dialogo-cabecalho { display: flex; justify-content: space-between; align-items: center; }
 .dialogo-rodape { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
-.mural-apoio { width: min(560px, calc(100vw - 32px)); }
-.mural-apoio > h2, .mural-apoio > p { text-align: center; }
-.mural-apoio .qr-pix { margin: 0 auto; }
-.mural-apoio .qr-pix svg { width: min(200px, 52vw); height: auto; }
+.mural-apoio { width: min(1000px, calc(100vw - 32px)); padding: 12px 14px; }
+.mural-apoio .caixa-apoio { margin: 0; padding: 8px 14px 12px; font-size: 1rem; }
+.mural-apoio .caixa-apoio > p:first-of-type { margin: 6px 0 12px; }
+.mural-apoio .pix { gap: 12px; }
+.mural-apoio .acoes-apoio { margin-top: 12px; }
 .mural-apoio .dialogo-rodape { justify-content: center; }
 
 .form-a11y fieldset { border: 1px solid var(--linha); border-radius: 8px; margin: 12px 0; padding: 8px 14px 12px; }
