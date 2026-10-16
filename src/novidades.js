@@ -13,9 +13,9 @@ export const RELEASES = [
     versao: '1.10.2',
     data: '2026-10-16',
     titulo: 'Tudo cabe no celular',
-    resumo: 'No iPhone e em outros celulares, a trilha e o tutorial ficavam um pouco para fora da tela, deslocados para a direita.',
+    resumo: 'No iPhone e no Android, a trilha e o tutorial ficavam um pouco para fora da tela, e o cenário travava a rolagem.',
     grupos: [
-      { titulo: '📱 Celular', itens: ['O painel do jogador e o cabeçalho de cada módulo cabem na largura da tela, com a mesma margem dos dois lados.', 'Os contadores do módulo (exercícios, lições e horas) quebram linha em vez de passar da borda.', 'Os botões do tutorial quebram linha, e o Próximo não fica mais escondido na borda.'] },
+      { titulo: '📱 Celular', itens: ['O painel do jogador e o cabeçalho de cada módulo cabem na largura da tela, com a mesma margem dos dois lados.', 'Os contadores do módulo (exercícios, lições e horas) quebram linha em vez de passar da borda.', 'Os botões do tutorial quebram linha, e o Próximo não fica mais escondido na borda.', 'No Android e no iPhone, o cenário da trilha não é mais redesenhado quando a barra de endereço some ou volta durante a rolagem: a rolagem não trava, e os personagens não voltam ao começo.'] },
     ],
   },
   {
