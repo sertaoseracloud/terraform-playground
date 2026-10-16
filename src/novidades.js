@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.10.3',
+    data: '2026-10-16',
+    titulo: 'Mais leve no celular',
+    resumo: 'No celular, os botões de ajuda não cobrem mais o código.',
+    grupos: [
+      { titulo: '📱 Celular', itens: ['Os botões de ajuda, acessibilidade e privacidade viram um só (⚙️): no exercício, eles não cobrem mais o código.'] },
+    ],
+  },
+  {
     versao: '1.10.2',
     data: '2026-10-16',
     titulo: 'Tudo cabe no celular',
