@@ -246,6 +246,17 @@ kbd {
 }
 .pular:focus { top: 8px; }
 
+/* Faixa do build de homologação (develop): avisa que não é o site principal. */
+.faixa-homologacao {
+  padding: 6px 16px;
+  background: var(--amarelo);
+  color: var(--sobre-cor);
+  font-weight: 700;
+  text-align: center;
+}
+.faixa-homologacao[hidden] { display: none; }
+.faixa-homologacao a { color: inherit; text-decoration: underline; }
+
 .conteudo { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .conteudo:focus { outline: none; }
 /* Títulos recebem foco ao trocar de página (para o leitor de tela); não são clicáveis. */

@@ -11,7 +11,8 @@ export const CONTROLADOR = {
   contato: 'https://github.com/sertaoseracloud/terraform-playground/issues',
 };
 
-/** Dados guardados no navegador (localStorage), com o prefixo "terraform-playground:". */
+/** Dados guardados no navegador (localStorage), com o prefixo "terraform-playground:"
+ * (na homologação, "terraform-playground-homologacao:"; veja ambiente.js). */
 export const DADOS_LOCAIS = [
   { chave: 'progresso', dado: 'Exercícios resolvidos ou tentados', finalidade: 'Mostrar seu avanço na trilha e liberar módulos' },
   { chave: 'datas', dado: 'Dia em que cada exercício foi resolvido', finalidade: 'Data dos certificados' },
