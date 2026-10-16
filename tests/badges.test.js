@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { BADGES, svgBadge, svgCartao } from '../src/badges.js';
-import { CERTIFICADOS, SITE } from '../src/certificados.js';
+import { CERTIFICADOS, SITE, EMISSOR, ORDEM } from '../src/certificados.js';
 
 const publico = (caminho) => new URL(`../public/${caminho}`, import.meta.url);
 
@@ -25,5 +25,17 @@ describe('badges', () => {
     const pagina = readFileSync(publico(`badge/${id}/index.html`), 'utf8');
     expect(pagina).toContain(`<meta property="og:image" content="${SITE}badges/${id}-card.png">`);
     expect(pagina).toContain(CERTIFICADOS[id].titulo);
+  });
+});
+
+describe('cartão do badge (a prévia do post)', () => {
+  // 44 caracteres a 24px cabem com folga (no cartão do terraform, 41 terminam em x ≈ 1080 de 1200).
+  it('o nome do curso cabe no cartão: nenhuma linha passa de 44 caracteres', () => {
+    for (const id of ORDEM) {
+      const linhas = [...svgCartao(id).matchAll(/<text [^>]*font-size="24"[^>]*>([^<]*)<\/text>/g)].map((m) => m[1]);
+      // No terraform o cartão mostra o nome curto de propósito ("DivergeTerraform · Terraform, AWS e Azure").
+      expect(linhas.join(' ')).toContain(EMISSOR.curso.split(':')[0]);
+      for (const l of linhas) expect(l.length).toBeLessThanOrEqual(44);
+    }
   });
 });
