@@ -6,10 +6,10 @@ export const TEMAS = ['dracula', 'claro', 'suave', 'alto-contraste'];
 export const TELAS = ['#/', '#/trilha', `#/p/${PRIMEIRO.id}`];
 
 /**
- * Abre `hash` com o localStorage zerado. Por padrão, o tutorial e o aviso de privacidade
- * já foram vistos (não cobrem a tela); `extras` grava outras chaves (sem o prefixo).
+ * Abre `hash` com o localStorage zerado. Por padrão, tutorial e privacidade já foram vistos,
+ * e o mural de apoio é fechado; `extras` grava outras chaves (sem o prefixo).
  */
-export async function abrir(page, hash, { tutorial = false, extras = {} } = {}) {
+export async function abrir(page, hash, { tutorial = false, extras = {}, muralApoio = false } = {}) {
   await page.goto('/');
   await page.evaluate(({ tutorial, extras }) => {
     localStorage.clear();
@@ -20,6 +20,7 @@ export async function abrir(page, hash, { tutorial = false, extras = {} } = {}) 
   }, { tutorial, extras });
   await page.goto(`/${hash}`);
   await page.reload();
+  if (!muralApoio) await page.getByRole('button', { name: 'Continuar para o projeto' }).click();
 }
 
 /**
