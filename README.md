@@ -205,12 +205,44 @@ npm install
 npm run dev      # servidor local com recarga
 npm run lint     # ESLint
 npm test         # testes (motor, regras e toda a trilha)
+npm run test:cobertura  # os mesmos testes, com o limite de cobertura
 npm run build    # gera dist/ (precisa de CERTIFICADO_SEGREDO)
+npm run test:e2e        # Playwright contra o dist (fluxo, axe nos 4 temas, larguras de celular)
+npm run lighthouse      # Lighthouse CI contra o dist
 npm run badges   # regenera badges, capa e ícones em public/
 ```
 
-A cada push na `main`, o GitHub Actions ([`.github/workflows/pages.yml`](.github/workflows/pages.yml))
-roda o lint e os testes, faz o build e publica no GitHub Pages.
+Para testar um build local sem o segredo de verdade:
+
+```bash
+CERTIFICADO_SEGREDO=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))") npm run build
+```
+
+## Como publicar
+
+O repositório segue o **gitflow**. Pense no `develop` como o ensaio geral e no `main` como a estreia:
+
+- **`feature/*`**: cada mudança nasce de `develop` e volta para ele por PR (rebase).
+- **`develop`**: tudo o que já foi aceito. Cada push publica a **homologação** em
+  <https://sertaoseracloud.github.io/terraform-playground/homologacao/>, com uma faixa de aviso,
+  progresso guardado à parte (prefixo `terraform-playground-homologacao:`), outro segredo de
+  certificado, `noindex` e sem `sitemap.xml`. É onde a versão é conferida no navegador antes de sair.
+- **`release/*`**: sai de `develop` com a versão nova no `package.json` e entra no `main` por PR
+  (merge commit). Cada push no `main` publica o site principal e cria a tag `v<versão>`, se ela
+  ainda não existir. Depois, um PR de `main` para `develop` traz a release de volta.
+- **`hotfix/*`**: correção urgente que sai do `main` e entra nele do mesmo jeito.
+
+`main` e `develop` só recebem PR, com os checks verdes. Os workflows:
+
+- [`testes.yml`](.github/workflows/testes.yml): em todo PR. Lint sem avisos, testes com limite de
+  cobertura, `npm audit`, E2E no Chromium e Lighthouse bloqueiam. Firefox, WebKit e celular só informam.
+- [`deploy.yml`](.github/workflows/deploy.yml): em cada push no `main` ou no `develop`. Roda os
+  testes, monta o principal (do `main`) na raiz e a homologação (do `develop`) em `/homologacao/`,
+  confere os dois com `scripts/conferir-build.mjs`, publica e cria a tag.
+- [`auditoria-semanal.yml`](.github/workflows/auditoria-semanal.yml): Lighthouse no site no ar todo domingo.
+
+Secrets do GitHub Actions (Settings > Secrets > Actions), gerados aleatoriamente e que ninguém conhece:
+`CERTIFICADO_SEGREDO` (site principal) e `CERTIFICADO_SEGREDO_HOMOLOGACAO` (homologação).
 
 ## Licença
 
