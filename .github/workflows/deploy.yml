@@ -41,8 +41,6 @@ jobs:
         env:
           # Palavra secreta do selo dos certificados (Settings > Secrets > Actions).
           CERTIFICADO_SEGREDO: ${{ secrets.CERTIFICADO_SEGREDO }}
-      - name: Confere o build principal
-        run: npm run conferir-build -- dist principal
       - uses: actions/upload-artifact@v7
         with:
           name: site-principal
@@ -83,9 +81,6 @@ jobs:
           HOMOLOGACAO: '1'
           # Outro segredo: certificado emitido na homologação não vale no site principal.
           CERTIFICADO_SEGREDO_HOMOLOGACAO: ${{ secrets.CERTIFICADO_SEGREDO_HOMOLOGACAO }}
-      - name: Confere o build de homologação
-        if: steps.develop.outputs.existe == 'true'
-        run: npm run conferir-build -- dist homologacao
       - uses: actions/upload-artifact@v7
         if: steps.develop.outputs.existe == 'true'
         with:
@@ -110,8 +105,11 @@ jobs:
         with:
           name: site-homologacao
           path: site/homologacao
+      # As conferências usam o script deste commit, não o do branch montado: o main pode
+      # ainda não ter o conferir-build (era o caso antes da 1.11.0).
       - name: Monta o site (principal na raiz, homologação em /homologacao/)
         run: |
+          node scripts/conferir-build.mjs site/principal principal
           mkdir -p publicar
           cp -r site/principal/. publicar/
           test -f publicar/index.html
