@@ -21,6 +21,31 @@ export function iniciarFlutuantes() {
   }, { capture: true, passive: true });
   window.addEventListener('hashchange', () => grupo.classList.remove('recolhidos'));
   grupo.addEventListener('focusin', () => grupo.classList.remove('recolhidos'));
+
+  // No celular, os três ficam atrás do ⚙️ para não cobrir o editor; no desktop, sempre à mostra.
+  const botao = $('btn-flutuantes');
+  const itens = $('flutuantes-itens');
+  const celular = window.matchMedia?.('(max-width: 760px)');
+  let aberto = false;
+  const abrir = (valor) => {
+    aberto = valor;
+    botao.setAttribute('aria-expanded', String(aberto));
+    botao.querySelector('span').textContent = aberto ? '✕' : '⚙️';
+    itens.hidden = Boolean(celular?.matches) && !aberto;
+  };
+  abrir(false);
+  botao.addEventListener('click', () => abrir(!aberto));
+  itens.addEventListener('click', (e) => { if (e.target.closest('a, button')) abrir(false); });
+  document.addEventListener('click', (e) => { if (aberto && !grupo.contains(e.target)) abrir(false); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && aberto) {
+      abrir(false);
+      botao.focus();
+    }
+  });
+  window.addEventListener('hashchange', () => abrir(false));
+  // Cruzou a faixa do celular (girou, ou a janela mudou): refaz o que fica à mostra.
+  celular?.addEventListener?.('change', () => abrir(aberto));
 }
 
 export function iniciarMenu() {
