@@ -39,6 +39,6 @@ export const INSTRUTOR = {
   idiomas: 'Português, inglês e espanhol (proficiência profissional)',
   links: [
     { rotulo: 'LinkedIn', url: 'https://www.linkedin.com/in/cfraposo' },
-    { rotulo: 'Sertão será cloud', url: 'https://sertaoseracloud.live' },
+    { rotulo: 'Sertão será cloud', url: 'https://mentoria.sertaoseracloud.com/' },
   ],
 };

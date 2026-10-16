@@ -1,7 +1,7 @@
 // Tudo o que fica salvo no navegador do aluno: progresso, rascunhos e o banco
 // do playground livre. Cada acesso é protegido: sem localStorage (aba anônima,
 // bloqueio), o site continua funcionando, só não lembra.
-const PREFIXO = 'terraform-playground:';
+import { PREFIXO_ARMAZENAMENTO as PREFIXO } from './ambiente.js';
 
 function ler(chave, padrao = null) {
   try {

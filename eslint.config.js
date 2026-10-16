@@ -4,14 +4,14 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist/', 'node_modules/', 'public/', '.vitest/'] },
+  { ignores: ['dist/', 'node_modules/', 'public/', '.vitest/', 'coverage/', 'playwright-report/', 'test-results/'] },
   js.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',
       // __CHAVE_CERTIFICADO__, __SEMENTE_ED25519__ e __CHAVE_PUBLICA_ED25519__ são injetadas pelo Vite (vite.config.js).
-      globals: { ...globals.browser, __CHAVE_CERTIFICADO__: 'readonly', __SEMENTE_ED25519__: 'readonly', __CHAVE_PUBLICA_ED25519__: 'readonly', __VERSAO__: 'readonly' },
+      globals: { ...globals.browser, __CHAVE_CERTIFICADO__: 'readonly', __SEMENTE_ED25519__: 'readonly', __CHAVE_PUBLICA_ED25519__: 'readonly', __VERSAO__: 'readonly', __HOMOLOGACAO__: 'readonly' },
     },
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_', caughtErrors: 'none' }],

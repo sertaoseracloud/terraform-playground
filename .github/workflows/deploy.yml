@@ -1,0 +1,193 @@
+name: Deploy
+
+# Gitflow: cada push em main ou develop republica o site inteiro a partir do último
+# commit de cada branch, para um nunca apagar o outro:
+#   - main    → https://sertaoseracloud.github.io/terraform-playground/ (e a tag v<versão>);
+#   - develop → https://sertaoseracloud.github.io/terraform-playground/homologacao/
+#     (HOMOLOGACAO=1: outro localStorage, outro segredo, noindex, sem sitemap).
+# Testes aprovados em develop abrem automaticamente o PR de promoção para main.
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicação por vez, e nenhuma é cancelada no meio.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  testes:
+    uses: ./.github/workflows/testes.yml
+
+  principal:
+    needs: testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0 # histórico completo para a página de novidades
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          # Palavra secreta do selo dos certificados (Settings > Secrets > Actions).
+          CERTIFICADO_SEGREDO: ${{ secrets.CERTIFICADO_SEGREDO }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: site-principal
+          path: dist/
+          retention-days: 1
+
+  homologacao:
+    needs: testes
+    runs-on: ubuntu-latest
+    outputs:
+      existe: ${{ steps.develop.outputs.existe }}
+    steps:
+      # Sem o branch develop, o site sai só com o principal.
+      - id: develop
+        name: O branch develop existe?
+        run: |
+          if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}" develop > /dev/null; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Sem o branch develop: a homologação não é publicada."
+          fi
+      - uses: actions/checkout@v7
+        if: steps.develop.outputs.existe == 'true'
+        with:
+          ref: develop
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        if: steps.develop.outputs.existe == 'true'
+        with:
+          node-version: 24
+          cache: npm
+      - if: steps.develop.outputs.existe == 'true'
+        run: npm ci
+      - if: steps.develop.outputs.existe == 'true'
+        run: npm run build
+        env:
+          HOMOLOGACAO: '1'
+          # Outro segredo: certificado emitido na homologação não vale no site principal.
+          CERTIFICADO_SEGREDO_HOMOLOGACAO: ${{ secrets.CERTIFICADO_SEGREDO_HOMOLOGACAO }}
+      - uses: actions/upload-artifact@v7
+        if: steps.develop.outputs.existe == 'true'
+        with:
+          name: site-homologacao
+          path: dist/
+          retention-days: 1
+
+  montar:
+    needs: [principal, homologacao]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v7
+        with:
+          name: site-principal
+          path: site/principal
+      - uses: actions/download-artifact@v7
+        if: needs.homologacao.outputs.existe == 'true'
+        with:
+          name: site-homologacao
+          path: site/homologacao
+      # As conferências usam o script deste commit, não o do branch montado: o main pode
+      # ainda não ter o conferir-build (era o caso antes da 1.11.0).
+      - name: Monta o site (principal na raiz, homologação em /homologacao/)
+        run: |
+          node scripts/conferir-build.mjs site/principal principal
+          mkdir -p publicar
+          cp -r site/principal/. publicar/
+          test -f publicar/index.html
+          if [ "${{ needs.homologacao.outputs.existe }}" = "true" ]; then
+            node scripts/conferir-build.mjs site/homologacao homologacao --comparar site/principal
+            mkdir -p publicar/homologacao
+            cp -r site/homologacao/. publicar/homologacao/
+            test -f publicar/homologacao/index.html
+          fi
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: publicar
+
+  publicar:
+    needs: montar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  # Só no main: cria a tag v<versão do package.json> se ela ainda não existir (nunca força).
+  tag:
+    needs: publicar
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Tag da versão
+        run: |
+          VERSAO="v$(node -p "require('./package.json').version")"
+          if [ -n "$(git ls-remote --tags origin "refs/tags/$VERSAO")" ]; then
+            echo "::notice::A tag $VERSAO já existe: nada a fazer."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$VERSAO" -m "Versão ${VERSAO#v}"
+          git push origin "$VERSAO"
+
+  promover:
+    needs: testes
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Abre ou reabre o PR de homologação para produção
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          AHEAD="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...develop" --jq '.ahead_by')"
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "::notice::develop não tem commits novos para promover a main."
+            exit 0
+          fi
+
+          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head develop --state all --json number,state,mergedAt --limit 1)"
+          NUMERO="$(echo "$PR" | jq -r '.[0].number // empty')"
+          ESTADO="$(echo "$PR" | jq -r '.[0].state // empty')"
+          MESCLADO="$(echo "$PR" | jq -r '.[0].mergedAt // empty')"
+
+          if [ "$ESTADO" = "OPEN" ]; then
+            echo "::notice::O PR #$NUMERO de develop para main já está aberto."
+          elif [ "$ESTADO" = "CLOSED" ] && [ -z "$MESCLADO" ]; then
+            gh pr reopen "$NUMERO" --repo "$GITHUB_REPOSITORY"
+          else
+            gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base main \
+              --head develop \
+              --title "Promove develop para main" \
+              --body "Os testes bloqueantes e a validação de qualidade passaram em develop. Revise as alterações homologadas antes de mesclar em main."
+          fi

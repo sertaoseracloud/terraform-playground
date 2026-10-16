@@ -28,12 +28,15 @@ import { criarTelaItem } from './ui/item.js';
 import { renderCertificado } from './ui/certificado.js';
 import { criarLayout } from './ui/layout.js';
 import { iniciarTutorial } from './ui/tutorial.js';
+import { iniciarMuralApoio } from './ui/mural-apoio.js';
 import { $ } from './ui/util.js';
+import { HOMOLOGACAO } from './ambiente.js';
 import { definirPagina, PRINCIPAL, NOME } from './seo.js';
 import { buscarItem, modulos } from './conteudo/trilha.js';
 
 // Antes de tudo: tema e tamanho de texto escolhidos pelo aluno.
 const acessibilidade = iniciarAcessibilidade();
+if (HOMOLOGACAO) $('faixa-homologacao').hidden = false;
 iniciarMenu();
 iniciarFlutuantes();
 iniciarRegua();
@@ -256,4 +259,5 @@ atualizarProgressoTopo();
 navegar();
 
 iniciarAvisoPrivacidade();
+iniciarMuralApoio();
 iniciarTutorial({ telaAtual: () => (!telaItem.hidden ? 'item' : !telaInicio.hidden ? 'inicio' : 'outra') });

@@ -17,9 +17,10 @@ import { paraBase64Url, deBase64Url } from './compartilhar.js';
 import { hmacSha256 } from './sha256.js';
 import { assinar, verificar, CHAVE_PUBLICA } from './ed25519.js';
 import { textoHoras } from './cargaHoraria.js';
+import { SITE_ATUAL } from './ambiente.js';
 
 /** Endereço público do site: os links compartilhados apontam para cá. */
-export const SITE = 'https://sertaoseracloud.github.io/terraform-playground/';
+export const SITE = SITE_ATUAL;
 
 export const EMISSOR = {
   organizacao: 'Sertão será cloud',

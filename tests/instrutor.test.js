@@ -87,6 +87,8 @@ describe('página do instrutor', () => {
     const texto = document.getElementById('tela').textContent;
     expect(texto).toContain('Quem é o instrutor?');
     expect(texto).toContain('Cláudio Filipe Lima Rapôso');
+    expect(document.querySelector('.links-instrutor a[href="https://mentoria.sertaoseracloud.com/"]')).not.toBeNull();
+    expect(document.querySelector('.caixa-apoio a[href="https://github.com/sertaoseracloud/terraform-playground"]').textContent).toContain('estrela');
     for (const r of INSTRUTOR.reconhecimentos) expect(texto).toContain(r.nome);
     expect(texto).toContain('NTT DATA');
     expect(document.querySelectorAll('.linha-atuacao li')).toHaveLength(INSTRUTOR.atuacao.length);
