@@ -228,13 +228,18 @@
   </dialog>
 
   <!-- Botões flutuantes (canto inferior direito): ajuda e preferências, em qualquer tela -->
+  <!-- No celular, os três ficam atrás do ⚙️ (para não cobrir o editor); no desktop, sempre à mostra. -->
   <aside class="flutuantes" id="flutuantes" aria-label="Ajuda e preferências">
-    <button type="button" id="btn-tutorial" class="flutuante" aria-haspopup="dialog" aria-label="Tutorial" data-rotulo="Tutorial">
-      <span aria-hidden="true">❓</span></button>
-    <button type="button" id="btn-acessibilidade" class="flutuante" aria-haspopup="dialog" aria-label="Acessibilidade" data-rotulo="Acessibilidade">
-      <span aria-hidden="true">♿</span></button>
-    <a href="#/privacidade" class="flutuante" data-menu="privacidade" aria-label="Privacidade e cookies" data-rotulo="Privacidade e cookies">
-      <span aria-hidden="true">🔒</span></a>
+    <div class="flutuantes-itens" id="flutuantes-itens">
+      <button type="button" id="btn-tutorial" class="flutuante" aria-haspopup="dialog" aria-label="Tutorial" data-rotulo="Tutorial">
+        <span aria-hidden="true">❓</span></button>
+      <button type="button" id="btn-acessibilidade" class="flutuante" aria-haspopup="dialog" aria-label="Acessibilidade" data-rotulo="Acessibilidade">
+        <span aria-hidden="true">♿</span></button>
+      <a href="#/privacidade" class="flutuante" data-menu="privacidade" aria-label="Privacidade e cookies" data-rotulo="Privacidade e cookies">
+        <span aria-hidden="true">🔒</span></a>
+    </div>
+    <button type="button" id="btn-flutuantes" class="flutuante" aria-expanded="false" aria-controls="flutuantes-itens" aria-label="Ajuda e preferências" data-rotulo="Ajuda e preferências">
+      <span aria-hidden="true">⚙️</span></button>
   </aside>
 
   <!-- Régua de leitura (opção do painel de acessibilidade) -->

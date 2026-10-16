@@ -923,6 +923,9 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   cursor: pointer;
   transition: transform 0.15s, background 0.15s;
 }
+.flutuantes-itens { display: flex; flex-direction: column; gap: inherit; }
+/* ⚙️: só no celular, onde abre e fecha os três (veja o @media abaixo) */
+#btn-flutuantes { display: none; }
 .flutuante:hover, .flutuante:focus-visible { transform: scale(1.08); background: var(--linha); }
 .flutuante.ativo { background: var(--roxo); }
 /* rótulo à esquerda do botão, ao passar o mouse ou focar pelo teclado */
@@ -957,6 +960,8 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   .pagina-texto, .landing, .caminho-pagina { padding-bottom: 180px; }
   .flutuante { width: 44px; height: 44px; font-size: 1.2rem; }
   .flutuante::after { display: none; }
+  #btn-flutuantes { display: grid; }
+  .flutuantes-itens[hidden] { display: none; }
   .ir-passo-atual, .lembrete-pausa { right: 64px !important; }
   .lembrete-pausa { max-width: calc(100vw - 80px); }
 }
