@@ -42,6 +42,7 @@ export function medirEstouro(page) {
     const fora = [];
     for (const el of document.body.querySelectorAll('*')) {
       if (el.matches('.cenario-palco, .sr, .sr-only, .flutuantes.recolhidos, script, style')) continue;
+      if (el.closest('details:not([open])')) continue;
       const r = el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
       if (r.right <= largura + 1 && r.left >= -1) continue;
