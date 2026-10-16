@@ -190,7 +190,10 @@ function montar(camada, janela) {
     return p;
   }).filter(Boolean);
 
-  return { camada, canvas, mapa, cen, semente, sortear, personagens, largura: palco.clientWidth, altura: palco.clientHeight, visivel: false, bloqueado: Boolean(camada.closest('.bloqueada')) };
+  return {
+    camada, canvas, mapa, cen, semente, sortear, personagens, largura: palco.clientWidth, altura: palco.clientHeight, larguraMontada: largura,
+    visivel: false, bloqueado: Boolean(camada.closest('.bloqueada')),
+  };
 }
 
 function andar(palco, janela) {
@@ -249,13 +252,21 @@ export function ligarCenarios(raiz, { janela = window } = {}) {
   }) : null;
   mutacao?.observe(document.documentElement, { attributes: true, attributeFilter: ['data-tema', 'class'] });
 
-  // A janela mudou de tamanho: refaz os mapas (com uma espera, para não refazer a cada pixel).
+  // A janela mudou de largura: refaz os mapas (com uma espera, para não refazer a cada pixel). Só a
+  // largura muda o mapa; no celular, a barra de endereço muda a altura a cada rolagem, e refazer tudo
+  // nessa hora travaria a rolagem e mandaria os personagens de volta ao começo.
   let espera = null;
   const aoRedimensionar = () => {
     janela.clearTimeout(espera);
     espera = janela.setTimeout(() => {
+      const mudaram = palcos.filter((p) => {
+        alargar(p.camada);
+        const palco = p.camada.querySelector('.cenario-palco');
+        return (palco.clientWidth || janela.innerWidth || 1280) !== p.larguraMontada;
+      });
+      if (!mudaram.length) return;
       observador?.disconnect();
-      palcos = palcos.map((p) => montar(p.camada, janela));
+      palcos = palcos.map((p) => (mudaram.includes(p) ? montar(p.camada, janela) : p));
       observar();
     }, 200);
   };
