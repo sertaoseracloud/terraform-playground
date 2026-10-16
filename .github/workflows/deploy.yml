@@ -5,6 +5,7 @@ name: Deploy
 #   - main    → https://sertaoseracloud.github.io/terraform-playground/ (e a tag v<versão>);
 #   - develop → https://sertaoseracloud.github.io/terraform-playground/homologacao/
 #     (HOMOLOGACAO=1: outro localStorage, outro segredo, noindex, sem sitemap).
+# Testes aprovados em develop abrem automaticamente o PR de promoção para main.
 on:
   push:
     branches: [main, develop]
@@ -154,3 +155,39 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "$VERSAO" -m "Versão ${VERSAO#v}"
           git push origin "$VERSAO"
+
+  promover:
+    needs: testes
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Abre ou reabre o PR de homologação para produção
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          AHEAD="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...develop" --jq '.ahead_by')"
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "::notice::develop não tem commits novos para promover a main."
+            exit 0
+          fi
+
+          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head develop --state all --json number,state,mergedAt --limit 1)"
+          NUMERO="$(echo "$PR" | jq -r '.[0].number // empty')"
+          ESTADO="$(echo "$PR" | jq -r '.[0].state // empty')"
+          MESCLADO="$(echo "$PR" | jq -r '.[0].mergedAt // empty')"
+
+          if [ "$ESTADO" = "OPEN" ]; then
+            echo "::notice::O PR #$NUMERO de develop para main já está aberto."
+          elif [ "$ESTADO" = "CLOSED" ] && [ -z "$MESCLADO" ]; then
+            gh pr reopen "$NUMERO" --repo "$GITHUB_REPOSITORY"
+          else
+            gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base main \
+              --head develop \
+              --title "Promove develop para main" \
+              --body "Os testes bloqueantes e a validação de qualidade passaram em develop. Revise as alterações homologadas antes de mesclar em main."
+          fi
