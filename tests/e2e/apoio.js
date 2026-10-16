@@ -20,7 +20,12 @@ export async function abrir(page, hash, { tutorial = false, extras = {}, muralAp
   }, { tutorial, extras });
   await page.goto(`/${hash}`);
   await page.reload();
-  if (!muralApoio) await page.getByRole('button', { name: 'Continuar para o projeto' }).click();
+  if (!muralApoio) {
+    await page.getByRole('button', { name: 'Continuar para o projeto' }).click();
+    await page.locator('#flutuantes').evaluate(async (element) => {
+      await Promise.all(element.getAnimations().map((animacao) => animacao.finished.catch(() => {})));
+    });
+  }
 }
 
 /**
