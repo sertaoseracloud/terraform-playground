@@ -826,7 +826,8 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .tutorial-pontos span { width: 8px; height: 8px; border-radius: 50%; background: var(--linha); }
 .tutorial-pontos span.feito { background: var(--suave); }
 .tutorial-pontos span.atual { background: var(--roxo); width: 20px; border-radius: 4px; }
-.tutorial-botoes { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+/* no celular os botões quebram linha, e o Próximo fica à direita */
+.tutorial-botoes { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 10px; }
 .tutorial-botoes .espaco { flex: 1; }
 
 /* elemento explicado no passo atual: fica "aceso" e o resto escurece */

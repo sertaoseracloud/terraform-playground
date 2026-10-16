@@ -254,7 +254,8 @@
 }
 
 @media (max-width: 900px) {
-  .caminho-pagina { grid-template-columns: 1fr; }
+  /* minmax(0, 1fr): o 1fr sozinho não encolhe abaixo do item mais largo e empurra a trilha para fora da tela */
+  .caminho-pagina { grid-template-columns: minmax(0, 1fr); }
   .painel-jogador { position: static; }
   .no { transform: translateX(calc(var(--d) * 0.55)); }
 }
@@ -474,7 +475,7 @@
 /* celular: o anel de progresso da unidade vai para baixo do texto, em linha */
 @media (max-width: 560px) {
   .unidade { flex-wrap: wrap; }
-  .unidade-progresso { flex-direction: row; gap: 10px; width: 100%; justify-content: flex-start; }
+  .unidade-progresso { flex-direction: row; flex-wrap: wrap; gap: 4px 10px; width: 100%; justify-content: flex-start; }
 }
 
 /* cadeia de certificados (detalhes do selo) */

@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.10.2',
+    data: '2026-10-16',
+    titulo: 'Tudo cabe no celular',
+    resumo: 'No iPhone e em outros celulares, a trilha e o tutorial ficavam um pouco para fora da tela, deslocados para a direita.',
+    grupos: [
+      { titulo: '📱 Celular', itens: ['O painel do jogador e o cabeçalho de cada módulo cabem na largura da tela, com a mesma margem dos dois lados.', 'Os contadores do módulo (exercícios, lições e horas) quebram linha em vez de passar da borda.', 'Os botões do tutorial quebram linha, e o Próximo não fica mais escondido na borda.'] },
+    ],
+  },
+  {
     versao: '1.10.1',
     data: '2026-10-15',
     titulo: 'A vila cabe no mapa',
