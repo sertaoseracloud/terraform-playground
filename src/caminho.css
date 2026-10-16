@@ -726,7 +726,26 @@
 .idiomas { color: var(--suave); }
 
 .caixa-apoio { margin: 28px 0; padding: 4px 18px 18px; border: 2px solid var(--verde); border-radius: 12px; background: color-mix(in srgb, var(--verde) 6%, var(--fundo)); scroll-margin-top: 80px; }
-.pagina-texto .caixa-apoio h2 { color: var(--verde); }
+.caixa-apoio h2 { color: var(--verde); }
+.acoes-apoio { margin: 16px 0 0; }
+.btn-estrela-github {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 10px 16px;
+  border: 2px solid var(--amarelo);
+  border-radius: 8px;
+  background: var(--amarelo);
+  color: var(--sobre-cor);
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--amarelo) 55%, var(--fundo));
+}
+.btn-estrela-github:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.btn-estrela-github:focus-visible { outline: 3px solid var(--texto); outline-offset: 3px; }
 .pix { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
 .qr-pix { margin: 0; text-align: center; }
 .qr-pix svg { display: block; width: 200px; height: 200px; border-radius: 8px; background: #fff; }
