@@ -28,6 +28,7 @@ import { criarTelaItem } from './ui/item.js';
 import { renderCertificado } from './ui/certificado.js';
 import { criarLayout } from './ui/layout.js';
 import { iniciarTutorial } from './ui/tutorial.js';
+import { iniciarMuralApoio } from './ui/mural-apoio.js';
 import { $ } from './ui/util.js';
 import { HOMOLOGACAO } from './ambiente.js';
 import { definirPagina, PRINCIPAL, NOME } from './seo.js';
@@ -258,4 +259,5 @@ atualizarProgressoTopo();
 navegar();
 
 iniciarAvisoPrivacidade();
+iniciarMuralApoio();
 iniciarTutorial({ telaAtual: () => (!telaItem.hidden ? 'item' : !telaInicio.hidden ? 'inicio' : 'outra') });
