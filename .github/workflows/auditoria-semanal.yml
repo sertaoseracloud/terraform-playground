@@ -1,0 +1,33 @@
+name: Auditoria semanal
+
+# Lighthouse no site que está no ar (principal e homologação), todo domingo à meia-noite
+# UTC: pega o que muda sem commit (CDN, navegador novo). O relatório fica 30 dias nos
+# artefatos da execução.
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Lighthouse no site no ar
+        run: |
+          npx --yes @lhci/cli@0.15.1 collect --no-lighthouserc --numberOfRuns=3 \
+            --url=https://sertaoseracloud.github.io/terraform-playground/ \
+            --url=https://sertaoseracloud.github.io/terraform-playground/homologacao/
+          npx --yes @lhci/cli@0.15.1 upload --no-lighthouserc --target=filesystem --outputDir=.lighthouseci
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: auditoria-semanal
+          path: .lighthouseci/
+          include-hidden-files: true
+          retention-days: 30
