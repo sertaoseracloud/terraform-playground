@@ -128,6 +128,8 @@ jobs:
   publicar:
     needs: montar
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -135,9 +137,33 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v5
 
+  smoke:
+    needs: [publicar, homologacao]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Smoke test de produção
+        env:
+          URL_PRINCIPAL: ${{ needs.publicar.outputs.page_url }}
+        run: |
+          curl --fail --location --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors "$URL_PRINCIPAL" -o principal.html
+          grep -q '<title>DivergeTerraform:' principal.html
+          if grep -q '<meta name="robots" content="noindex">' principal.html; then
+            echo "::error::O site principal foi publicado com noindex."
+            exit 1
+          fi
+      - name: Smoke test de homologação
+        if: needs.homologacao.outputs.existe == 'true'
+        env:
+          URL_PRINCIPAL: ${{ needs.publicar.outputs.page_url }}
+        run: |
+          URL_HOMOLOGACAO="${URL_PRINCIPAL%/}/homologacao/"
+          curl --fail --location --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors "$URL_HOMOLOGACAO" -o homologacao.html
+          grep -q '<title>DivergeTerraform:' homologacao.html
+          grep -q '<meta name="robots" content="noindex">' homologacao.html
+
   # Só no main: cria a tag v<versão do package.json> se ela ainda não existir (nunca força).
   tag:
-    needs: publicar
+    needs: smoke
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -157,7 +183,7 @@ jobs:
           git push origin "$VERSAO"
 
   promover:
-    needs: testes
+    needs: smoke
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     permissions:
@@ -189,5 +215,5 @@ jobs:
               --base main \
               --head develop \
               --title "Promove develop para main" \
-              --body "Os testes bloqueantes e a validação de qualidade passaram em develop. Revise as alterações homologadas antes de mesclar em main."
+              --body "Os testes passaram, a homologação foi publicada e o smoke test do ambiente está verde. Revise as alterações antes de mesclar em produção."
           fi
