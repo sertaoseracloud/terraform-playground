@@ -222,7 +222,9 @@ CERTIFICADO_SEGREDO=$(node -e "console.log(require('crypto').randomBytes(32).toS
 
 O repositório segue o **gitflow**. Pense no `develop` como o ensaio geral e no `main` como a estreia:
 
-- **`feature/*`**: cada mudança nasce de `develop` e volta para ele por PR (rebase).
+- **`feature/*`**: cada mudança nasce de `develop` e volta para ele por PR (rebase). Em cada push,
+  [`feature-pr.yml`](.github/workflows/feature-pr.yml) sobe a versão patch uma vez por versão-base e
+  abre ou atualiza o PR automaticamente.
 - **`develop`**: tudo o que já foi aceito. Cada push publica a **homologação** em
   <https://sertaoseracloud.github.io/terraform-playground/homologacao/>, com uma faixa de aviso,
   progresso guardado à parte (prefixo `terraform-playground-homologacao:`), outro segredo de
@@ -238,11 +240,14 @@ O repositório segue o **gitflow**. Pense no `develop` como o ensaio geral e no 
   cobertura, `npm audit`, E2E no Chromium e Lighthouse bloqueiam. Firefox, WebKit e celular só informam.
 - [`deploy.yml`](.github/workflows/deploy.yml): em cada push no `main` ou no `develop`. Roda os
   testes, monta o principal (do `main`) na raiz e a homologação (do `develop`) em `/homologacao/`,
-  confere os dois com `scripts/conferir-build.mjs`, publica e cria a tag.
+  confere os dois com `scripts/conferir-build.mjs`, publica e testa os dois endereços no ar. Só
+  depois do smoke test verde cria a tag de produção ou abre o PR de `develop` para `main`.
 - [`auditoria-semanal.yml`](.github/workflows/auditoria-semanal.yml): Lighthouse no site no ar todo domingo.
 
 Secrets do GitHub Actions (Settings > Secrets > Actions), gerados aleatoriamente e que ninguém conhece:
 `CERTIFICADO_SEGREDO` (site principal) e `CERTIFICADO_SEGREDO_HOMOLOGACAO` (homologação).
+Configure também `FEATURE_PR_TOKEN` com acesso de escrita a Contents e Pull requests para que o
+workflow crie a PR e os checks de PR sejam disparados.
 
 ## Licença
 
