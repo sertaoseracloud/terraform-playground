@@ -1,0 +1,105 @@
+name: Preparar PR da feature
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: feature-pr-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preparar-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+          token: ${{ github.token }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Garante a branch develop
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! git ls-remote --exit-code --heads origin develop > /dev/null; then
+            SHA_MAIN="$(git ls-remote --heads origin main | cut -f1)"
+            if [ -z "$SHA_MAIN" ]; then
+              echo "::error::Não foi possível localizar a branch main para criar develop."
+              exit 1
+            fi
+            if ! gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref=refs/heads/develop \
+              -f sha="$SHA_MAIN"; then
+              if git ls-remote --exit-code --heads origin develop > /dev/null; then
+                echo "::notice::A branch develop foi criada simultaneamente por outro push."
+              else
+                echo "::error::Não foi possível criar a branch develop."
+                exit 1
+              fi
+            fi
+          fi
+          git fetch origin develop:refs/remotes/origin/develop
+      - name: Atualiza a versão patch uma vez por versão de develop
+        id: versao
+        run: |
+          BASE_VERSION="$(git show origin/develop:package.json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).version))")"
+          CURRENT_VERSION="$(node -p "require('./package.json').version")"
+          NEXT_VERSION="$(BASE_VERSION="$BASE_VERSION" CURRENT_VERSION="$CURRENT_VERSION" node -e "
+            const parse = (value) => {
+              const match = value.match(/^(\\d+)\\.(\\d+)\\.(\\d+)(?:[-+].*)?$/);
+              if (!match) throw new Error('Versão semver inválida: ' + value);
+              return match.slice(1).map(Number);
+            };
+            const base = parse(process.env.BASE_VERSION);
+            const current = parse(process.env.CURRENT_VERSION);
+            const ahead = current.some((part, index) => part !== base[index]
+              && current.slice(0, index).every((value, previous) => value === base[previous])
+              && part > base[index]);
+            console.log(ahead ? process.env.CURRENT_VERSION : base.slice(0, 2).concat(base[2] + 1).join('.'));
+          ")"
+          echo "versao=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$NEXT_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "::notice::A feature já está em $CURRENT_VERSION, acima da versão de develop ($BASE_VERSION)."
+            exit 0
+          fi
+          npm version "$NEXT_VERSION" --no-git-tag-version
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to $NEXT_VERSION"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+      - name: Abre ou atualiza o PR para develop
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSAO: ${{ steps.versao.outputs.versao }}
+        run: |
+          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --base develop --head "$GITHUB_REPOSITORY_OWNER:$GITHUB_REF_NAME" --state all --json number,state,mergedAt --limit 1)"
+          NUMERO="$(echo "$PR" | jq -r '.[0].number // empty')"
+          ESTADO="$(echo "$PR" | jq -r '.[0].state // empty')"
+          MESCLADO="$(echo "$PR" | jq -r '.[0].mergedAt // empty')"
+
+          if [ "$ESTADO" = "OPEN" ]; then
+            gh pr edit "$NUMERO" --repo "$GITHUB_REPOSITORY" \
+              --title "Promove $GITHUB_REF_NAME para develop (v$VERSAO)" \
+              --body "A versão foi atualizada para $VERSAO. Os checks automáticos de testes e build serão executados neste PR."
+          elif [ "$ESTADO" = "CLOSED" ] && [ -z "$MESCLADO" ]; then
+            gh pr reopen "$NUMERO" --repo "$GITHUB_REPOSITORY"
+            gh pr edit "$NUMERO" --repo "$GITHUB_REPOSITORY" \
+              --title "Promove $GITHUB_REF_NAME para develop (v$VERSAO)" \
+              --body "A versão foi atualizada para $VERSAO. Os checks automáticos de testes e build serão executados neste PR."
+          else
+            gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base develop \
+              --head "$GITHUB_REF_NAME" \
+              --title "Promove $GITHUB_REF_NAME para develop (v$VERSAO)" \
+              --body "A versão foi atualizada para $VERSAO. Os checks automáticos de testes e build serão executados neste PR."
+          fi
