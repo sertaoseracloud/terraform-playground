@@ -21,7 +21,6 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ github.token }}
-          token: ${{ github.token }}
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -81,25 +80,30 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSAO: ${{ steps.versao.outputs.versao }}
         run: |
-          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --base develop --head "$GITHUB_REPOSITORY_OWNER:$GITHUB_REF_NAME" --state all --json number,state,mergedAt --limit 1)"
+          # O --head do gh pr list aceita só o nome do branch (sem "dono:"); com o dono, ele não
+          # achava o PR aberto e tentava criar outro a cada push.
+          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --base develop --head "$GITHUB_REF_NAME" --state all --json number,state,mergedAt,title --limit 1)"
           NUMERO="$(echo "$PR" | jq -r '.[0].number // empty')"
           ESTADO="$(echo "$PR" | jq -r '.[0].state // empty')"
           MESCLADO="$(echo "$PR" | jq -r '.[0].mergedAt // empty')"
+          TITULO_ATUAL="$(echo "$PR" | jq -r '.[0].title // empty')"
+          TITULO="Promove $GITHUB_REF_NAME para develop (v$VERSAO)"
+          CORPO="A versão foi atualizada para $VERSAO. Os checks automáticos de testes e build serão executados neste PR."
+
+          # Título e descrição escritos por pessoas não são trocados: só o texto automático
+          # (que começa com "Promove ") é atualizado com a versão nova.
+          atualizar_texto() {
+            case "$TITULO_ATUAL" in
+              "Promove "*) gh pr edit "$NUMERO" --repo "$GITHUB_REPOSITORY" --title "$TITULO" --body "$CORPO" ;;
+              *) echo "::notice::O PR #$NUMERO tem título e descrição próprios; mantidos como estão." ;;
+            esac
+          }
 
           if [ "$ESTADO" = "OPEN" ]; then
-            gh pr edit "$NUMERO" --repo "$GITHUB_REPOSITORY" \
-              --title "Promove $GITHUB_REF_NAME para develop (v$VERSAO)" \
-              --body "A versão foi atualizada para $VERSAO. Os checks automáticos de testes e build serão executados neste PR."
+            atualizar_texto
           elif [ "$ESTADO" = "CLOSED" ] && [ -z "$MESCLADO" ]; then
             gh pr reopen "$NUMERO" --repo "$GITHUB_REPOSITORY"
-            gh pr edit "$NUMERO" --repo "$GITHUB_REPOSITORY" \
-              --title "Promove $GITHUB_REF_NAME para develop (v$VERSAO)" \
-              --body "A versão foi atualizada para $VERSAO. Os checks automáticos de testes e build serão executados neste PR."
+            atualizar_texto
           else
-            gh pr create \
-              --repo "$GITHUB_REPOSITORY" \
-              --base develop \
-              --head "$GITHUB_REF_NAME" \
-              --title "Promove $GITHUB_REF_NAME para develop (v$VERSAO)" \
-              --body "A versão foi atualizada para $VERSAO. Os checks automáticos de testes e build serão executados neste PR."
+            gh pr create               --repo "$GITHUB_REPOSITORY"               --base develop               --head "$GITHUB_REF_NAME"               --title "$TITULO"               --body "$CORPO"
           fi

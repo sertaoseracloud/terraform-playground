@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.10.4',
+    data: '2026-10-19',
+    titulo: 'Exercício sem nada por cima',
+    resumo: 'Na tela do exercício, o tutorial e o aviso de privacidade não cobrem mais o código.',
+    grupos: [
+      { titulo: '🧭 Tela do exercício', itens: ['O tutorial de boas-vindas abre sozinho só na trilha. Quem chega por um link direto para um exercício vê o código na hora; o tutorial continua no botão ❓.', 'O aviso de privacidade fica dentro da coluna da descrição e não cobre mais o editor nem o terminal.', 'A coluna da descrição tem pelo menos 320 pixels de largura, para o texto continuar fácil de ler com o terminal aberto.'] },
+    ],
+  },
+  {
     versao: '1.10.3',
     data: '2026-10-16',
     titulo: 'Mais leve no celular',
