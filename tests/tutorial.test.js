@@ -76,3 +76,28 @@ describe('botões flutuantes', () => {
     expect(grupo.classList.contains('recolhidos')).toBe(false);
   });
 });
+
+describe('tutorial na primeira visita', () => {
+  it('não abre sozinho sobre o editor (exercício ou playground livre); abre na trilha', async () => {
+    const { iniciarTutorial } = await import('../src/ui/tutorial.js');
+    localStorage.clear();
+    const dialogo = document.getElementById('tutorial');
+    dialogo.showModal ??= function showModal() { this.open = true; };
+    dialogo.close ??= function close() { this.open = false; };
+    for (const hash of ['#/p/tf-ola-arquivo', '#/livre']) {
+      location.hash = hash;
+      iniciarTutorial({ telaAtual: () => 'item' });
+      expect(dialogo.open, hash).toBe(false);
+    }
+    location.hash = '#/trilha';
+    iniciarTutorial({ telaAtual: () => 'inicio' });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(dialogo.open).toBe(true);
+    dialogo.close();
+  });
+
+  it('o aviso de privacidade cabe na coluna da descrição da tela do exercício', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/caminho.css'), 'utf8');
+    expect(css).toMatch(/#tela-item:not\(\[hidden\]\)\) \.aviso-privacidade \{[^}]*max-width: min\(296px/);
+  });
+});

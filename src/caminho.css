@@ -468,6 +468,10 @@
   line-height: var(--altura-linha);
 }
 .aviso-privacidade p { margin: 0; flex: 1 1 260px; }
+/* Na tela do exercício, o aviso fica dentro da coluna da descrição (no mínimo 320px, veja
+   layout-calculo.js) e não cobre o editor nem o terminal. */
+body:has(#tela-item:not([hidden])) .aviso-privacidade { max-width: min(296px, calc(100vw - 32px)); }
+body:has(#tela-item:not([hidden])) .aviso-privacidade p { flex-basis: 100%; }
 .aviso-privacidade a { text-decoration: none; }
 .nota-nome { font-size: 0.85em; color: var(--suave); }
 .nota-nome a { color: var(--roxo); }
