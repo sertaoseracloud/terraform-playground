@@ -27,7 +27,9 @@ export function iniciarMuralApoio() {
     // O mural abre com a página: ao fechar, não há botão para onde o foco voltar. Ele vai para o
     // título da tela, e o Tab segue dali (e não do começo do documento).
     setTimeout(() => {
-      if (document.activeElement && document.activeElement !== document.body) return;
+      // "Perdido" muda de navegador para navegador: o body (Chrome), o próprio diálogo ou algo escondido (Safari).
+      const ativo = document.activeElement;
+      if (ativo && ativo !== document.body && !dialogo.contains(ativo) && ativo.offsetParent) return;
       const titulo = document.querySelector('#conteudo > main:not([hidden]) h1');
       if (!titulo) return;
       if (!titulo.hasAttribute('tabindex')) titulo.setAttribute('tabindex', '-1');
