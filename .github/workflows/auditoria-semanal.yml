@@ -2,7 +2,7 @@ name: Auditoria semanal
 
 # Lighthouse no site que está no ar (principal e homologação), todo domingo à meia-noite
 # UTC: pega o que muda sem commit (CDN, navegador novo). O relatório fica 30 dias nos
-# artefatos da execução.
+# artefatos da execução. O job comuns compara os arquivos comuns com os outros três playgrounds.
 on:
   schedule:
     - cron: '0 0 * * 0'
@@ -31,3 +31,13 @@ jobs:
           path: .lighthouseci/
           include-hidden-files: true
           retention-days: 30
+
+  comuns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Arquivos comuns iguais nos quatro playgrounds
+        run: node scripts/comuns.mjs comparar

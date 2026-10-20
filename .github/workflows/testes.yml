@@ -24,6 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint -- --max-warnings 0
+      - name: Arquivos comuns aos quatro playgrounds (veja comuns.json)
+        run: npm run comuns
       - name: Testes com cobertura (o limite está no vitest.config.js)
         run: npm run test:cobertura
       - name: npm audit (dependências com falha alta ou crítica)
