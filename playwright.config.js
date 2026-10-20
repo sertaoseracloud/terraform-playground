@@ -2,15 +2,18 @@
 // e larguras de celular. No CI, o Chromium bloqueia; Firefox, WebKit e celular são informativos.
 import { defineConfig, devices } from '@playwright/test';
 
+// PORTA_E2E troca a porta local (padrão 4174), para dois repositórios rodarem os E2E ao mesmo tempo.
+const PORTA = process.env.PORTA_E2E || '4174';
+
 export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 60_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
-  use: { baseURL: 'http://localhost:4174', trace: 'retain-on-failure' },
+  use: { baseURL: `http://localhost:${PORTA}`, trace: 'retain-on-failure' },
   webServer: {
-    command: 'npx vite preview --port 4174 --strictPort',
-    url: 'http://localhost:4174',
+    command: `npx vite preview --port ${PORTA} --strictPort`,
+    url: `http://localhost:${PORTA}`,
     reuseExistingServer: !process.env.CI,
   },
   projects: [
