@@ -530,7 +530,20 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   // Os botões digitam os comandos no terminal. `falar`: só quando a pessoa pediu (botão ou
   // atalho); as execuções automáticas (abrir o exercício, restaurar) não interrompem o leitor
   // de tela. `abrindo`: terraform init + terraform plan, num terminal limpo.
-  async function executar(comando = 'plan', { abrirTestes = false, animar = false, falar = false, abrindo = false, antes = [] } = {}) {
+  async function executar(comando = 'plan', opcoes = {}) {
+    // O plan pelo botão ou atalho tem o resultado falado em resumo: o terminal fica mudo enquanto
+    // isso (sem repetir). O apply e o destroy não: o terminal pergunta "yes" e a pessoa precisa ouvir.
+    const mudo = opcoes.falar && comando === 'plan';
+    if (!mudo) return executarComando(comando, opcoes);
+    terminal.silenciar(60_000);
+    try {
+      return await executarComando(comando, opcoes);
+    } finally {
+      terminal.silenciar(800);
+    }
+  }
+
+  async function executarComando(comando, { abrirTestes = false, animar = false, falar = false, abrindo = false, antes = [] } = {}) {
     if (!estado.item) return;
     const item = estado.item;
     estado.ultimoComando = null;
@@ -763,6 +776,8 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     } catch (erro) {
       console.error(erro);
       el.testes.innerHTML = `<p class="veredito falha">Erro</p><p class="veredito-sub">${esc(erro.message)}</p>`;
+      // Sem isto, quem usa leitor de tela ouvia "Enviando…" e mais nada.
+      definirStatus('Erro ao rodar os testes', { falar: `Não deu para rodar os testes: ${erro.message}. Tente enviar de novo.` });
     } finally {
       estado.ocupado = false;
       el.enviar.disabled = false;

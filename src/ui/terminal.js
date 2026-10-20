@@ -7,7 +7,7 @@
 // Sem animação quando: o aluno pediu "Reduzir animações" ou o modo leitor de tela (ou o
 // sistema pede), ou ele clica em ⏩ Pular / tecla Esc.
 //
-// Teclas no campo: Enter roda; ↑/↓ histórico; Tab completa; Ctrl+C cancela; Ctrl+D (campo
+// Teclas no campo: Enter roda; ↑/↓ histórico; Tab completa (com o campo vazio, sai do terminal); Ctrl+C cancela; Ctrl+D (campo
 // vazio) é o fim da entrada; Ctrl+L limpa; Esc pula a animação ou tira o foco do terminal.
 import { esc } from './util.js';
 
@@ -66,6 +66,7 @@ export function criarTerminal(pre, {
   let lista = [...historico];
   let posicao = lista.length;
   let tinhaFoco = false;
+  let silencio = null;
   if (campo) campo.disabled = true;
   if (campo && !caixa.hasAttribute('tabindex')) caixa.tabIndex = -1;
 
@@ -299,7 +300,9 @@ export function criarTerminal(pre, {
       ecoar(texto);
       if (leitura.historico) guardar(texto);
       terminar(texto);
-    } else if (e.key === 'Tab' && !e.shiftKey) {
+    } else if (e.key === 'Tab' && !e.shiftKey && campo.value.trim()) {
+      // Com algo digitado, o Tab completa (como no bash). Com o campo vazio, ele segue para o
+      // próximo controle da página: o terminal não prende quem usa só o teclado (WCAG 2.1.2).
       e.preventDefault();
       tab();
     } else if (e.key === 'ArrowUp' && leitura.historico) {
@@ -329,6 +332,16 @@ export function criarTerminal(pre, {
     focar() { if (campo) (leitura && !campo.disabled ? campo : caixa).focus(); },
     /** Mostra um texto simples (erro interno do simulador). */
     texto(t) { escrever(`${t}\n`, 'erro'); },
+    /**
+     * O terminal é uma região viva (o leitor fala a saída dos comandos digitados). Quando o
+     * resultado já é falado em resumo (#anuncio, pelos botões e atalhos), ele fica mudo por um
+     * instante: o leitor ouve o resultado uma vez só.
+     */
+    silenciar(ms = 1500) {
+      clearTimeout(silencio);
+      pre.setAttribute('aria-live', 'off');
+      silencio = setTimeout(() => pre.setAttribute('aria-live', 'polite'), ms);
+    },
     get animando() { return animando; },
     get ocupado() { return leitura !== null; },
   };

@@ -12,6 +12,9 @@ export function iniciarFlutuantes() {
   document.addEventListener('scroll', (e) => {
     const alvo = e.target === document ? document.scrollingElement : e.target;
     if (!(alvo instanceof Element) || grupo.contains(document.activeElement)) return;
+    // Só a rolagem da página conta: o terminal rola sozinho enquanto escreve, e o editor e os
+    // painéis rolam por dentro. Antes, o ❓ e o ♿ sumiam da tela do exercício sem a pessoa rolar nada.
+    if (alvo.closest('.painel, .terminal, .cm-editor, dialog')) return;
     const antes = ultimo.get(alvo) ?? 0;
     const agora = alvo.scrollTop;
     ultimo.set(alvo, agora);
@@ -44,6 +47,18 @@ export function iniciarFlutuantes() {
     }
   });
   window.addEventListener('hashchange', () => abrir(false));
+  // No celular, o ❓ e o ♿ somem atrás do ⚙️ quando abrem a janela: ao fechar, o foco volta
+  // para o ⚙️ (o navegador tentaria devolvê-lo ao botão escondido e ele se perderia na página).
+  let abriuDaqui = false;
+  itens.addEventListener('click', (e) => { abriuDaqui = Boolean(e.target.closest('[aria-haspopup="dialog"]')); });
+  document.querySelectorAll('dialog').forEach((dialogo) => dialogo.addEventListener('close', () => {
+    if (!abriuDaqui) return;
+    abriuDaqui = false;
+    setTimeout(() => {
+      const perdido = !document.activeElement || document.activeElement === document.body || !document.activeElement.offsetParent;
+      if (perdido && itens.hidden) botao.focus();
+    });
+  }));
   // Cruzou a faixa do celular (girou, ou a janela mudou): refaz o que fica à mostra.
   celular?.addEventListener?.('change', () => abrir(aberto));
 }

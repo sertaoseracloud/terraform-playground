@@ -8,6 +8,7 @@ import './estilo.css';
 import './caminho.css';
 import './cenarios.css';
 import './landing.css';
+import './acessibilidade-ux.css';
 
 import { lerRota } from './compartilhar.js';
 import { iniciarAcessibilidade } from './ui/acessibilidade.js';
@@ -19,10 +20,12 @@ import { renderLicenca, renderTermos } from './ui/paginas-legais.js';
 import { renderNovidades } from './ui/novidades.js';
 import { renderInstrutor } from './ui/instrutor.js';
 import { renderDeclaracaoAcessibilidade } from './ui/declaracao-acessibilidade.js';
+import { renderNaoEncontrada } from './ui/nao-encontrada.js';
 import { anunciar } from './ui/anuncios.js';
 import { VERSAO } from './novidades.js';
 import { VERSAO_TERRAFORM } from './tf/esquema/index.js';
 import { iniciarMenu, iniciarFlutuantes } from './ui/menu.js';
+import { iniciarMaisAcoes } from './ui/mais-acoes.js';
 import { renderInicio, resumoProgresso } from './ui/inicio.js';
 import { criarTelaItem } from './ui/item.js';
 import { renderCertificado } from './ui/certificado.js';
@@ -39,6 +42,7 @@ const acessibilidade = iniciarAcessibilidade();
 if (HOMOLOGACAO) $('faixa-homologacao').hidden = false;
 iniciarMenu();
 iniciarFlutuantes();
+iniciarMaisAcoes();
 iniciarRegua();
 iniciarPausa({ ativo: () => acessibilidade.atuais().lembretePausa });
 
@@ -53,6 +57,7 @@ const telaTermos = $('tela-termos');
 const telaNovidades = $('tela-novidades');
 const telaInstrutor = $('tela-instrutor');
 const telaAcessibilidade = $('tela-acessibilidade');
+const telaNaoEncontrada = $('tela-nao-encontrada');
 
 function mostrarTela(tela) {
   telaInicio.hidden = tela !== telaInicio;
@@ -66,6 +71,7 @@ function mostrarTela(tela) {
   telaNovidades.hidden = tela !== telaNovidades;
   telaInstrutor.hidden = tela !== telaInstrutor;
   telaAcessibilidade.hidden = tela !== telaAcessibilidade;
+  telaNaoEncontrada.hidden = tela !== telaNaoEncontrada;
 }
 
 /**
@@ -125,6 +131,15 @@ function navegar() {
   // Fora do exercício: o terminal para de animar e o status volta ao padrão.
   telaDoItem.sair();
   definirStatus(STATUS_PRONTO, { falar: false });
+  // Um exercício que não existe (link antigo, id digitado errado) também cai aqui.
+  if (rota.tela === 'nao-encontrada' || rota.tela === 'item') {
+    renderNaoEncontrada(telaNaoEncontrada, { motivo: rota.tela === 'item' ? 'item' : rota.motivo });
+    mostrarTela(telaNaoEncontrada);
+    marcarMenu('');
+    definirPagina({ titulo: `Página não encontrada · ${NOME}`, descricao: `Este endereço não existe no ${NOME}.` });
+    telaNaoEncontrada.scrollTop = 0;
+    return;
+  }
   if (rota.tela === 'landing') {
     renderLanding(telaLanding);
     mostrarTela(telaLanding);
