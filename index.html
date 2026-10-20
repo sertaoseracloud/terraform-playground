@@ -55,6 +55,7 @@
     <main id="tela-novidades" class="tela-privacidade" hidden></main>
     <main id="tela-instrutor" class="tela-privacidade" hidden></main>
     <main id="tela-acessibilidade" class="tela-privacidade" hidden></main>
+    <main id="tela-nao-encontrada" class="tela-privacidade" hidden></main>
 
     <main id="tela-item" class="tela-item" hidden>
       <div class="barra-item">
@@ -68,18 +69,24 @@
         </div>
         <div class="acoes">
           <button id="btn-executar" class="btn btn-roxo" title="terraform plan: mostra o que vai mudar e roda os testes visíveis (Ctrl+Enter)" aria-keyshortcuts="Control+Enter" disabled>▶ Plan</button>
-          <button id="btn-apply" class="btn btn-ciano" title="Digita terraform apply no terminal: ele mostra o plano e espera você digitar yes"><span aria-hidden="true">✔</span><span class="rotulo-btn"> Apply</span></button>
-          <button id="btn-destroy" class="btn btn-fantasma btn-perigo" title="Digita terraform destroy no terminal: ele mostra o que vai apagar e espera você digitar yes"><span aria-hidden="true">🗑</span><span class="rotulo-btn"> Destroy</span></button>
           <button id="btn-enviar" class="btn btn-verde" title="Rodar todos os casos de teste, inclusive os ocultos (Ctrl+Shift+Enter)" aria-keyshortcuts="Control+Shift+Enter" disabled>⬆ Enviar</button>
-          <button id="btn-resetar-estado" class="btn btn-fantasma" title="Apagar o estado simulado (como se nada tivesse sido criado)" aria-label="Limpar estado"><span aria-hidden="true">⟲</span><span class="rotulo-btn" aria-hidden="true"> Limpar estado</span></button>
-          <button id="btn-restaurar" class="btn btn-fantasma" title="Voltar ao código original" aria-label="Restaurar código original"><span aria-hidden="true">↺</span><span class="rotulo-btn" aria-hidden="true"> Restaurar</span></button>
-          <button id="btn-compartilhar" class="btn btn-fantasma" title="Copiar link com o seu código" aria-label="Compartilhar link com o seu código"><span aria-hidden="true">🔗</span><span class="rotulo-btn" aria-hidden="true"> Compartilhar</span></button>
+          <!-- O que não é o caminho principal fica aqui, sempre com texto (menos botões à vista para quem começa). -->
+          <div class="mais-acoes">
+            <button type="button" id="btn-mais-acoes" class="btn btn-fantasma" aria-expanded="false" aria-controls="menu-mais-acoes">⋯ Mais ações</button>
+            <div id="menu-mais-acoes" class="menu-mais-acoes" hidden>
+              <button id="btn-apply" class="btn btn-fantasma"><span aria-hidden="true">✔</span> Apply <small>criar de verdade (o terminal pede yes)</small></button>
+              <button id="btn-destroy" class="btn btn-fantasma btn-perigo"><span aria-hidden="true">🗑</span> Destroy <small>apagar o que foi criado (o terminal pede yes)</small></button>
+              <button id="btn-resetar-estado" class="btn btn-fantasma"><span aria-hidden="true">⟲</span> Limpar estado <small>esquecer o que foi criado, como se nada existisse</small></button>
+              <button id="btn-restaurar" class="btn btn-fantasma"><span aria-hidden="true">↺</span> Restaurar <small>voltar ao código original</small></button>
+              <button id="btn-compartilhar" class="btn btn-fantasma"><span aria-hidden="true">🔗</span> Compartilhar <small>copiar um link com o seu código</small></button>
+            </div>
+          </div>
         </div>
         <div class="grupo-layout" id="grupo-layout" role="group" aria-label="Posição do código e do terminal">
           <button class="btn-layout" data-layout="auto" title="Automático: lado a lado só quando o terminal cabe com folga">Auto</button>
-          <button class="btn-layout" data-layout="lado" title="Código e terminal lado a lado" aria-label="Lado a lado">⇆</button>
-          <button class="btn-layout" data-layout="empilhado" title="Código em cima, terminal embaixo" aria-label="Empilhado">⇅</button>
-          <button class="btn-layout" id="btn-descricao" title="Mostrar ou ocultar a descrição" aria-label="Mostrar descrição">📄</button>
+          <button class="btn-layout" data-layout="lado" title="Código e terminal lado a lado"><span aria-hidden="true">⇆</span> Lado a lado</button>
+          <button class="btn-layout" data-layout="empilhado" title="Código em cima, terminal embaixo"><span aria-hidden="true">⇅</span> Empilhado</button>
+          <button class="btn-layout" id="btn-descricao" title="Mostrar ou ocultar a descrição"><span aria-hidden="true">📄</span> Descrição</button>
         </div>
       </div>
 
@@ -137,8 +144,9 @@
               <button type="button" class="btn-pular" id="btn-pular" hidden title="Mostrar o resto da saída agora (Esc)">⏩ Pular <kbd>Esc</kbd></button>
             </div>
             <div id="terminal" class="terminal" role="region" aria-label="Terminal" tabindex="-1">
+              <p id="ajuda-terminal" class="sr">Digite um comando e aperte Enter. Seta para cima repete os anteriores. Tab completa o comando; com o campo vazio, Tab sai do terminal. Esc também sai.</p>
               <pre id="saida-terminal" class="saida-terminal" role="log" aria-live="polite" aria-busy="false"></pre>
-              <div class="linha-prompt"><span id="prompt-terminal" class="prompt-terminal"></span><input id="campo-terminal" class="campo-terminal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Comando do terminal"></div>
+              <div class="linha-prompt"><span id="prompt-terminal" class="prompt-terminal"></span><input id="campo-terminal" aria-describedby="ajuda-terminal" class="campo-terminal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Comando do terminal"></div>
             </div>
           </div>
           <div id="saida-grafo" class="saida grafo" hidden tabindex="0"></div>
@@ -222,10 +230,10 @@
       <details class="atalhos">
         <summary>⌨️ Atalhos de teclado</summary>
         <dl>
-          <dt><kbd>Ctrl</kbd> + <kbd>Enter</kbd></dt><dd>Executar</dd>
+          <dt><kbd>Ctrl</kbd> + <kbd>Enter</kbd></dt><dd>▶ Plan: mostra o que vai mudar e roda os testes visíveis</dd>
           <dt><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd></dt><dd>Enviar (todos os testes)</dd>
           <dt><kbd>Tab</kbd></dt><dd>Ir para a próxima área (o editor não prende o Tab)</dd>
-          <dt><kbd>←</kbd> <kbd>→</kbd> no divisor</dt><dd>Redimensionar código e preview</dd>
+          <dt><kbd>←</kbd> <kbd>→</kbd> no divisor</dt><dd>Redimensionar código e terminal</dd>
           <dt><kbd>Esc</kbd></dt><dd>Fechar janelas como esta</dd>
         </dl>
         <p><a href="#/acessibilidade">Todos os atalhos e recursos de acessibilidade</a></p>

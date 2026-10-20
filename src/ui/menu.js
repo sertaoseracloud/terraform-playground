@@ -44,6 +44,18 @@ export function iniciarFlutuantes() {
     }
   });
   window.addEventListener('hashchange', () => abrir(false));
+  // No celular, o ❓ e o ♿ somem atrás do ⚙️ quando abrem a janela: ao fechar, o foco volta
+  // para o ⚙️ (o navegador tentaria devolvê-lo ao botão escondido e ele se perderia na página).
+  let abriuDaqui = false;
+  itens.addEventListener('click', (e) => { abriuDaqui = Boolean(e.target.closest('[aria-haspopup="dialog"]')); });
+  document.querySelectorAll('dialog').forEach((dialogo) => dialogo.addEventListener('close', () => {
+    if (!abriuDaqui) return;
+    abriuDaqui = false;
+    setTimeout(() => {
+      const perdido = !document.activeElement || document.activeElement === document.body || !document.activeElement.offsetParent;
+      if (perdido && itens.hidden) botao.focus();
+    });
+  }));
   // Cruzou a faixa do celular (girou, ou a janela mudou): refaz o que fica à mostra.
   celular?.addEventListener?.('change', () => abrir(aberto));
 }

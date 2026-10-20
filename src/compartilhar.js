@@ -55,6 +55,9 @@ export function lerRota(hash) {
   if (caminho.startsWith('s/')) {
     const dados = decodificar(caminho.slice(2));
     if (dados) return { tela: 'item', id: dados.item, arquivos: dados.arquivos };
+    return { tela: 'nao-encontrada', motivo: 'link' };
   }
-  return { tela: 'landing' };
+  // Sem rota (ou uma âncora antiga, sem a barra): a landing. Uma rota que não existe avisa,
+  // em vez de cair calada na página inicial.
+  return caminho && hash.startsWith('#/') ? { tela: 'nao-encontrada' } : { tela: 'landing' };
 }

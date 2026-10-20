@@ -6,26 +6,26 @@ export const TEMAS = ['dracula', 'claro', 'suave', 'alto-contraste'];
 export const TELAS = ['#/', '#/trilha', `#/p/${PRIMEIRO.id}`];
 
 /**
- * Abre `hash` com o localStorage zerado. Por padrão, tutorial e privacidade já foram vistos
- * (`privacidade: false` deixa o aviso aparecer), e o mural de apoio é fechado; `extras` grava
+ * Abre `hash` com o localStorage zerado. Por padrão, tutorial, privacidade e o mural de apoio do
+ * dia já foram vistos; com `muralApoio`, o mural abre (na landing e na trilha). `extras` grava
  * outras chaves (sem o prefixo).
  */
 export async function abrir(page, hash, { tutorial = false, privacidade = true, extras = {}, muralApoio = false } = {}) {
   await page.goto('/');
-  await page.evaluate(({ tutorial, privacidade, extras }) => {
+  await page.evaluate(({ tutorial, privacidade, extras, muralApoio }) => {
     localStorage.clear();
     const gravar = (chave, valor) => localStorage.setItem(`terraform-playground:${chave}`, JSON.stringify(valor));
     if (privacidade) gravar('pref:privacidade-vista', true);
     if (!tutorial) gravar('pref:tutorial-visto', true);
+    if (!muralApoio) gravar('pref:mural-apoio-visto-em', new Date().toLocaleDateString('sv'));
     for (const [chave, valor] of Object.entries(extras)) gravar(chave, valor);
-  }, { tutorial, privacidade, extras });
+  }, { tutorial, privacidade, extras, muralApoio });
   await page.goto(`/${hash}`);
   await page.reload();
   if (!muralApoio) {
-    await page.getByRole('button', { name: 'Continuar para o projeto' }).click();
     await page.locator('#flutuantes').evaluate(async (element) => {
       await Promise.all(element.getAnimations().map((animacao) => animacao.finished.catch(() => {})));
-    });
+    }).catch(() => {});
   }
 }
 
