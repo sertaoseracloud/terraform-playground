@@ -40,6 +40,15 @@ export const RELEASES = [
     ],
   },
   {
+    versao: '1.10.5',
+    data: '2026-10-20',
+    titulo: 'Evolução coordenada dos playgrounds',
+    resumo: 'As instruções de desenvolvimento com IA passam a comparar decisões entre os playgrounds de PHP, Python, Terraform e Kubernetes.',
+    grupos: [
+      { titulo: 'Manutenção', itens: ['Cada demanda deve consultar o conhecimento compartilhado, justificar diferenças entre projetos e registrar as decisões com suas evidências.', 'As instruções orientam a atualização do conhecimento junto à entrega do projeto, sem publicar conteúdo privado.'] },
+    ],
+  },
+  {
     versao: '1.10.4',
     data: '2026-10-19',
     titulo: 'Exercício sem nada por cima',
