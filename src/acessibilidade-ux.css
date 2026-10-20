@@ -1,0 +1,72 @@
+/* Ajustes de usabilidade e acessibilidade (docs/usabilidade-acessibilidade.md), num arquivo
+   próprio para não misturar com o estilo de cada tela. Igual nos quatro playgrounds. */
+
+/* 1.4.3: o ⭐ do GitHub é amarelo; o texto tem de ser escuro em todos os temas
+   (.pagina-texto a.btn pintava o texto com a cor clara do tema). */
+.pagina-texto a.btn-estrela-github { color: var(--sobre-cor); }
+
+/* 2.2.2: o que se mexe sozinho para em menos de 5 s (o próximo passo pulsa, o troféu brilha,
+   o "você está aqui" flutua). Quem quer tudo parado usa "Reduzir movimento" no painel ♿. */
+.tela-inicio *,
+.tela-inicio *::before,
+.tela-inicio *::after,
+.comemoracao {
+  animation-iteration-count: 2 !important;
+}
+
+/* Página não encontrada (#/<endereço que não existe>). */
+.nao-encontrada .acoes-404 { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+
+/* "⋯ Mais ações": o caminho principal à vista, o resto num menu com texto (alvos de 44 px). */
+.mais-acoes { position: relative; }
+.menu-mais-acoes {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  display: grid;
+  gap: 6px;
+  width: max-content;
+  min-width: 240px;
+  max-width: min(340px, calc(100vw - 24px));
+  padding: 8px;
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  background: var(--fundo);
+  box-shadow: 0 8px 24px color-mix(in srgb, black 35%, transparent);
+}
+.menu-mais-acoes[hidden],
+.menu-mais-acoes .btn[hidden] { display: none; }
+.menu-mais-acoes .btn {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 8px;
+  min-height: 44px;
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+.menu-mais-acoes .btn small { grid-column: 2; color: var(--suave); font-weight: 400; font-size: 0.8rem; }
+@media (max-width: 900px) {
+  .barra-item .acoes .mais-acoes { flex: 0 0 auto; }
+  /* o nome do exercício inteiro, em até duas linhas, em vez de cortado com "…" */
+  .titulo-item h1 { white-space: normal; overflow: visible; text-overflow: clip; }
+}
+/* Posição do código e do terminal: o ícone vem com texto. */
+.btn-layout { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; }
+
+/* 2.4.11: a barra do exercício (presa no topo no celular), o "Ir para o passo atual" e os botões
+   flutuantes (presos embaixo) não podem cobrir o que recebe o foco. Ao andar com o Tab, a página
+   rola deixando essa folga. */
+#conteudo :is(a[href], button, input, select, textarea, summary, [tabindex]) { scroll-margin-block: 120px 104px; }
+
+/* 2.1.1: as tabelas das páginas de texto (privacidade, termos) quebram as palavras em vez de rolar
+   de lado: quem usa só o teclado não precisa focar a tabela para ler o fim de cada linha. */
+.tabela-privacidade { width: 100%; }
+.tabela-privacidade :is(th, td) { overflow-wrap: anywhere; }
+#conteudo :is(.painel, [role="tabpanel"]) { scroll-margin-top: 120px; }
+
+/* 2.1.1 e 2.4.7: a saída do terminal rola; ela recebe o foco pelo Tab (para rolar com as setas
+   mesmo quando o campo de comando está desligado) e mostra onde o foco está. */
+.terminal:focus-visible { outline: 3px solid var(--roxo); outline-offset: -3px; }

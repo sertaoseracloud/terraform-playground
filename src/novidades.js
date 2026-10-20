@@ -10,6 +10,36 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.12.0',
+    data: '2026-10-20',
+    titulo: 'Mais fácil para quem está começando, e para quem usa leitor de tela',
+    resumo: 'A barra do exercício ficou mais simples, o aviso de apoio parou de interromper, e o site ficou melhor para o teclado e para o leitor de tela.',
+    grupos: [
+      {
+        titulo: '🧭 Mais simples',
+        itens: [
+          "A barra do exercício mostra só ▶ Plan e ⬆ Enviar. Apply, Destroy, Limpar estado, Restaurar e Compartilhar ficam em \"⋯ Mais ações\", cada um com uma frase dizendo para que serve.",
+          "Os botões de posição do código e do resultado agora têm nome escrito: Lado a lado, Empilhado e Descrição.",
+          "No celular, o nome do exercício aparece inteiro, sem ser cortado com \"…\".",
+          "O aviso de apoio (PIX) aparece no máximo uma vez por dia, só na página inicial e na trilha. Ele não cobre mais um exercício aberto por link.",
+          "Um endereço que não existe mostra \"Página não encontrada\", com um botão para a trilha, em vez de voltar calado para a página inicial.",
+        ],
+      },
+      {
+        titulo: '♿ Teclado e leitor de tela',
+        itens: [
+          "O Tab não prende mais ninguém no terminal: com o campo vazio, ele vai para o próximo botão. Com um comando começado, ele completa o comando, como antes.",
+          "O resultado do ▶ Plan é falado uma vez só (antes, o terminal repetia o que o resumo já tinha dito). O Apply e o Destroy continuam falando a pergunta do yes.",
+          "Se os testes não conseguem rodar, o leitor de tela avisa o erro e o que fazer.",
+          "No celular, fechar o tutorial ou o painel ♿ devolve o foco ao botão ⚙️. Fechar o aviso de apoio leva o foco ao título da página.",
+          "Andando com o Tab, o item focado não fica mais escondido atrás da barra do topo nem dos botões do canto.",
+          "O botão \"Dê uma estrela no GitHub\" ganhou texto escuro, legível em todos os temas.",
+          "As animações da trilha param sozinhas em poucos segundos.",
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.11.0',
     data: '2026-10-20',
     titulo: 'O troféu fala o que mostra',

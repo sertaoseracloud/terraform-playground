@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { codigoPix, PIX, svgQrCode } from '../src/apoio.js';
 import { INSTRUTOR } from '../src/instrutor.js';
-import { iniciarMuralApoio } from '../src/ui/mural-apoio.js';
+import { iniciarMuralApoio, deveAbrirMural } from '../src/ui/mural-apoio.js';
 
 const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
 const chaveOriginal = PIX.chave;
@@ -19,6 +19,7 @@ function montar() {
 
 afterEach(() => {
   document.body.replaceChildren();
+  localStorage.clear();
   PIX.chave = chaveOriginal;
 });
 
@@ -87,5 +88,30 @@ describe('mural de apoio', () => {
 
     expect(document.getElementById('mural-apoio-mensagem').textContent).toContain('Em breve');
     expect(document.querySelector('#mural-apoio-conteudo a[href="https://github.com/sertaoseracloud/terraform-playground"]')).not.toBeNull();
+  });
+});
+
+describe('quando o mural abre sozinho', () => {
+  it('no máximo uma vez por dia', () => {
+    expect(deveAbrirMural({ hash: '#/', vistoEm: null, dia: '2026-10-20' })).toBe(true);
+    expect(deveAbrirMural({ hash: '#/', vistoEm: '2026-10-20', dia: '2026-10-20' })).toBe(false);
+    expect(deveAbrirMural({ hash: '#/', vistoEm: '2026-10-19', dia: '2026-10-20' })).toBe(true);
+  });
+
+  it('só na página inicial e na trilha, nunca por cima de um exercício, certificado ou validador', () => {
+    for (const hash of ['', '#', '#/', '#/trilha']) expect(deveAbrirMural({ hash, vistoEm: null, dia: 'd' }), hash).toBe(true);
+    for (const hash of ['#/p/x', '#/livre', '#/s/abc', '#/certificado/abc', '#/validar', '#/validar/abc', '#/apoie']) {
+      expect(deveAbrirMural({ hash, vistoEm: null, dia: 'd' }), hash).toBe(false);
+    }
+  });
+
+  it('fechar o mural guarda o dia, e ele não abre de novo hoje', () => {
+    const dialogo = montar();
+    iniciarMuralApoio();
+    document.getElementById('btn-fechar-mural-apoio').click();
+    montar();
+    iniciarMuralApoio();
+    expect(document.getElementById('dialogo-apoio').showModal).not.toHaveBeenCalled();
+    expect(dialogo.open).toBe(false);
   });
 });
