@@ -16,7 +16,7 @@ export function iniciarMaisAcoes() {
 
   botao.addEventListener('click', () => {
     abrir(!aberto());
-    if (aberto()) menu.querySelector('button:not([disabled])')?.focus();
+    if (aberto()) menu.querySelector('button:not([disabled]):not([hidden])')?.focus();
   });
   menu.addEventListener('click', (e) => {
     if (!e.target.closest('button')) return;

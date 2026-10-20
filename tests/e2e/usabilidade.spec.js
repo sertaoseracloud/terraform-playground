@@ -90,6 +90,7 @@ test.describe('teclado e foco', () => {
 
   test('Ctrl+Enter dentro do editor fala o resultado, como o botão', async ({ page }) => {
     await abrir(page, `#/p/${PRIMEIRO.id}`, { extras: { [`rascunho:${PRIMEIRO.id}`]: PRIMEIRO.solucao } });
+    await expect(page.locator('#btn-executar')).toBeEnabled({ timeout: 60_000 }); // o motor carregou
     await page.locator('.cm-content').first().click();
     await page.keyboard.press('Control+Enter');
     await expect(page.locator('#anuncio')).toHaveText(/passou|passaram/);
@@ -128,7 +129,7 @@ test.describe('teclado e foco', () => {
       await page.keyboard.press('Enter');
       await expect(page.locator('#menu-mais-acoes')).toBeVisible();
       expect(await medirEstouro(page)).toEqual([]);
-      await expect(page.locator('#menu-mais-acoes button').first()).toBeFocused();
+      await expect(page.locator('#menu-mais-acoes button:not([hidden])').first()).toBeFocused();
       await page.keyboard.press('Escape');
       await expect(page.locator('#menu-mais-acoes')).toBeHidden();
       await expect(page.locator('#btn-mais-acoes')).toBeFocused();
@@ -144,8 +145,8 @@ test.describe('teclado e foco', () => {
         await expect(page.locator(dialogo)).toBeVisible();
         await page.keyboard.press('Escape');
         await expect(page.locator(dialogo)).toBeHidden();
-        const foco = await page.evaluate(() => ({ id: document.activeElement.id, visivel: !!document.activeElement.offsetParent }));
-        expect(foco.visivel, `foco em #${foco.id}`).toBe(true);
+        // O foco volta logo depois do fechamento (no celular, para o ⚙️).
+        await expect.poll(() => page.evaluate(() => !!document.activeElement.offsetParent && document.activeElement !== document.body)).toBe(true);
       }
     });
   }
