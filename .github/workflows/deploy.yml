@@ -170,17 +170,28 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
-      - name: Tag da versão
+      - name: Tag e release da versão
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          VERSAO="v$(node -p "require('./package.json').version")"
-          if [ -n "$(git ls-remote --tags origin "refs/tags/$VERSAO")" ]; then
-            echo "::notice::A tag $VERSAO já existe: nada a fazer."
-            exit 0
+          VERSAO="$(node -p "require('./package.json').version")"
+          TAG="v$VERSAO"
+          if [ -n "$(git ls-remote --tags origin "refs/tags/$TAG")" ]; then
+            echo "::notice::A tag $TAG já existe."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "Versão $VERSAO"
+            git push origin "$TAG"
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "$VERSAO" -m "Versão ${VERSAO#v}"
-          git push origin "$VERSAO"
+          # A release usa o texto da versão em src/novidades.js, o mesmo da página de novidades.
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "::notice::A release $TAG já existe: nada a fazer."
+          else
+            node scripts/notas-release.mjs "$VERSAO" > notas-release.md
+            gh release create "$TAG" --verify-tag --latest \
+              --title "$(node scripts/notas-release.mjs "$VERSAO" --titulo)" --notes-file notas-release.md
+          fi
 
   promover:
     needs: smoke
@@ -190,10 +201,17 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      # Um PR aberto com o token do Actions não dispara o workflow de Testes, e os checks
+      # obrigatórios (qualidade, e2e e lighthouse) nunca aparecem. Com o secret FEATURE_PR_TOKEN,
+      # o PR já nasce com os checks; sem ele, feche e reabra o PR para dispará-los.
       - name: Abre ou reabre o PR de homologação para produção
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.FEATURE_PR_TOKEN || github.token }}
+          SEM_TOKEN: ${{ secrets.FEATURE_PR_TOKEN == '' }}
         run: |
+          if [ "$SEM_TOKEN" = "true" ]; then
+            echo "::warning::Sem o secret FEATURE_PR_TOKEN: feche e reabra o PR de develop para main para disparar os checks obrigatórios."
+          fi
           AHEAD="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...develop" --jq '.ahead_by')"
           if [ "$AHEAD" -eq 0 ]; then
             echo "::notice::develop não tem commits novos para promover a main."
