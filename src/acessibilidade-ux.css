@@ -66,3 +66,7 @@
 .tabela-privacidade { width: 100%; }
 .tabela-privacidade :is(th, td) { overflow-wrap: anywhere; }
 #conteudo :is(.painel, [role="tabpanel"]) { scroll-margin-top: 120px; }
+
+/* 2.1.1 e 2.4.7: a saída do terminal rola; ela recebe o foco pelo Tab (para rolar com as setas
+   mesmo quando o campo de comando está desligado) e mostra onde o foco está. */
+.terminal:focus-visible { outline: 3px solid var(--roxo); outline-offset: -3px; }

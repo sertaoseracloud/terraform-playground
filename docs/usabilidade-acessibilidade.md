@@ -5,8 +5,8 @@ surdas, mudas e neurodivergentes (TDAH, dislexia, autismo). A mesma auditoria fo
 playgrounds (DivergePHP, DivergeTerraform, DivergePython e DivergeKubernetes); este relatório é o do
 **DivergeTerraform**, e a tabela de consistência no fim compara os quatro.
 
-**Resumo:** 16 problemas — 1 bloqueante(s), 1 de gravidade alta,
-10 média(s) e 4 baixa(s).
+**Resumo:** 18 problemas — 1 bloqueante(s), 2 de gravidade alta,
+11 média(s) e 4 baixa(s).
 
 ## Como foi feito
 
@@ -35,22 +35,24 @@ Gravidade: **bloqueante** (impede alguém de usar), **alta** (atrapalha muito um
 
 | # | Problema | WCAG | Telas | Gravidade | Quem é afetado | Correção | Situação |
 |---|---|---|---|---|---|---|---|
-| 1 | O campo do terminal prendia o Tab: ele sempre tentava completar o comando, mesmo com o campo vazio. Só o Esc (não anunciado) saía | 2.1.2 | exercício, livre | bloqueante | quem usa só o teclado, pessoas cegas | Com o campo vazio, o Tab segue para o próximo controle; com texto, completa. Dica para o leitor de tela no campo (aria-describedby) | ✅ corrigido |
-| 2 | O botão "⭐ Dê uma estrela no GitHub" tinha texto claro sobre amarelo (contraste de 1,04:1) nos 4 temas | 1.4.3 | instrutor, apoie, mural | alta | baixa visão, daltonismo, quem usa o celular no sol | Texto escuro (`--sobre-cor`) | ✅ corrigido |
-| 3 | O resultado do ▶ Plan era falado duas vezes: o resumo (#anuncio) e o terminal (região viva) | 4.1.3 | exercício, livre | média | pessoas cegas, TDAH | O terminal fica mudo enquanto o resumo é falado e volta a ser região viva para os comandos digitados (no tf, só no plan: o apply e o destroy perguntam "yes" e precisam ser ouvidos) | ✅ corrigido |
-| 4 | Barra do exercício com muitos botões; no celular, vários só com ícone | 2.4.6, 3.3.2 e boas práticas cognitivas | exercício, livre | média | iniciantes, TDAH, autismo, dislexia | À vista só ▶ Plan e ⬆ Enviar; Apply, Destroy, Limpar estado, Restaurar e Compartilhar em "⋯ Mais ações" (botão com aria-expanded, Esc fecha), cada um com texto e uma frase de ajuda; os botões de posição ganharam texto | ✅ corrigido (aprovado) |
-| 5 | O mural de apoio (PIX) abria em todo carregamento, inclusive por cima de um exercício aberto por link | 3.2.1 e 2.2.4 (AAA, boa prática) | todas | média | TDAH, autismo, leitor de tela | No máximo uma vez por dia, só na landing e na trilha | ✅ corrigido (aprovado) |
-| 6 | No celular, ao andar com o Tab pela trilha, o botão fixo "Ir para o passo atual" cobria o nó focado; no exercício, a barra fixa do topo podia cobrir as abas | 2.4.11, 2.5.8 | trilha e exercício (≤ 900 px) | média | teclado, baixa visão | Folga de rolagem (scroll-margin) para o que recebe foco e para os painéis | ✅ corrigido |
-| 7 | No celular, fechar o tutorial ou o painel ♿ deixava o foco perdido no `body` (o ❓ e o ♿ ficam escondidos atrás do ⚙️) | 2.4.3 | todas (≤ 760 px) | média | teclado, leitor de tela | O foco volta ao ⚙️ | ✅ corrigido |
-| 8 | Um endereço que não existe (ou um link compartilhado cortado) caía calado na landing; um exercício que não existe caía na trilha | 3.3.1, 2.4.2 | 404 | média | todos, principalmente iniciantes | Tela "🧭 Página não encontrada" que diz o que houve e oferece a trilha e a página inicial | ✅ corrigido |
-| 9 | Animações infinitas na trilha (próximo passo pulsando, troféu brilhando, "você está aqui" flutuando) | 2.2.2 | trilha | média | TDAH, autismo, enxaqueca | Param sozinhas depois de 2 ciclos (menos de 5 s). "Reduzir movimento" para tudo | ✅ corrigido |
-| 10 | Se os testes não conseguiam rodar, o leitor de tela ouvia "Enviando…" e mais nada | 4.1.3, 3.3.1 | exercício | média | pessoas cegas | Fala o erro e o que fazer | ✅ corrigido |
-| 11 | Fechar o mural de apoio deixava o foco no `body` | 2.4.3 | landing, trilha | baixa | teclado, leitor de tela | O foco vai para o título da tela (como já acontecia no php) | ✅ corrigido |
-| 12 | No celular, o nome do exercício era cortado com "…" | 1.4.10 | exercício (≤ 900 px) | baixa | todos no celular, dislexia | O nome aparece inteiro | ✅ corrigido |
-| 13 | A lista de atalhos do painel ♿ dizia "Executar" e "preview" (texto do PHP) | 3.3.2 | painel ♿ | baixa | teclado, leitor de tela | Lista com o nome certo do botão; no k8s, também o Ctrl+Shift+D do Diff | ✅ corrigido |
-| 14 | Troféus e o nó "próximo passo" da trilha: o texto visível não está no nome acessível | 2.5.3 | trilha | média | quem usa comando de voz | — | ⏳ com a sessão de débito técnico (src/ui/inicio.js) |
-| 15 | Personagens dos cenários andam sem parar; o único controle é "Reduzir movimento" no painel ♿ | 2.2.2 | trilha | média | TDAH, autismo | Botão visível "⏸ Pausar cenário" | ⏳ com a sessão dos cenários (PixiJS) |
-| 16 | Com o espaçamento de texto do 1.4.12, a barra de status do topo corta o texto | 1.4.12 | todas | baixa | dislexia, baixa visão | O mesmo texto é falado e aparece no resultado | ⏸ pendente (baixa) |
+| 1 | Os botões ❓ Tutorial, ♿ Acessibilidade e 🔒 Privacidade sumiam (sem deixar rastro) quando qualquer área rolava para baixo, inclusive a saída do terminal rolando sozinha: na tela do exercício, quem usa mouse perdia o acesso à ajuda e ao painel ♿ | 3.2.1, 2.4.3 (e boa prática) | exercício, livre | alta | quem usa mouse ou toque, iniciantes, baixa visão | Só a rolagem da página recolhe os botões; o terminal, o editor e os painéis não | ✅ corrigido |
+| 2 | O campo do terminal prendia o Tab: ele sempre tentava completar o comando, mesmo com o campo vazio. Só o Esc (não anunciado) saía | 2.1.2 | exercício, livre | bloqueante | quem usa só o teclado, pessoas cegas | Com o campo vazio, o Tab segue para o próximo controle; com texto, completa. Dica para o leitor de tela no campo (aria-describedby) | ✅ corrigido |
+| 3 | O botão "⭐ Dê uma estrela no GitHub" tinha texto claro sobre amarelo (contraste de 1,04:1) nos 4 temas | 1.4.3 | instrutor, apoie, mural | alta | baixa visão, daltonismo, quem usa o celular no sol | Texto escuro (`--sobre-cor`) | ✅ corrigido |
+| 4 | O resultado do ▶ Plan era falado duas vezes: o resumo (#anuncio) e o terminal (região viva) | 4.1.3 | exercício, livre | média | pessoas cegas, TDAH | O terminal fica mudo enquanto o resumo é falado e volta a ser região viva para os comandos digitados (no tf, só no plan: o apply e o destroy perguntam "yes" e precisam ser ouvidos) | ✅ corrigido |
+| 5 | Barra do exercício com muitos botões; no celular, vários só com ícone | 2.4.6, 3.3.2 e boas práticas cognitivas | exercício, livre | média | iniciantes, TDAH, autismo, dislexia | À vista só ▶ Plan e ⬆ Enviar; Apply, Destroy, Limpar estado, Restaurar e Compartilhar em "⋯ Mais ações" (botão com aria-expanded, Esc fecha), cada um com texto e uma frase de ajuda; os botões de posição ganharam texto | ✅ corrigido (aprovado) |
+| 6 | O mural de apoio (PIX) abria em todo carregamento, inclusive por cima de um exercício aberto por link | 3.2.1 e 2.2.4 (AAA, boa prática) | todas | média | TDAH, autismo, leitor de tela | No máximo uma vez por dia, só na landing e na trilha | ✅ corrigido (aprovado) |
+| 7 | No celular, ao andar com o Tab pela trilha, o botão fixo "Ir para o passo atual" cobria o nó focado; no exercício, a barra fixa do topo podia cobrir as abas | 2.4.11, 2.5.8 | trilha e exercício (≤ 900 px) | média | teclado, baixa visão | Folga de rolagem (scroll-margin) para o que recebe foco e para os painéis | ✅ corrigido |
+| 8 | No celular, fechar o tutorial ou o painel ♿ deixava o foco perdido no `body` (o ❓ e o ♿ ficam escondidos atrás do ⚙️) | 2.4.3 | todas (≤ 760 px) | média | teclado, leitor de tela | O foco volta ao ⚙️ | ✅ corrigido |
+| 9 | A saída do terminal rola, mas não recebia foco pelo Tab: durante a animação (campo de comando desligado), quem usa só o teclado não conseguia rolar | 2.1.1 | exercício, livre | média | quem usa só o teclado | A área do terminal entra na ordem do Tab, com foco visível | ✅ corrigido |
+| 10 | Um endereço que não existe (ou um link compartilhado cortado) caía calado na landing; um exercício que não existe caía na trilha | 3.3.1, 2.4.2 | 404 | média | todos, principalmente iniciantes | Tela "🧭 Página não encontrada" que diz o que houve e oferece a trilha e a página inicial | ✅ corrigido |
+| 11 | Animações infinitas na trilha (próximo passo pulsando, troféu brilhando, "você está aqui" flutuando) | 2.2.2 | trilha | média | TDAH, autismo, enxaqueca | Param sozinhas depois de 2 ciclos (menos de 5 s). "Reduzir movimento" para tudo | ✅ corrigido |
+| 12 | Se os testes não conseguiam rodar, o leitor de tela ouvia "Enviando…" e mais nada | 4.1.3, 3.3.1 | exercício | média | pessoas cegas | Fala o erro e o que fazer | ✅ corrigido |
+| 13 | Fechar o mural de apoio deixava o foco no `body` | 2.4.3 | landing, trilha | baixa | teclado, leitor de tela | O foco vai para o título da tela (como já acontecia no php) | ✅ corrigido |
+| 14 | No celular, o nome do exercício era cortado com "…" | 1.4.10 | exercício (≤ 900 px) | baixa | todos no celular, dislexia | O nome aparece inteiro | ✅ corrigido |
+| 15 | A lista de atalhos do painel ♿ dizia "Executar" e "preview" (texto do PHP) | 3.3.2 | painel ♿ | baixa | teclado, leitor de tela | Lista com o nome certo do botão; no k8s, também o Ctrl+Shift+D do Diff | ✅ corrigido |
+| 16 | Troféus e o nó "próximo passo" da trilha: o texto visível não está no nome acessível | 2.5.3 | trilha | média | quem usa comando de voz | — | ⏳ com a sessão de débito técnico (src/ui/inicio.js) |
+| 17 | Personagens dos cenários andam sem parar; o único controle é "Reduzir movimento" no painel ♿ | 2.2.2 | trilha | média | TDAH, autismo | Botão visível "⏸ Pausar cenário" | ⏳ com a sessão dos cenários (PixiJS) |
+| 18 | Com o espaçamento de texto do 1.4.12, a barra de status do topo corta o texto | 1.4.12 | todas | baixa | dislexia, baixa visão | O mesmo texto é falado e aparece no resultado | ⏸ pendente (baixa) |
 
 ### O que já estava bom (e continua)
 
@@ -96,6 +98,7 @@ Em **negrito**, o que destoava do padrão antes desta rodada.
 | Endereço que não existe | landing | landing | landing | landing | "Página não encontrada" |
 | Animações da trilha | infinitas | infinitas | infinitas | infinitas | param em < 5 s |
 | Foco encoberto na trilha (celular) | sim | sim | sim | sim | não |
+| ❓ e ♿ somem quando o terminal ou um painel rola | sim | **sim (já na abertura do exercício)** | sim | sim | não |
 | Nome da ação principal | ▶ Executar | ▶ Plan | ▶ Executar | ▶ Apply | mantido: é o verbo de cada ferramenta |
 
 Os arquivos comuns ficaram iguais nos quatro: `src/acessibilidade-ux.css`, `src/ui/mais-acoes.js`,

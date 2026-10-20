@@ -12,6 +12,9 @@ export function iniciarFlutuantes() {
   document.addEventListener('scroll', (e) => {
     const alvo = e.target === document ? document.scrollingElement : e.target;
     if (!(alvo instanceof Element) || grupo.contains(document.activeElement)) return;
+    // Só a rolagem da página conta: o terminal rola sozinho enquanto escreve, e o editor e os
+    // painéis rolam por dentro. Antes, o ❓ e o ♿ sumiam da tela do exercício sem a pessoa rolar nada.
+    if (alvo.closest('.painel, .terminal, .cm-editor, dialog')) return;
     const antes = ultimo.get(alvo) ?? 0;
     const agora = alvo.scrollTop;
     ultimo.set(alvo, agora);

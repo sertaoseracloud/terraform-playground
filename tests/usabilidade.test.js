@@ -74,6 +74,15 @@ describe('foco ao fechar janelas', () => {
     expect(document.activeElement).toBe(document.getElementById('btn-flutuantes'));
   });
 
+  it('a rolagem do terminal e dos painéis não esconde o ❓ e o ♿ (só a da página)', () => {
+    window.matchMedia = (q) => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} });
+    iniciarFlutuantes();
+    const painel = document.querySelector('.painel');
+    Object.defineProperties(painel, { scrollTop: { value: 400, configurable: true }, clientHeight: { value: 100 }, scrollHeight: { value: 2000 } });
+    painel.dispatchEvent(new Event('scroll'));
+    expect(document.getElementById('flutuantes').classList.contains('recolhidos')).toBe(false);
+  });
+
   it('fechar o mural de apoio leva o foco ao título da tela', async () => {
     document.getElementById('tela-landing').innerHTML = '<h1>Olá</h1>';
     iniciarMuralApoio();
