@@ -33,7 +33,10 @@ Escala usada nas tabelas:
 | **Branches antigos.** 25 branches remotos fora de `main` e `develop`, todos com o conteúdo já no `develop` (conferido com `git cherry`: nenhum commit sem equivalente). | baixo | P | Apagar, **com confirmação**. |
 | **Bundle principal grande.** No php, `index.js` tem 1,16 MB (373 kB com gzip): CodeMirror, todas as telas e todo o conteúdo vão juntos, inclusive na landing. | alto | G | Carregar a tela do exercício (editor CodeMirror incluído) só quando a pessoa abre um exercício, com `import()` dinâmico. Medir com Lighthouse antes e depois. Fica para uma segunda etapa, porque toca `src/main.js`, que a sessão de usabilidade também está alterando. |
 | **Runtime carregando na landing.** | — | — | Já resolvido: `MotorPHP.garantir()` e `MotorPython.garantir()` só criam o worker no primeiro exercício. A landing e a trilha não baixam o PHP nem o Python. |
-| **Botões de troféu** com `aria-label` que não contém o texto visível (axe: `label-content-name-mismatch`). Quem usa comando de voz fala o que vê ("Certificado liberado") e o botão não responde. | alto | P | Tirar o `aria-label`: o nome acessível passa a ser o texto visível, e o complemento ("Certificado: nome do módulo") vai num texto só para leitores de tela, depois dele. |
+| **Botões de troféu e passos da trilha** com `aria-label` que não contém o texto visível (axe: `label-content-name-mismatch`; no passo atual, o balão "COMEÇAR"/"CONTINUAR" ficava fora do nome). Quem usa comando de voz fala o que vê ("Certificado liberado") e o botão não responde. | alto | P | Tirar o `aria-label`: o nome acessível passa a ser o texto visível, e o complemento (módulo, tipo, XP) vai num texto só para leitores de tela, depois dele. |
+| **Nome do curso cortado no cartão do badge.** | — | — | Já resolvido: o python (1.0.2) e o php quebram a linha; o terraform e o kubernetes usam um nome curto. Um E2E novo (`certificado.spec.js`) emite um certificado e confere que nada passa da borda nem fica cortado, a 375 px e no desktop. |
+| **PR de promoção travado.** O job `promover` abre o PR de `develop` para `main` com o token do Actions, e PRs assim não disparam o workflow de Testes: os checks obrigatórios nunca aparecem e o PR fica bloqueado até alguém fechar e reabrir. | médio | P | Usar o secret opcional `FEATURE_PR_TOKEN` (como o `feature-pr.yml`) e avisar no log quando ele não existir. |
+| **Novidades com jargão.** As versões 1.9.4 e 1.9.5 do php e 1.0.3 e 1.0.4 do python falavam de secrets, workflows e PRs (uma delas com erro de digitação). | médio | P | Reescritas em linguagem simples. Um teste comum (`notas-release.test.js`) passa a recusar palavras de bastidores nas novidades. |
 
 ## DivergePHP (`php-playground`)
 
@@ -70,6 +73,13 @@ Escala usada nas tabelas:
 | Faltam 5 exercícios em Recursos Avançados para a trilha chegar a 261. O branch `feature/avancados-extra` não existe (nem no GitHub nem em cópias locais): o trabalho do agente anterior se perdeu. | médio | M | Escrever os 5 exercícios novos, já com casos ocultos, com ids novos (nenhum id existente muda). |
 | Nenhuma release publicada (tags v0.1.0 a v0.7.0). | médio | P | Releases das tags existentes e desta entrega. |
 | `# TODO` em `avancados-escala.js`. | — | — | Não é débito: são os esqueletos didáticos que o aluno completa no editor. |
+
+## Ambiente de desenvolvimento
+
+- Com três sessões rodando testes ao mesmo tempo numa máquina de 8 GB, a memória virtual acabou várias vezes
+  (`VirtualAlloc failed`) e derrubou o Vitest e o Playwright. Rode um repositório de cada vez, com
+  `--maxWorkers=1` no Vitest e `--workers=1` no Playwright.
+- `PORTA_E2E` troca a porta do preview dos E2E (padrão 4174), para dois repositórios não testarem o build um do outro.
 
 ## Arquivos comuns
 

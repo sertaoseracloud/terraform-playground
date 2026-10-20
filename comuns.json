@@ -7,7 +7,7 @@
   ],
   "arquivos": {
     ".github/workflows/feature-pr.yml": "8fc36956b5d888c186b8e5eaf31e6b3c53ffc546c9bf231f43f2c430376a5d8c",
-    "docs/debito-tecnico.md": "150cfc6740431132ad9cdb49b85991da8954fdb7dafe84aec76a48c3e1ffa835",
+    "docs/debito-tecnico.md": "a8153b4edfc0f281a37fd4087f064ecd71b9265140b1d19067911ba0538cd917",
     "playwright.config.js": "d2f29c4d42a1095d7d398610b71229e18a7e7b84de6ecb02f3d5bdd397df8e74",
     "scripts/comuns.mjs": "c0250e7a9a6346c936a82fb9f8b886842b355c95024b52a8a6e3a0aa375011e8",
     "scripts/notas-release.mjs": "ba6643d9d650207d67d4d6cb99b0515b45b073a93b4a50f8d84f96b4e5b461e4",
