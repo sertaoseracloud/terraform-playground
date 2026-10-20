@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.11.0',
+    data: '2026-10-20',
+    titulo: 'O troféu fala o que mostra',
+    resumo: 'O botão do troféu e os passos da trilha têm como nome o mesmo texto que aparece na tela.',
+    grupos: [
+      { titulo: '♿ Acessibilidade', itens: ['O botão do troféu de cada módulo e os passos da trilha têm como nome o mesmo texto que aparece na tela. Quem usa comando de voz pode falar o que vê, como "Certificado liberado" ou "Começar", e o botão responde.'] },
+    ],
+  },
+  {
     versao: '1.10.5',
     data: '2026-10-20',
     titulo: 'Evolução coordenada dos playgrounds',
