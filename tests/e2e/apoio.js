@@ -36,7 +36,9 @@ export async function abrir(page, hash, { tutorial = false, privacidade = true, 
  * flutuantes recolhidos (saem pela direita de propósito ao rolar; são fixed e não criam rolagem).
  */
 export function medirEstouro(page) {
-  return page.evaluate(() => {
+  return page.evaluate(async () => {
+    // Os botões flutuantes podem estar no meio da transição (recolhendo ou voltando): espera terminar.
+    await Promise.all((document.getElementById('flutuantes')?.getAnimations() ?? []).map((animacao) => animacao.finished.catch(() => {})));
     const largura = document.documentElement.clientWidth;
     const rolaSozinho = (el) => {
       for (let p = el.parentElement; p; p = p.parentElement) {
