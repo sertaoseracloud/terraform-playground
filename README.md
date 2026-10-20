@@ -206,6 +206,7 @@ npm run dev      # servidor local com recarga
 npm run lint     # ESLint
 npm test         # testes (motor, regras e toda a trilha)
 npm run test:cobertura  # os mesmos testes, com o limite de cobertura
+npm run comuns   # confere os arquivos comuns aos quatro playgrounds (comuns.json)
 npm run build    # gera dist/ (precisa de CERTIFICADO_SEGREDO)
 npm run test:e2e        # Playwright contra o dist (fluxo, axe nos 4 temas, larguras de celular)
 npm run lighthouse      # Lighthouse CI contra o dist
@@ -217,6 +218,11 @@ Para testar um build local sem o segredo de verdade:
 ```bash
 CERTIFICADO_SEGREDO=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))") npm run build
 ```
+
+Alguns arquivos são iguais nos quatro playgrounds (php, terraform, python e kubernetes) e estão
+listados em [`comuns.json`](comuns.json) com o hash de cada um. Para mudar um deles, altere aqui e
+leve a mesma mudança aos outros com `npm run comuns:copiar -- ../php-playground ../python-playground ../kubernetes-playground`.
+Detalhes em [docs/debito-tecnico.md](docs/debito-tecnico.md#arquivos-comuns).
 
 ## Como publicar
 
@@ -230,8 +236,8 @@ O repositório segue o **gitflow**. Pense no `develop` como o ensaio geral e no 
   progresso guardado à parte (prefixo `terraform-playground-homologacao:`), outro segredo de
   certificado, `noindex` e sem `sitemap.xml`. É onde a versão é conferida no navegador antes de sair.
 - **`release/*`**: sai de `develop` com a versão nova no `package.json` e entra no `main` por PR
-  (merge commit). Cada push no `main` publica o site principal e cria a tag `v<versão>`, se ela
-  ainda não existir. Depois, um PR de `main` para `develop` traz a release de volta.
+  (merge commit). Cada push no `main` publica o site principal e cria a tag `v<versão>` e a
+  release do GitHub com o texto de `src/novidades.js`, se ainda não existirem. Depois, um PR de `main` para `develop` traz a release de volta.
 - **`hotfix/*`**: correção urgente que sai do `main` e entra nele do mesmo jeito.
 
 `main` e `develop` só recebem PR, com os checks verdes. Os workflows:

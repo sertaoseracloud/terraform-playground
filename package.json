@@ -1,6 +1,6 @@
 {
   "name": "terraform-playground",
-  "version": "1.10.5",
+  "version": "1.11.0",
   "description": "DivergeTerraform: Terraform, AWS e Azure no navegador, com acessibilidade para pessoas cegas, surdas e neurodivergentes",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,9 @@
     "lighthouse": "npx --yes @lhci/cli@0.15.1 autorun",
     "badges": "node scripts/gerar-badges.mjs",
     "lint": "eslint .",
+    "comuns": "node scripts/comuns.mjs",
+    "comuns:copiar": "node scripts/comuns.mjs copiar",
+    "comuns:comparar": "node scripts/comuns.mjs comparar",
     "conferir-build": "node scripts/conferir-build.mjs"
   },
   "type": "module",
