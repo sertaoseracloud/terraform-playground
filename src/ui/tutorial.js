@@ -122,11 +122,13 @@ export function iniciarTutorial({ telaAtual }) {
   };
   $('btn-tutorial').onclick = abrir;
 
-  // Primeira visita: abre sozinho quando a pessoa entra na trilha ou num exercício
-  // (não na landing, na privacidade nem em links de código compartilhado ou de certificado).
+  // Primeira visita: abre sozinho quando a pessoa entra na trilha (não na landing, na privacidade
+  // nem em links de certificado). Num exercício ou no playground livre ele não abre sozinho, para
+  // não cobrir o editor de quem chegou por um link direto: o ❓ fica no canto, e o tutorial abre
+  // quando a pessoa passar pela trilha.
   const talvezAbrir = () => {
     if ($('dialogo-apoio')?.open) return;
-    if (!dialogo.open && !lerPreferencia('tutorial-visto') && /^#\/(trilha|p\/|livre)/.test(location.hash)) abrir();
+    if (!dialogo.open && !lerPreferencia('tutorial-visto') && /^#\/trilha/.test(location.hash)) abrir();
   };
   $('dialogo-apoio')?.addEventListener('close', talvezAbrir);
   talvezAbrir();

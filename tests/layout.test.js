@@ -21,8 +21,9 @@ describe('escolherModo', () => {
     expect(larguraPreview('lado', { largura: 1920, descricao: true })).toBeGreaterThan(LARGURA_TERMINAL);
   });
 
-  it('a descrição fica entre 280 e 420px', () => {
-    expect(larguraDescricao(900)).toBe(280);
+  it('a descrição fica entre 320 e 420px (legível mesmo com o terminal aberto)', () => {
+    expect(larguraDescricao(900)).toBe(320);
+    expect(larguraDescricao(1024)).toBe(320);
     expect(larguraDescricao(3000)).toBe(420);
   });
 });
