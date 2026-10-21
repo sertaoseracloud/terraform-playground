@@ -33,6 +33,8 @@ resource "azurerm_virtual_network" "rede" {
     expect(el.querySelector('.arq-lista').textContent).toContain(relacao);
     expect(r.grafo.contencoes).toHaveLength(1);
     expect(el.querySelectorAll('.arq-contencao')).toHaveLength(1);
+    expect(el.querySelector('svg').textContent).toContain('Rede (CIDR): 10.0.0.0/16');
+    expect(el.querySelector('svg').textContent).toContain('Máscara: 255.255.0.0');
   });
 
   it('não interpreta depends_on como pertencimento a uma rede', () => {
@@ -44,6 +46,27 @@ resource "aws_s3_bucket" "dados" {
 }` }, { comando: 'plan' });
     expect(r.grafo.arestas).toContainEqual({ de: 'aws_s3_bucket.dados', para: 'aws_vpc.rede' });
     expect(r.grafo.contencoes).toEqual([]);
+  });
+
+  it('mostra portas e redes das regras sem ler segredos nem resolver expressões', () => {
+    const r = executarTerraform({ 'main.tf': `variable "rede" { type = string }
+resource "aws_security_group" "web" {
+  name = "web"
+  ingress {
+    from_port = 80
+    to_port = 8080
+    protocol = "tcp"
+    cidr_blocks = ["10.0.1.0/24", var.rede]
+  }
+  tags = { segredo = "NAO_EXIBIR" }
+}` }, { comando: 'graph' });
+    const detalhes = r.grafo.nos.find((n) => n.id === 'aws_security_group.web').detalhes;
+    expect(detalhes).toContainEqual({ rotulo: 'Entrada · Porta inicial', valor: '80' });
+    expect(detalhes).toContainEqual({ rotulo: 'Entrada · Porta final', valor: '8080' });
+    expect(detalhes).toContainEqual({ rotulo: 'Entrada · Protocolo', valor: 'tcp' });
+    expect(detalhes).toContainEqual({ rotulo: 'Entrada · Máscara', valor: '255.255.255.0' });
+    expect(detalhes).toContainEqual({ rotulo: 'Entrada · Rede (CIDR)', valor: 'expressão não resolvida' });
+    expect(JSON.stringify(detalhes)).not.toContain('NAO_EXIBIR');
   });
 
   it('reconhece VPC → subnet → instância sem aplicar recursos', () => {

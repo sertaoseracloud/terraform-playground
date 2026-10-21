@@ -12,6 +12,39 @@ const montar = (grafo) => {
 };
 
 describe('arquitetura ilustrativa', () => {
+  it('mostra rede e máscara nos contêineres e portas nos recursos, sem rótulo de ícone oficial', () => {
+    const detalhes = [
+      { rotulo: 'Rede (CIDR)', valor: '10.0.0.0/16' },
+      { rotulo: 'Máscara', valor: '255.255.0.0' },
+    ];
+    const el = montar({
+      nos: [no('aws_vpc.rede', { detalhes }), no('aws_instance.web', {
+        detalhes: [{ rotulo: 'Porta', valor: '8080' }, { rotulo: 'Host', valor: '<script>perigo</script>' }],
+      })],
+      arestas: [], contencoes: [{ filho: 'aws_instance.web', pai: 'aws_vpc.rede', motivo: 'vpc_id' }],
+    });
+    expect(el.querySelector('.arq-contencao').textContent).toContain('Rede (CIDR): 10.0.0.0/16');
+    expect(el.querySelector('.arq-contencao').textContent).toContain('Máscara: 255.255.0.0');
+    expect(el.querySelector('.arq-recurso').textContent).toContain('Porta: 8080');
+    expect(el.querySelector('.arq-lista').textContent).toContain('Host: <script>perigo</script>');
+    expect(el.querySelector('script')).toBeNull();
+    expect(el.textContent).not.toContain('Ícone oficial');
+    expect(el.querySelector('a[href$="licenca/"]')).not.toBeNull();
+  });
+
+  it('aumenta a altura conforme os detalhes, sem sobrepor recursos ou cabeçalhos', () => {
+    const detalhes = Array.from({ length: 12 }, (_, i) => ({ rotulo: 'Porta', valor: String(8000 + i) }));
+    const el = montar({
+      nos: [no('aws_vpc.rede', { detalhes }), no('aws_instance.a', { detalhes }), no('aws_instance.b')],
+      arestas: [], contencoes: [{ filho: 'aws_instance.a', pai: 'aws_vpc.rede', motivo: 'vpc_id' }, { filho: 'aws_instance.b', pai: 'aws_vpc.rede', motivo: 'vpc_id' }],
+    });
+    const [a, b] = [...el.querySelectorAll('.arq-recurso')];
+    const y = (n) => Number(n.getAttribute('transform').match(/,([\d.]+)\)/)[1]);
+    expect(y(b)).toBeGreaterThan(y(a) + Number(a.querySelector('rect').getAttribute('height')));
+    const cabecalho = el.querySelector('.arq-contencao .arq-detalhe:last-child');
+    expect(y(a)).toBeGreaterThan(Number(cabecalho.getAttribute('y')) + 18);
+  });
+
   it.each([
     ['aws_instance.web', 'aws-ec2', 'Amazon EC2'],
     ['aws_vpc.rede', 'aws-vpc', 'Amazon VPC'],
@@ -76,7 +109,7 @@ describe('arquitetura ilustrativa', () => {
     });
     expect(el.querySelectorAll('image')).toHaveLength(0);
     expect(el.querySelectorAll('.arq-ligacao')).toHaveLength(0);
-    expect(el.textContent).toContain('Representação genérica');
+    expect(el.textContent).toContain('representação genérica');
     expect(el.textContent).toContain('Nenhuma relação foi identificada');
     expect(el.textContent).toContain('Referência não encontrada: <recurso>');
     expect(el.querySelector('recurso')).toBeNull();
@@ -206,7 +239,7 @@ describe('arquitetura ilustrativa', () => {
       expect(image.getAttribute('href')).not.toMatch(/^https?:/);
       expect(image.getAttribute('preserveAspectRatio')).toBe('xMidYMid meet');
     }
-    expect(el.querySelector('a').getAttribute('href')).toContain('icones-arquitetura/ATRIBUICAO.txt');
+    expect(el.querySelector('a').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}licenca/`);
     expect(readFileSync(resolve('public/icones-arquitetura/ATRIBUICAO.txt'), 'utf8')).toContain('CC BY 4.0');
   });
 });
