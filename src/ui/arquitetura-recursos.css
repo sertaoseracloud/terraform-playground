@@ -1,0 +1,37 @@
+.arquitetura-recursos {
+  padding: 1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--texto);
+}
+.arquitetura-recursos h2 { font-size: 1.15rem; margin: 0 0 .75rem; }
+.arquitetura-recursos p { line-height: 1.6; margin: .75rem 0; }
+.arq-rolagem {
+  width: 100%;
+  max-height: 65vh;
+  overflow: auto;
+  border: 1px solid var(--linha);
+  border-radius: .5rem;
+  background: var(--fundo-mais-escuro);
+}
+.arq-rolagem:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+.arq-rolagem svg { display: block; max-width: none; font-family: inherit; }
+.arq-cartao { fill: var(--fundo); stroke: var(--suave); stroke-width: 1.5; }
+.arq-fundo-icone { fill: #fff; }
+.arq-servico, .arq-nome, .arq-generico { fill: var(--texto); font-size: 13px; }
+.arq-tipo { fill: var(--suave); font-size: 12px; }
+.arq-servico { font-weight: 700; }
+.arq-generico { font-size: 22px; }
+.arq-ligacao { fill: none; stroke: var(--ciano); stroke-width: 2; }
+.arq-ponta { fill: var(--ciano); }
+.arq-lista { margin: 1rem 0; }
+.arq-lista summary { cursor: pointer; font-weight: 700; padding: .5rem 0; }
+.arq-lista li { margin-block: .4rem; line-height: 1.5; }
+.arq-creditos { color: var(--suave); font-size: .85rem; }
+.arquitetura-recursos a { color: var(--ciano); text-decoration: underline; }
+@media (forced-colors: active) {
+  .arq-cartao { fill: Canvas; stroke: CanvasText; }
+  .arq-servico, .arq-nome, .arq-tipo, .arq-generico { fill: CanvasText; }
+  .arq-ligacao { stroke: CanvasText; }
+  .arq-ponta { fill: CanvasText; }
+}

@@ -11,6 +11,17 @@ O site é estático e fica no GitHub Pages.
 
 ## O que tem
 
+### Edição e rascunhos
+
+As alterações pendentes são gravadas antes de trocar de exercício ou sair da página.
+Restaurar o código original ou usar uma solução descarta a gravação anterior, sem
+ressuscitar o rascunho descartado. Se o navegador bloquear o armazenamento ou a
+quota acabar, um aviso permanece junto ao editor: copie seus arquivos antes de sair.
+O arquivo ativo aparece no rótulo acessível; `.tf` e `.tfvars` usam HCL e os
+arquivos auxiliares usam texto simples, sem cores HCL enganosas. Excluir uma aba
+devolve o foco ao editor. Alterar o código invalida o placar atual, mas não revoga
+exercícios já resolvidos nem certificados.
+
 - **Landing page** (`/`): apresenta o projeto, a trilha, os certificados e os recursos de
   acessibilidade. Os números (exercícios, módulos, projetos) vêm do próprio conteúdo. A trilha fica
   em `/trilha/`, e quem já começou vê "▶ Continuar" no topo.
@@ -281,6 +292,14 @@ Secrets do GitHub Actions (Settings > Secrets > Actions), gerados aleatoriamente
 Configure também `FEATURE_PR_TOKEN` com acesso de escrita a Contents e Pull requests para que o
 workflow crie a PR e os checks de PR sejam disparados.
 
+## Arquitetura ilustrativa
+
+A aba **Arquitetura** desenha os recursos do código atual com ícones oficiais
+AWS, Azure e Kubernetes quando o tipo é reconhecido. Não executa Apply nem
+representa uma nuvem real. Setas indicam dependências, não tráfego de rede.
+Há alternativa textual, rolagem por teclado e indicação explícita de erros.
+Veja [uso, limites e manutenção](docs/arquitetura-ilustrativa.md).
+
 ## Licença
 
 O DivergeTerraform é **software livre com copyleft**:
@@ -293,5 +312,8 @@ O DivergeTerraform é **software livre com copyleft**:
 
 **Marcas**: Terraform e HCL são marcas da HashiCorp; AWS é marca da Amazon; Azure é marca da Microsoft.
 Este projeto é independente, não usa código da HashiCorp e não é afiliado nem endossado por elas.
+
+Os ícones de arquitetura têm [termos e atribuições próprios](public/icones-arquitetura/ATRIBUICAO.txt);
+não são relicenciados pela licença do código.
 
 Copyright (C) 2026 Sertão será cloud.
