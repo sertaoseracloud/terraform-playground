@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.14.1',
+    data: '2026-10-21',
+    titulo: 'Testes mais estáveis',
+    resumo: 'O limite mínimo de cobertura dos testes ganhou uma pequena folga, para a publicação não parar por uma variação de décimos.',
+    grupos: [
+      { titulo: 'Manutenção', itens: ['A cobertura dos testes varia uns décimos entre uma execução e outra; os limites mínimos ficaram um ponto abaixo da medida, ainda acima dos de antes da migração.'] },
+    ],
+  },
+  {
     versao: '1.14.0',
     data: '2026-10-21',
     titulo: 'Cada lição tem o seu endereço',
