@@ -10,6 +10,16 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.14.2',
+    data: '2026-10-21',
+    titulo: 'Do código ao desenho da arquitetura',
+    resumo: 'Uma nova aba mostra seus recursos em áreas agrupadas, com ícones oficiais e conexões. O editor também protege melhor seus rascunhos.',
+    grupos: [
+      { titulo: 'Arquitetura', itens: ['Ícones AWS e Azure em destaque, nomes abaixo e setas em ângulo reto. A lista em texto explica as mesmas relações.', 'Redes, sub-redes e grupos de recursos aparecem como caixas aninhadas quando o código declara o pertencimento.', 'O desenho acompanha o código atual: não executa Apply nem representa uma nuvem real.'] },
+      { titulo: 'Editor', itens: ['Trocas rápidas e restauração não misturam rascunhos; problemas ao guardar dados são avisados.', 'Arquivos auxiliares têm modo e identificação próprios. Ao editar, resultados antigos são marcados como desatualizados.'] },
+    ],
+  },
+  {
     versao: '1.14.1',
     data: '2026-10-21',
     titulo: 'Testes mais estáveis',

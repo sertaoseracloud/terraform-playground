@@ -1,0 +1,41 @@
+Icones de arquitetura - fontes consultadas em 2026-10-21
+
+Uso restrito a diagramas educacionais de arquitetura. As marcas e imagens
+pertencem aos respectivos titulares; nao indicam patrocinio ou endosso.
+Os SVGs foram extraidos sem alterar forma, cor, proporcao ou orientacao.
+Estes assets nao herdam automaticamente a licenca do codigo do playground.
+
+AWS
+Autor/titular: Amazon Web Services.
+Fonte e permissoes: https://aws.amazon.com/architecture/icons/
+Pacote oficial: Icon-package_07312026.
+Download: https://d1.awsstatic.com/onedam/marketing-channels/website/public/shared/architecture-icon-release/Icon-package_07312026.5846e92413caa21490223536cc97f1269e44fa92.zip
+Usados: EC2, Virtual Private Cloud, Simple Storage Service, Elastic Kubernetes
+Service, RDS e Elastic Load Balancing, Architecture-Service-Icons, versoes 64.
+A pagina permite uso dos assets para diagramas de arquitetura e materiais
+como apresentacoes e documentacao. Nao usar como identidade do playground.
+
+Microsoft Azure
+Autor/titular: Microsoft Corporation.
+Fonte e termos: https://learn.microsoft.com/en-us/azure/architecture/icons/
+Download: https://arch-center.azureedge.net/icons/Azure_Public_Service_Icons_V24.zip
+Usados: 10021 Virtual Machine, 10061 Virtual Networks, 10086 Storage Accounts,
+10023 Kubernetes Services, 10130 SQL Database, 10062 Load Balancers,
+10007 Resource Groups.
+Microsoft permite copiar, distribuir e exibir esses icones em diagramas de
+arquitetura, material de treinamento e documentacao. Outros direitos reservados.
+Nao cortar, girar, espelhar, distorcer ou usar para representar nosso produto.
+
+Kubernetes
+Autor: Kubernetes Authors.
+Fonte: https://github.com/kubernetes/community/tree/main/icons
+Revisao: be4243382c61713fdb9aa809e8b70ce184471ec8
+Originais: icons/svg/resources/unlabeled/<nome>.svg
+Nomes: pod, deploy, svc, ing, cm, secret, pvc, pv, sc, ns, sa, hpa, sts, ds,
+job, cronjob, netpol e role.
+Licenca escolhida: Creative Commons Attribution 4.0 International (CC BY 4.0).
+Texto legal: https://creativecommons.org/licenses/by/4.0/legalcode
+Conjunto tambem oferecido sob Apache-2.0; ver README da origem.
+Nenhuma modificacao dos SVGs. Nome de arquivo local recebe prefixo k8s-.
+Kubernetes e marca da The Linux Foundation:
+https://www.linuxfoundation.org/trademark-usage/

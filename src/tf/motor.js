@@ -1162,6 +1162,7 @@ class Execucao {
   montarGrafo() {
     const nos = [];
     const arestas = [];
+    const contencoes = [];
     const config = this.raizConfig;
     if (!config) return { nos, arestas };
     const visitar = (cfg, prefixo) => {
@@ -1187,6 +1188,24 @@ class Execucao {
       }
       for (const [end, bloco] of [...Object.entries(cfg.recursos), ...Object.entries(cfg.dados)]) {
         no(end, bloco.modo === 'data' ? 'dado' : 'recurso', end, { tipoRecurso: bloco.tipoRecurso, provedor: provedorDoTipo(bloco.tipoRecurso) });
+        // Só atributos de pertencimento explícitos autorizam caixas aninhadas; depends_on não.
+        const paisPorAtributo = [
+          ['subnet_id', ['aws_subnet', 'azurerm_subnet']],
+          ['vpc_id', ['aws_vpc']],
+          ['virtual_network_name', ['azurerm_virtual_network']],
+          ['resource_group_name', ['azurerm_resource_group']],
+        ];
+        if (bloco.modo !== 'data') {
+          for (const [atributo, tipos] of paisPorAtributo) {
+            const at = bloco.corpo.atributos.find((a) => a.nome === atributo);
+            if (!at || at.expr.k !== 'ref') continue;
+            const pais = referenciasDe(at.expr).map((r) => r.endereco)
+              .filter((id) => tipos.includes(cfg.recursos[id]?.tipoRecurso));
+            if (pais.length !== 1) continue;
+            contencoes.push({ filho: prefixo + end, pai: prefixo + pais[0], motivo: atributo });
+            break;
+          }
+        }
         const deps = bloco.corpo.atributos.find((a) => a.nome === 'depends_on');
         const extras = deps?.expr.k === 'tupla' ? deps.expr.itens.filter((i) => i.k === 'ref').map((i) => referenciasDe(i)[0]?.endereco).filter(Boolean) : [];
         ligar(end, exprsDoCorpo({ atributos: bloco.corpo.atributos.filter((a) => a.nome !== 'depends_on'), blocos: bloco.corpo.blocos }), extras);
@@ -1202,7 +1221,7 @@ class Execucao {
     };
     visitar(config, '');
     const ids = new Set(nos.map((n) => n.id));
-    return { nos, arestas: arestas.filter((a) => ids.has(a.para) && ids.has(a.de) && a.de !== a.para) };
+    return { nos, arestas: arestas.filter((a) => ids.has(a.para) && ids.has(a.de) && a.de !== a.para), contencoes };
   }
 
   resumoBlocos() {

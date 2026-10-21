@@ -4,6 +4,7 @@ import { EditorState, Prec } from '@codemirror/state';
 import { keymap } from '@codemirror/view';
 import { linguagemHcl } from './linguagem-hcl.js';
 import { temaEditor } from './tema-editor.js';
+import { anunciar } from './anuncios.js';
 
 // Pastas são permitidas (modulos/rede/main.tf), sem subir de nível (..).
 const NOME_VALIDO = /^([\w-]+\/){0,3}[\w.-]+\.(tf|tfvars|tpl|json|txt|sh|py|js|html|yaml|yml|md)$/;
@@ -17,7 +18,6 @@ export class EditorArquivos {
     this.estados = new Map();
     this.extensoes = [
       basicSetup,
-      linguagemHcl(),
       temaEditor,
       EditorView.lineWrapping,
       EditorState.tabSize.of(2),
@@ -25,7 +25,6 @@ export class EditorArquivos {
         { key: 'Mod-Enter', run: () => { aoExecutar(); return true; } },
         { key: 'Mod-Shift-Enter', run: () => { aoEnviar(); return true; } },
       ])),
-      EditorView.contentAttributes.of({ 'aria-label': 'Editor de código Terraform', tabindex: '0', 'aria-describedby': 'ajuda-editor' }),
       EditorView.updateListener.of((u) => {
         if (u.docChanged) {
           this.arquivos[this.atual] = u.state.doc.toString();
@@ -58,7 +57,16 @@ export class EditorArquivos {
   }
 
   #estadoDe(nome) {
-    return EditorState.create({ doc: this.arquivos[nome] ?? '', extensions: this.extensoes });
+    const hcl = /\.(tf|tfvars)$/.test(nome);
+    return EditorState.create({ doc: this.arquivos[nome] ?? '', extensions: [
+      ...this.extensoes,
+      ...(hcl ? [linguagemHcl()] : []),
+      EditorView.contentAttributes.of({
+        tabindex: '0',
+        'aria-label': `Editor de ${nome} — ${hcl ? 'Terraform HCL' : 'texto simples'}`,
+        'aria-describedby': 'ajuda-editor',
+      }),
+    ] });
   }
 
   #renderAbas() {
@@ -106,6 +114,8 @@ export class EditorArquivos {
       this.view.setState(this.estados.get(this.atual) ?? this.#estadoDe(this.atual));
     }
     this.#renderAbas();
+    this.view.focus();
+    anunciar(`Arquivo ${nome} excluído. Editor de ${this.atual} ativo.`);
   }
 
   #novo() {

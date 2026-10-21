@@ -124,6 +124,7 @@
             <div class="abas-grupo" role="tablist" aria-label="Saída">
               <button class="aba ativa" data-saida="terminal" role="tab" aria-selected="true">🖥️ Terminal</button>
               <button class="aba" data-saida="grafo" role="tab" aria-selected="false" title="Quem depende de quem">🕸️ Grafo</button>
+              <button class="aba" data-saida="arquitetura" role="tab" aria-selected="false" aria-controls="saida-arquitetura" title="Recursos do código com ícones oficiais">🏛️ Arquitetura</button>
               <button class="aba" data-saida="estado" role="tab" aria-selected="false" title="terraform.tfstate simulado">📦 Estado <span id="contador-estado" class="contador"></span></button>
               <button class="aba" data-saida="saidas" role="tab" aria-selected="false">📤 Outputs</button>
             </div>
@@ -150,6 +151,7 @@
             </div>
           </div>
           <div id="saida-grafo" class="saida grafo" hidden tabindex="0"></div>
+          <div id="saida-arquitetura" class="saida arquitetura-recursos" role="tabpanel" hidden tabindex="0" aria-label="Arquitetura do código"></div>
           <div id="saida-estado" class="saida estado" hidden tabindex="0"></div>
           <div id="saida-saidas" class="saida saidas" hidden tabindex="0"></div>
         </section>
