@@ -48,6 +48,9 @@ test('arquitetura acompanha AWS, Azure e erro sem Apply nem assets externos', as
   await expect(painel.locator('.arq-lista')).toContainText('aws_subnet.app usa aws_vpc.rede');
   await expect(painel.locator('.arq-plataforma-nome')).toHaveText('Amazon Web Services');
   await expect(painel.locator('.arq-contencao')).toHaveCount(2);
+  await expect(painel.locator('svg')).toContainText('Rede (CIDR): 10.0.0.0/16');
+  await expect(painel.locator('svg')).toContainText('Máscara: 255.255.0.0');
+  await expect(painel.locator('svg')).not.toContainText('Ícone oficial');
   await expect(painel.locator('image[href$="aws-ec2.svg"]')).toBeVisible();
   await expect(painel.locator('.arq-lista')).toContainText('aws_instance.web está em aws_subnet.app');
   await painel.screenshot({ path: testInfo.outputPath('arquitetura-aws.png') });
@@ -56,6 +59,9 @@ test('arquitetura acompanha AWS, Azure e erro sem Apply nem assets externos', as
   await expect(painel.locator('image[href$="aws-vpc.svg"]')).toHaveCount(0);
   await expect(painel.locator('.arq-contencao')).toHaveCount(2);
   await expect(painel.locator('.arq-lista')).toContainText('azurerm_subnet.app está em azurerm_virtual_network.rede');
+  await expect(painel.locator('svg')).toContainText('Rede (CIDR): 10.0.1.0/24');
+  await expect(painel.locator('svg')).toContainText('Máscara: 255.255.255.0');
+  await expect(painel.locator('.arq-ligacao')).toHaveCount(0);
   await painel.screenshot({ path: testInfo.outputPath('arquitetura-azure.png') });
   for (const imagem of await painel.locator('image').all()) {
     const url = new URL(await imagem.getAttribute('href'), page.url());

@@ -16,6 +16,7 @@ import {
   PROVEDORES, VERSAO_TERRAFORM, provedorDoTipo, buscarTipo, sugerir, atende, restricaoValida, escolherVersao, normalizarLocal,
 } from './esquema/index.js';
 import { REGIOES_AWS } from './esquema/aws.js';
+import { detalhesRedeDoBloco } from './rede-arquitetura.js';
 
 const META_RECURSO = new Set(['count', 'for_each', 'provider', 'depends_on']);
 const NOME_VALIDO = /^[A-Za-z_][A-Za-z0-9_-]*$/;
@@ -1187,7 +1188,10 @@ class Execucao {
         ligar(`local.${nome}`, [at.expr]);
       }
       for (const [end, bloco] of [...Object.entries(cfg.recursos), ...Object.entries(cfg.dados)]) {
-        no(end, bloco.modo === 'data' ? 'dado' : 'recurso', end, { tipoRecurso: bloco.tipoRecurso, provedor: provedorDoTipo(bloco.tipoRecurso) });
+        no(end, bloco.modo === 'data' ? 'dado' : 'recurso', end, {
+          tipoRecurso: bloco.tipoRecurso, provedor: provedorDoTipo(bloco.tipoRecurso),
+          detalhes: detalhesRedeDoBloco(bloco),
+        });
         // Só atributos de pertencimento explícitos autorizam caixas aninhadas; depends_on não.
         const paisPorAtributo = [
           ['subnet_id', ['aws_subnet', 'azurerm_subnet']],

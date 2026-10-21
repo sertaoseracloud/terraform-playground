@@ -19,3 +19,20 @@ Você pode copiar, redistribuir, adaptar e usar o material para qualquer fim, de
 Não estão incluídos nesta licença: o nome, a marca e o logotipo da Sertão será cloud, nem a
 emissão de certificados em nome dela. O código-fonte é regido pela licença AGPL-3.0-or-later
 (arquivo `LICENSE`).
+
+## Imagens de arquitetura de terceiros
+
+As imagens oficiais AWS, Microsoft Azure e Kubernetes não estão sob a licença
+do conteúdo didático nem do código. Pertencem, respectivamente, à Amazon Web
+Services, Microsoft Corporation e Kubernetes Authors:
+
+- [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/): uso
+  conforme permissões do titular para diagramas e documentação.
+- [Azure Architecture Icons](https://learn.microsoft.com/en-us/azure/architecture/icons/):
+  termos próprios para arquitetura, treinamento e documentação.
+- [Kubernetes Icons](https://github.com/kubernetes/community/tree/main/icons):
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), sem modificações.
+
+Versões, nomes dos arquivos, autoria e termos completos estão em
+[ATRIBUICAO.txt](public/icones-arquitetura/ATRIBUICAO.txt). As marcas não indicam
+patrocínio ou endosso ao playground.

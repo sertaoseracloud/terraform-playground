@@ -10,6 +10,16 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.14.3',
+    data: '2026-10-21',
+    titulo: 'Redes e portas no desenho',
+    resumo: 'O desenho agora mostra CIDR, máscara e portas declarados no código. Os créditos das imagens ficam na licença, em vez de ocupar os recursos.',
+    grupos: [
+      { titulo: 'Arquitetura', itens: ['Redes e sub-redes mostram CIDR e máscara IPv4; regras podem mostrar protocolo e portas.', 'Os cartões crescem com os detalhes e a lista em texto preserva as informações completas.', 'Expressões não resolvidas são identificadas sem inventar endereços ou comprovar acesso à rede.'] },
+      { titulo: 'Licenças', itens: ['A página Licença reúne autoria, fontes e termos das imagens AWS, Azure e Kubernetes.'] },
+    ],
+  },
+  {
     versao: '1.14.2',
     data: '2026-10-21',
     titulo: 'Do código ao desenho da arquitetura',

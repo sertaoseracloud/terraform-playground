@@ -48,6 +48,12 @@ describe('páginas', () => {
     expect(el.textContent).toContain('AGPL-3.0-or-later');
     expect(el.textContent).toContain('CC-BY-SA-4.0');
     expect(el.textContent).toMatch(/marca/);
+    expect(el.querySelector('#lic-imagens').textContent).toContain('Imagens de arquitetura');
+    expect(el.textContent).toContain('ícones oficiais');
+    expect(el.querySelector('a[href$="icones-arquitetura/ATRIBUICAO.txt"]')).not.toBeNull();
+    expect(el.querySelector('a[href="https://aws.amazon.com/architecture/icons/"]')).not.toBeNull();
+    expect(el.querySelector('a[href="https://learn.microsoft.com/en-us/azure/architecture/icons/"]')).not.toBeNull();
+    expect(el.querySelector('a[href="https://creativecommons.org/licenses/by/4.0/"]')).not.toBeNull();
   });
 
   it('termos deixam claro que certificado não é diploma', () => {

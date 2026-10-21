@@ -67,8 +67,23 @@ export function renderLicenca(el) {
         </table></div>
       </section>
 
+      <section aria-labelledby="lic-imagens">
+        <h2 id="lic-imagens">5. Imagens de arquitetura</h2>
+        <p>Os ícones oficiais são de seus respectivos autores e não estão sob a licença do código
+          nem do conteúdo didático. São usados sem alterar forma, cor ou proporção e não indicam endosso.</p>
+        <ul>
+          <li>Amazon Web Services: ${link('https://aws.amazon.com/architecture/icons/', 'AWS Architecture Icons')},
+            usados conforme as permissões para diagramas e documentação.</li>
+          <li>Microsoft Corporation: ${link('https://learn.microsoft.com/en-us/azure/architecture/icons/', 'Azure Architecture Icons')},
+            usados conforme os termos para arquitetura, treinamento e documentação.</li>
+          <li>Kubernetes Authors: ${link('https://github.com/kubernetes/community/tree/main/icons', 'Kubernetes Icons')},
+            sem modificações, sob ${link('https://creativecommons.org/licenses/by/4.0/', 'CC BY 4.0')}.</li>
+        </ul>
+        <p>${link(`${import.meta.env.BASE_URL}icones-arquitetura/ATRIBUICAO.txt`, 'Fontes, versões, atribuições e termos completos das imagens')}.</p>
+      </section>
+
       <section aria-labelledby="lic-contato">
-        <h2 id="lic-contato">5. Dúvidas</h2>
+        <h2 id="lic-contato">6. Dúvidas</h2>
         <p>Fale com a gente pelas ${link(CONTROLADOR.contato, 'issues do projeto no GitHub')}.</p>
       </section>
     </article>`;
