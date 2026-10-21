@@ -1,44 +1,61 @@
-// Roda depois do `vite build` (npm run build): deixa o site legível para buscadores
-// e redes sociais, que nem sempre executam JavaScript.
-//   - troca o bloco <!-- seo:inicio --> … <!-- seo:fim --> do <head> pelas meta tags
-//     e pelos dados estruturados (src/seo.js);
-//   - escreve a landing page já em HTML dentro de <main id="tela-landing">;
-//   - gera dist/sitemap.xml;
-//   - na homologação (HOMOLOGACAO=1), põe noindex e não gera o sitemap.
-import { readFileSync, writeFileSync } from 'node:fs';
-import { metaTags, sitemap } from '../src/seo.js';
-import { versaoDoPacote } from './plugin-historico.mjs';
+// Monta o HTML de cada página do site a partir do index.html (a casca da aplicação), no build
+// do Astro (src/pages): a marcação é a mesma em todas as páginas, e o que muda é só
+//   - o bloco <!-- seo:inicio --> … <!-- seo:fim --> do <head>: título, descrição e endereço
+//     da página (src/seo.js e src/paginas.js), com noindex na homologação;
+//   - a landing, escrita em HTML dentro de <main id="tela-landing"> só na página inicial;
+//   - os links do menu (href="#/trilha" no index.html) e os arquivos do <head>, que ganham o
+//     prefixo do site (/<repositório>/), porque as páginas ficam em pastas (/p/<id>/).
+// O <script> do index.html sai: no Astro, quem carrega o src/main.js é a própria página.
+import { metaTags, PRINCIPAL } from '../src/seo.js';
+import { paginaDe } from '../src/paginas.js';
+import { renderLanding } from '../src/ui/landing.js';
+import { BASE, lerRota, rota, traduzirHashAntigo } from '../src/compartilhar.js';
+import { SITE } from '../src/certificados.js';
+import { configurarAmbiente } from '../src/ambiente.js';
 
-// Mesma versão que o Vite injeta no site (a landing lê __VERSAO__).
-globalThis.__VERSAO__ = versaoDoPacote();
-const { renderLanding } = await import('../src/ui/landing.js');
+const SEO = /<!-- seo:inicio -->[\s\S]*?<!-- seo:fim -->/;
+const LANDING = /(<main id="tela-landing"[^>]*>)\s*(<\/main>)/;
+const SCRIPT_PRINCIPAL = /\s*<script type="module" src="\/src\/main\.js"><\/script>/;
 
-export function prerender(html, { homologacao = false } = {}) {
-  const seo = /<!-- seo:inicio -->[\s\S]*?<!-- seo:fim -->/;
-  if (!seo.test(html)) throw new Error('index.html sem o bloco <!-- seo:inicio --> … <!-- seo:fim -->');
-  const landing = { innerHTML: '' };
-  renderLanding(landing); // sem progresso salvo: mostra "Começar a trilha"
-  const vazio = /(<main id="tela-landing"[^>]*>)\s*(<\/main>)/;
-  if (!vazio.test(html)) throw new Error('index.html sem <main id="tela-landing"></main> vazio');
-  // Na homologação, o robots "index, follow" do site principal vira noindex.
-  const meta = homologacao
-    ? metaTags().replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex">')
-    : metaTags();
+/**
+ * href="#/trilha" → href="/<repositório>/trilha/"; arquivos relativos do <head> ganham o
+ * prefixo; o "ir para o site principal" da faixa de homologação (href="../") vira o endereço dele.
+ */
+function corrigirLinks(html) {
   return html
-    .replace(seo, `<!-- seo:inicio (gerado por scripts/prerender.mjs) -->\n  ${meta}\n  <!-- seo:fim -->`)
-    .replace(vazio, (_, abre, fecha) => `${abre}${landing.innerHTML}${fecha}`);
+    .replace(/href="(#\/[^"]*)"/g, (_, antigo) => `href="${traduzirHashAntigo(antigo)}"`)
+    .replace(/href="\.\.\/"/g, `href="${configurarAmbiente(false).site}"`)
+    .replace(/(<link [^>]*href=")(?![a-z]+:|\/|#)([^"]+)"/g, (_, inicio, arquivo) => `${inicio}${BASE}${arquivo}"`);
 }
 
-// Só escreve os arquivos quando roda como script (os testes importam só a função).
-if (process.argv[1]?.endsWith('prerender.mjs')) {
-  const dist = new URL('../dist/', import.meta.url);
-  const arquivo = new URL('index.html', dist);
-  const homologacao = process.env.HOMOLOGACAO === '1';
-  writeFileSync(arquivo, prerender(readFileSync(arquivo, 'utf8'), { homologacao }));
-  if (homologacao) {
-    console.log('prerender (homologação): <head> com SEO e noindex, landing em HTML, sem sitemap.xml');
-  } else {
-    writeFileSync(new URL('sitemap.xml', dist), sitemap(new Date().toISOString().slice(0, 10)));
-    console.log('prerender: <head> com SEO, landing em HTML e sitemap.xml');
+/**
+ * HTML de uma página: { atributos do <html>, head, corpo }. `caminho` é o endereço sem o base
+ * ('' na landing, 'trilha', 'p/<id>'...); a homologação ganha noindex.
+ */
+export function montarPagina(html, { caminho = '', homologacao = false } = {}) {
+  if (!SEO.test(html)) throw new Error('index.html sem o bloco <!-- seo:inicio --> … <!-- seo:fim -->');
+  if (!LANDING.test(html)) throw new Error('index.html sem <main id="tela-landing"></main> vazio');
+  if (!SCRIPT_PRINCIPAL.test(html)) throw new Error('index.html sem o <script type="module" src="/src/main.js">');
+  const url = `${SITE}${rota(caminho).slice(BASE.length)}`;
+  // /s/ só abre com o código no hash, que o build não vê: até o JS abrir o exercício, vale o
+  // título da página principal (como era com o #/s/<código>), e não "Página não encontrada".
+  const pagina = caminho === 's' ? PRINCIPAL : paginaDe(lerRota({ pathname: rota(caminho) }));
+  let meta = metaTags({ ...pagina, url });
+  // Na homologação, o robots "index, follow" do site principal vira noindex.
+  if (homologacao) meta = meta.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex">');
+
+  let saida = html.replace(SEO, `<!-- seo:inicio (gerado por scripts/prerender.mjs) -->\n${meta}\n<!-- seo:fim -->`)
+    .replace(SCRIPT_PRINCIPAL, '');
+  if (!caminho) {
+    const landing = { innerHTML: '' };
+    renderLanding(landing); // sem progresso salvo: mostra "Começar a trilha"
+    saida = saida.replace(LANDING, (_, abre, fecha) => `${abre}${landing.innerHTML}${fecha}`);
   }
+  saida = corrigirLinks(saida);
+  const atributos = Object.fromEntries([...saida.match(/<html([^>]*)>/)[1].matchAll(/([\w-]+)="([^"]*)"/g)].map(([, nome, valor]) => [nome, valor]));
+  return {
+    atributos,
+    head: saida.slice(saida.indexOf('<head>') + 6, saida.indexOf('</head>')),
+    corpo: saida.slice(saida.indexOf('<body>') + 6, saida.indexOf('</body>')),
+  };
 }

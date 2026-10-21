@@ -7,3 +7,5 @@ coverage/
 playwright-report/
 test-results/
 .lighthouseci/
+# Tipos gerados pelo Astro (astro sync/check/build)
+.astro/

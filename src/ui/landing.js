@@ -4,7 +4,7 @@ import { modulos, itens, problemas } from '../conteudo/trilha.js';
 import { CERTIFICADOS, EMISSOR } from '../certificados.js';
 import { svgBadge } from '../badges.js';
 import { secaoInstrutor } from './instrutor.js';
-import { linkItem } from '../compartilhar.js';
+import { linkItem, rota } from '../compartilhar.js';
 import { jornadaAtual } from './inicio.js';
 import { esc } from './util.js';
 // Versão injetada pelo Vite (e pelo prerender); sem importar o histórico, que só existe no build.
@@ -40,7 +40,7 @@ export function renderLanding(el) {
   const temProgresso = j.xp > 0;
   const continuar = j.proximo
     ? `<a class="btn btn-verde btn-grande" href="${linkItem(j.proximo.id)}">▶ Continuar: ${esc(j.proximo.titulo)}</a>`
-    : '<a class="btn btn-verde btn-grande" href="#/trilha">🎓 Ver meus certificados</a>';
+    : `<a class="btn btn-verde btn-grande" href="${rota('trilha')}">🎓 Ver meus certificados</a>`;
 
   el.innerHTML = `
     <div class="landing">
@@ -53,9 +53,9 @@ export function renderLanding(el) {
             Você escreve o código, clica em <b>▶ Plan</b> e os testes dizem na hora se acertou.
             Sem instalar nada, sem conta na nuvem e sem gastar um centavo.</p>
           <div class="hero-acoes">
-            ${temProgresso ? continuar : '<a class="btn btn-verde btn-grande" href="#/trilha">🚀 Começar a trilha</a>'}
-            <a class="btn btn-fantasma btn-grande" href="#/trilha">🗺️ Ver a trilha</a>
-            <a class="btn btn-fantasma btn-grande" href="#/livre">🧪 Playground livre</a>
+            ${temProgresso ? continuar : `<a class="btn btn-verde btn-grande" href="${rota('trilha')}">🚀 Começar a trilha</a>`}
+            <a class="btn btn-fantasma btn-grande" href="${rota('trilha')}">🗺️ Ver a trilha</a>
+            <a class="btn btn-fantasma btn-grande" href="${rota('livre')}">🧪 Playground livre</a>
           </div>
           <ul class="hero-numeros" aria-label="A trilha em números">
             <li><b>${n.exercicios}</b> exercícios</li>
@@ -119,7 +119,7 @@ export function renderLanding(el) {
             <li>Publique no <b>LinkedIn</b> com a imagem do badge, como na Credly.</li>
             <li>Adicione em <b>Licenças e certificados</b> do seu perfil.</li>
             <li>Imprima ou salve em <b>PDF</b> (A4 paisagem).</li>
-            <li>Cada certificado tem um <b>selo de autenticidade</b> e pode ser conferido na página <a href="#/validar">Validar certificado</a>.</li>
+            <li>Cada certificado tem um <b>selo de autenticidade</b> e pode ser conferido na página <a href="${rota('validar')}">Validar certificado</a>.</li>
           </ul>
         </div>
         <div class="vitrine-badges" aria-label="Badges da trilha">
@@ -131,9 +131,9 @@ export function renderLanding(el) {
         <h2 id="todos-titulo">Feito para todo mundo aprender</h2>
         <div class="cartoes">
           <article><h3>🦯 Pessoas cegas</h3><p>O leitor de tela fala o resultado de cada teste, com o motivo e a dica. Navegação completa pelo teclado, alto contraste e texto até 175%.</p></article>
-          <article><h3>🤟 Pessoas surdas e mudas</h3><p>Nada depende de som nem de voz. Tradução para Libras com o VLibras, do Governo Federal. <a href="#/acessibilidade">Veja tudo sobre acessibilidade</a>.</p></article>
+          <article><h3>🤟 Pessoas surdas e mudas</h3><p>Nada depende de som nem de voz. Tradução para Libras com o VLibras, do Governo Federal. <a href="${rota('acessibilidade')}">Veja tudo sobre acessibilidade</a>.</p></article>
           <article><h3>🧠 Neurodiversidade</h3><p>Perfis prontos para TDAH, dislexia, autismo e ansiedade: modo foco, lista de tarefas, régua de leitura, lembrete de pausa e mensagens gentis.</p></article>
-          <article><h3>🔒 Privado</h3><p>Sem cookies, sem rastreamento, sem cadastro. Seu progresso fica só no seu navegador. <a href="#/privacidade">Saiba mais</a>.</p></article>
+          <article><h3>🔒 Privado</h3><p>Sem cookies, sem rastreamento, sem cadastro. Seu progresso fica só no seu navegador. <a href="${rota('privacidade')}">Saiba mais</a>.</p></article>
           <article><h3>👩‍🏫 Para a sala de aula</h3><p>Funciona em qualquer computador com um navegador atualizado, inclusive no projetor, sem cartão de crédito nem conta na AWS ou no Azure. Mande o link direto de um exercício para a turma.</p></article>
         </div>
       </section>
@@ -143,12 +143,12 @@ export function renderLanding(el) {
       <section class="cta-final" aria-labelledby="cta-titulo">
         <h2 id="cta-titulo">Pronto para escrever seu primeiro código?</h2>
         <p>Comece pelo Terraform básico. Em poucos minutos o seu primeiro recurso aparece no plano, aqui mesmo.</p>
-        ${temProgresso ? continuar : '<a class="btn btn-verde btn-grande" href="#/trilha">🚀 Começar agora</a>'}
+        ${temProgresso ? continuar : `<a class="btn btn-verde btn-grande" href="${rota('trilha')}">🚀 Começar agora</a>`}
       </section>
 
       <footer class="rodape-landing">
-        <p><b>${esc(EMISSOR.organizacao)}</b> · ${esc(EMISSOR.curso)} · <a href="#/novidades">Versão ${esc(VERSAO)} · Novidades</a></p>
-        <p><a href="#/instrutor">Quem é o instrutor?</a> · <a href="#/apoie">☕ Apoie o projeto</a> · <a href="#/validar">Validar certificado</a> · <a href="#/acessibilidade">Acessibilidade</a> · <a href="#/termos">Termos de uso</a> · <a href="#/privacidade">Privacidade e cookies</a> · <a href="#/licenca">Licença (AGPL-3.0 e CC BY-SA 4.0)</a> · <a href="${REPOSITORIO}" target="_blank" rel="noopener noreferrer">Código no GitHub</a></p>
+        <p><b>${esc(EMISSOR.organizacao)}</b> · ${esc(EMISSOR.curso)} · <a href="${rota('novidades')}">Versão ${esc(VERSAO)} · Novidades</a></p>
+        <p><a href="${rota('instrutor')}">Quem é o instrutor?</a> · <a href="${rota('apoie')}">☕ Apoie o projeto</a> · <a href="${rota('validar')}">Validar certificado</a> · <a href="${rota('acessibilidade')}">Acessibilidade</a> · <a href="${rota('termos')}">Termos de uso</a> · <a href="${rota('privacidade')}">Privacidade e cookies</a> · <a href="${rota('licenca')}">Licença (AGPL-3.0 e CC BY-SA 4.0)</a> · <a href="${REPOSITORIO}" target="_blank" rel="noopener noreferrer">Código no GitHub</a></p>
       </footer>
     </div>`;
 }

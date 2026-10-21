@@ -22,7 +22,7 @@ describe('página não encontrada', () => {
     renderNaoEncontrada(el);
     expect(el.querySelector('h1').textContent).toContain('Página não encontrada');
     expect(el.textContent).toContain('progresso continua salvo');
-    expect([...el.querySelectorAll('a')].map((a) => a.getAttribute('href'))).toEqual(['#/trilha', '#/']);
+    expect([...el.querySelectorAll('a')].map((a) => a.getAttribute('href'))).toEqual(['/trilha/', '/']);
   });
 
   it('explica o link compartilhado cortado e o exercício que não existe', () => {

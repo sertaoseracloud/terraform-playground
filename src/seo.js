@@ -95,20 +95,22 @@ export function dadosEstruturados() {
   };
 }
 
-/** Bloco de meta tags do <head> (gerado no build). */
-export function metaTags() {
-  const { titulo, descricao } = PRINCIPAL;
+/**
+ * Meta tags do <head> de uma página: título, descrição e endereço dela (canonical e og:url).
+ * Sem argumentos, a página principal. Os dados estruturados (o curso) vão só na principal.
+ */
+export function metaTags({ titulo, descricao, url = SITE } = PRINCIPAL) {
   const tags = [
     `<title>${esc(titulo)}</title>`,
     `<meta name="description" content="${esc(descricao)}">`,
-    `<link rel="canonical" href="${SITE}">`,
+    `<link rel="canonical" href="${url}">`,
     '<meta name="robots" content="index, follow, max-image-preview:large">',
     `<meta name="author" content="${esc(EMISSOR.organizacao)}">`,
     `<meta name="application-name" content="${NOME}">`,
     `<meta property="og:site_name" content="${NOME}">`,
     '<meta property="og:type" content="website">',
     '<meta property="og:locale" content="pt_BR">',
-    `<meta property="og:url" content="${SITE}">`,
+    `<meta property="og:url" content="${url}">`,
     `<meta property="og:title" content="${esc(titulo)}">`,
     `<meta property="og:description" content="${esc(descricao)}">`,
     `<meta property="og:image" content="${IMAGEM}">`,
@@ -119,16 +121,17 @@ export function metaTags() {
     `<meta name="twitter:title" content="${esc(titulo)}">`,
     `<meta name="twitter:description" content="${esc(descricao)}">`,
     `<meta name="twitter:image" content="${IMAGEM}">`,
-    `<script type="application/ld+json">${JSON.stringify(dadosEstruturados()).replace(/</g, '\\u003c')}</script>`,
+    ...(url === SITE ? [`<script type="application/ld+json">${JSON.stringify(dadosEstruturados()).replace(/</g, '\\u003c')}</script>`] : []),
   ];
   return tags.join('\n  ');
 }
 
-/** sitemap.xml: só a página principal (as telas internas ficam depois do #). */
-export function sitemap(data) {
+/** Sitemap: a página principal (prioridade 1.0) e as outras páginas (`urls`, endereços completos). */
+export function sitemap(data, urls = []) {
+  const linha = (loc, prioridade) => `  <url><loc>${loc}</loc><lastmod>${data}</lastmod><changefreq>weekly</changefreq><priority>${prioridade}</priority></url>`;
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${SITE}</loc><lastmod>${data}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+${[linha(SITE, '1.0'), ...urls.filter((u) => u !== SITE).map((u) => linha(u, '0.7'))].join('\n')}
 </urlset>
 `;
 }

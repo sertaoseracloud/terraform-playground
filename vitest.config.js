@@ -18,13 +18,13 @@ export default defineConfig({
     testTimeout: 60000,
     hookTimeout: 120000,
     exclude: ['**/node_modules/**', 'tests/e2e/**'], // os E2E rodam no Playwright
-    // Limites = a cobertura medida em 2026-10-20, arredondada para baixo: só pode subir.
+    // Limites = a cobertura medida em 2026-10-21 (rotas reais com Astro), arredondada para baixo: só pode subir.
     coverage: {
       provider: 'v8',
       include: ['src/**/*.js'],
       exclude: ['src/conteudo/**'],
       reporter: ['text-summary', 'json-summary', 'html'],
-      thresholds: { statements: 72, branches: 65, functions: 66, lines: 75 },
+      thresholds: { statements: 74, branches: 67, functions: 68, lines: 77 },
     },
   },
 });

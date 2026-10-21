@@ -84,12 +84,12 @@ describe('tutorial na primeira visita', () => {
     const dialogo = document.getElementById('tutorial');
     dialogo.showModal ??= function showModal() { this.open = true; };
     dialogo.close ??= function close() { this.open = false; };
-    for (const hash of ['#/p/tf-ola-arquivo', '#/livre']) {
-      location.hash = hash;
+    for (const caminho of ['/p/tf-ola-arquivo/', '/livre/']) {
+      history.replaceState(null, '', caminho);
       iniciarTutorial({ telaAtual: () => 'item' });
-      expect(dialogo.open, hash).toBe(false);
+      expect(dialogo.open, caminho).toBe(false);
     }
-    location.hash = '#/trilha';
+    history.replaceState(null, '', '/trilha/');
     iniciarTutorial({ telaAtual: () => 'inicio' });
     await new Promise((r) => setTimeout(r, 0));
     expect(dialogo.open).toBe(true);

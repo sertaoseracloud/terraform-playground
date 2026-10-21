@@ -36,9 +36,9 @@ describe('licenciamento (copyleft)', () => {
 });
 
 describe('páginas', () => {
-  it('rotas #/licenca e #/termos', () => {
-    expect(lerRota('#/licenca')).toEqual({ tela: 'licenca' });
-    expect(lerRota('#/termos')).toEqual({ tela: 'termos' });
+  it('rotas /licenca/ e /termos/', () => {
+    expect(lerRota({ pathname: '/licenca/' })).toEqual({ tela: 'licenca' });
+    expect(lerRota({ pathname: '/termos/' })).toEqual({ tela: 'termos' });
   });
 
   it('licença explica copyleft e o que não está incluído', () => {
@@ -54,7 +54,7 @@ describe('páginas', () => {
     const el = document.createElement('main');
     renderTermos(el);
     expect(el.textContent).toMatch(/Não são diploma/);
-    expect(el.querySelector('a[href="#/privacidade"]')).not.toBeNull();
-    expect(el.querySelector('a[href="#/licenca"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/privacidade/"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/licenca/"]')).not.toBeNull();
   });
 });

@@ -19,7 +19,7 @@ describe('novidades', () => {
   });
 
   it('página e rota', () => {
-    expect(lerRota('#/novidades')).toEqual({ tela: 'novidades' });
+    expect(lerRota({ pathname: '/novidades/' })).toEqual({ tela: 'novidades' });
     const el = document.createElement('main');
     renderNovidades(el);
     expect(el.textContent).toContain(`v${VERSAO}`);

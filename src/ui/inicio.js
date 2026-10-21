@@ -3,6 +3,7 @@
 // que desbloqueiam aos 70% e um troféu (certificado) no fim de cada módulo.
 import { modulos, problemas, itens, DIFICULDADES } from '../conteudo/trilha.js';
 import { linkItem } from '../compartilhar.js';
+import { irPara } from '../navegacao.js';
 import { calcularJornada, sequenciaDeDias, LIMITE_DESBLOQUEIO, NIVEIS } from '../gamificacao.js';
 import { CERTIFICADOS, ORDEM, linkCertificado } from '../certificados.js';
 import { svgBadge } from '../badges.js';
@@ -90,7 +91,7 @@ async function abrirCertificado(modulo) {
   const cert = certificadosDaJornada().find((c) => c.id === modulo);
   if (!cert?.liberado) return;
   const nome = lerNome() || await pedirNome({ obrigatorio: true });
-  if (nome) location.hash = linkCertificado({ nome, modulo, data: cert.data, cadeia: cert.cadeia });
+  if (nome) irPara(linkCertificado({ nome, modulo, data: cert.data, cadeia: cert.cadeia }));
 }
 
 // ---------- pedaços da tela ----------
