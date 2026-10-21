@@ -11,27 +11,35 @@
   max-height: 65vh;
   overflow: auto;
   border: 1px solid var(--linha);
-  border-radius: .5rem;
-  background: var(--fundo-mais-escuro);
+  background: #fff;
 }
 .arq-rolagem:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
-.arq-rolagem svg { display: block; max-width: none; font-family: inherit; }
-.arq-cartao { fill: var(--fundo); stroke: var(--suave); stroke-width: 1.5; }
-.arq-fundo-icone { fill: #fff; }
-.arq-servico, .arq-nome, .arq-generico { fill: var(--texto); font-size: 13px; }
-.arq-tipo { fill: var(--suave); font-size: 12px; }
+.arq-rolagem svg { display: block; max-width: none; font-family: Arial, sans-serif; }
+.arq-limite { fill: #fff; stroke: #456aa5; stroke-width: 1.5; }
+.arq-limite-area { fill: #fff; stroke: #858585; stroke-width: 1; }
+.arq-plataforma-nome { fill: #172f51; font-size: 18px; font-weight: 700; }
+.arq-area-nome { fill: #202020; font-size: 14px; font-weight: 700; }
+.arq-numero-fundo { fill: #107c10; }
+.arq-numero { fill: #fff; font-size: 14px; }
+.arq-cartao { fill: #fff; }
+.arq-servico, .arq-nome, .arq-generico { fill: #202020; font-size: 13px; }
+.arq-tipo { fill: #555; font-size: 12px; }
 .arq-servico { font-weight: 700; }
-.arq-generico { font-size: 22px; }
-.arq-ligacao { fill: none; stroke: var(--ciano); stroke-width: 2; }
-.arq-ponta { fill: var(--ciano); }
+.arq-generico { font-size: 32px; }
+.arq-ligacao { fill: none; stroke: #202020; stroke-width: 1.8; }
+.arq-ponta { fill: #202020; }
 .arq-lista { margin: 1rem 0; }
 .arq-lista summary { cursor: pointer; font-weight: 700; padding: .5rem 0; }
 .arq-lista li { margin-block: .4rem; line-height: 1.5; }
 .arq-creditos { color: var(--suave); font-size: .85rem; }
 .arquitetura-recursos a { color: var(--ciano); text-decoration: underline; }
 @media (forced-colors: active) {
-  .arq-cartao { fill: Canvas; stroke: CanvasText; }
-  .arq-servico, .arq-nome, .arq-tipo, .arq-generico { fill: CanvasText; }
+  .arq-rolagem { background: Canvas; }
+  .arq-cartao { fill: Canvas; }
+  .arq-limite, .arq-limite-area { fill: Canvas; stroke: CanvasText; }
+  .arq-servico, .arq-nome, .arq-tipo, .arq-generico, .arq-plataforma-nome, .arq-area-nome { fill: CanvasText; }
+  .arq-numero-fundo { fill: CanvasText; }
+  .arq-numero { fill: Canvas; }
   .arq-ligacao { stroke: CanvasText; }
   .arq-ponta { fill: CanvasText; }
 }

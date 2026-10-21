@@ -112,6 +112,46 @@ describe('arquitetura ilustrativa', () => {
     expect(el.querySelector('.arq-lista').textContent).toContain('a usa b.');
   });
 
+  it('agrupa por plataforma e função com ícones grandes e conectores ortogonais', () => {
+    const el = montar({
+      nos: [
+        no('aws_instance.web'), no('aws_db_instance.db'), no('aws_vpc.rede'),
+        no('azurerm_virtual_network.rede'), no('Pod/web', { kind: 'Pod' }),
+      ],
+      arestas: [
+        { de: 'aws_instance.web', para: 'aws_db_instance.db' },
+        { de: 'aws_instance.web', para: 'aws_vpc.rede' },
+        { de: 'Pod/web', para: 'azurerm_virtual_network.rede' },
+      ],
+    });
+    expect([...el.querySelectorAll('.arq-plataforma-nome')].map((n) => n.textContent))
+      .toEqual(['Amazon Web Services', 'Microsoft Azure', 'Kubernetes']);
+    expect(el.querySelectorAll('.arq-area')).toHaveLength(5);
+    expect([...el.querySelectorAll('.arq-numero')].map((n) => n.textContent))
+      .toEqual(['1', '2', '3', '4', '5']);
+    for (const imagem of el.querySelectorAll('image')) {
+      expect(imagem.getAttribute('width')).toBe('64');
+      expect(imagem.getAttribute('height')).toBe('64');
+    }
+    for (const ligacao of el.querySelectorAll('.arq-ligacao')) {
+      expect(ligacao.getAttribute('d')).toMatch(/^M[\d., -]+ H[\d.]+ V[\d.]+ H[\d.]+$/);
+      expect(ligacao.querySelector('title').textContent).toContain(' usa ');
+    }
+    expect(el.querySelector('.arq-lista').textContent).toContain('Área 3: Amazon Web Services — Dados e volumes');
+    expect(el.textContent).toContain('não são etapas de execução');
+  });
+
+  it('empilha recursos da mesma área sem sobrepor os ícones', () => {
+    const el = montar({
+      nos: [no('aws_instance.a'), no('aws_instance.b'), no('aws_instance.c')],
+      arestas: [{ de: 'aws_instance.a', para: 'aws_instance.c' }],
+    });
+    const transformacoes = [...el.querySelectorAll('image')].map((i) => i.parentElement.getAttribute('transform'));
+    expect(new Set(transformacoes).size).toBe(3);
+    expect(el.querySelectorAll('.arq-area')).toHaveLength(1);
+    expect(el.querySelector('.arq-ligacao').getAttribute('d')).toContain(' V');
+  });
+
   it('oferece termos locais e não carrega assets de terceiros', () => {
     const el = montar({ nos: [no('aws_instance.web')], arestas: [] });
     for (const image of el.querySelectorAll('image')) {

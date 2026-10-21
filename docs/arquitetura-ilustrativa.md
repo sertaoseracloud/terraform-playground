@@ -6,7 +6,13 @@ uma confirmação de que o código passou nos testes.
 
 ## Como ler
 
-- Cada cartão mostra o nome do recurso e o serviço/kind correspondente.
+- O desenho usa fundo branco, áreas retangulares, ícones oficiais grandes,
+  nomes abaixo dos ícones e conexões em ângulo reto, como diagramas de referência
+  de arquitetura cloud. As cores originais dos ícones são preservadas.
+- Recursos são agrupados por plataforma e função: rede/entrada, aplicação,
+  dados, configuração/acesso e demais recursos. Os números identificam as áreas;
+  não são ordem de execução. As caixas não afirmam VPC, namespace, cluster ou
+  fronteiras de segurança reais: são agrupamentos didáticos.
 - Uma seta significa **usa ou referencia**, na direção de quem usa para quem
   é usado. Não significa tráfego de rede ou permissão de acesso.
 - Código vazio recebe orientação inicial; código inválido recebe uma mensagem,
@@ -44,7 +50,7 @@ heurísticas que associem recursos desconhecidos a produtos incorretos.
 Ao acrescentar um ícone, conferir origem/permissão, preservar o SVG, atualizar
 atribuição e adicionar um caso de teste. Recursos genéricos não desaparecem.
 
-Testes cobrem ícones locais, grafo real, relações, ciclos, texto equivalente,
+Testes cobrem ícones locais, grafo real, áreas, conectores ortogonais, ciclos, texto equivalente,
 rótulos escapados e mensagens de erro/vazio. A extração depende dos recursos e
 referências reconhecidos pelo simulador; não substitui uma ferramenta de
 modelagem completa nem uma validação real de conectividade.

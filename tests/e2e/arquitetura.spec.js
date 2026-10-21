@@ -28,16 +28,20 @@ async function editar(page, codigo) {
 }
 
 test('arquitetura acompanha AWS, Azure e erro sem Apply nem assets externos', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1440, height: 2400 });
   await abrir(page, `p/${PRIMEIRO.id}/`);
   await editar(page, AWS);
   await page.locator('[data-saida="arquitetura"]').click();
   const painel = page.locator('#saida-arquitetura');
   await expect(painel.locator('image[href$="aws-vpc.svg"]')).toBeVisible();
   await expect(painel.locator('.arq-lista')).toContainText('aws_subnet.app usa aws_vpc.rede');
+  await expect(painel.locator('.arq-plataforma-nome')).toHaveText('Amazon Web Services');
+  await expect(painel.locator('.arq-area')).toHaveCount(1);
   await painel.screenshot({ path: testInfo.outputPath('arquitetura-aws.png') });
   await editar(page, AZURE);
   await expect(painel.locator('image[href$="azure-vnet.svg"]')).toBeVisible();
   await expect(painel.locator('image[href$="aws-vpc.svg"]')).toHaveCount(0);
+  await expect(painel.locator('.arq-area')).toHaveCount(2);
   await painel.screenshot({ path: testInfo.outputPath('arquitetura-azure.png') });
   for (const imagem of await painel.locator('image').all()) {
     const url = new URL(await imagem.getAttribute('href'), page.url());
