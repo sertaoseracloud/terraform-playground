@@ -53,6 +53,11 @@ export function iconeDoRecurso(no) {
 }
 
 const curto = (texto, limite) => texto.length > limite ? `${texto.slice(0, limite - 1)}…` : texto;
+const linhasDeRede = (no) => (no.detalhes ?? []).map((d) => `${d.rotulo}: ${d.valor}`);
+const alturaDoRecurso = (no) => Math.max(144, 128 + linhasDeRede(no).length * 18);
+const textosDeRede = (no, x, y, limite, centralizado = false) => linhasDeRede(no).map((texto, i) =>
+  `<text class="arq-detalhe" x="${x}" y="${y + i * 18}"${centralizado ? ' text-anchor="middle"' : ''}><title>${esc(texto)}</title>${esc(curto(texto, limite))}</text>`
+).join('');
 
 const AREAS = [
   { nome: 'Rede e entrada', tipos: ['aws_vpc', 'aws_subnet', 'aws_lb', 'aws_elb', 'aws_security_group', 'aws_internet_gateway', 'aws_route_table', 'azurerm_virtual_network', 'azurerm_subnet', 'azurerm_lb', 'azurerm_public_ip', 'azurerm_network_security_group', 'Service', 'Ingress', 'NetworkPolicy'] },
@@ -103,12 +108,13 @@ function organizarAreas(nos, contencoes) {
       recursos: recursos.filter((n) => !filhos.get(n.id).length
         && (AREAS.find((a) => a.tipos.includes(tipoDoRecurso(n))) ?? AREAS.at(-1)) === area),
     })).filter((g) => g.recursos.length);
-    const colunas = grupos.map((g) => ({ ...g, largura: 240, altura: 64 + g.recursos.length * 164 }));
+    const colunas = grupos.map((g) => ({ ...g, largura: 336, altura: 64 + g.recursos.reduce((s, n) => s + alturaDoRecurso(n) + 20, 0) }));
     const caixas = recursos.filter((n) => filhos.get(n.id).length).map((no) => {
       const conteudo = medir(filhos.get(no.id));
-      return { no, conteudo, largura: Math.max(320, conteudo.largura + 48), altura: conteudo.altura + 100 };
+      const cabecalho = 88 + linhasDeRede(no).length * 18;
+      return { no, conteudo, cabecalho, largura: Math.max(384, conteudo.largura + 48), altura: conteudo.altura + cabecalho + 12 };
     });
-    const largura = Math.max(0, colunas.length * 280 - 40, ...caixas.map((c) => c.largura));
+    const largura = Math.max(0, colunas.length * 376 - 40, ...caixas.map((c) => c.largura));
     const topo = colunas.length ? Math.max(...colunas.map((c) => c.altura)) + 32 : 0;
     return { colunas, caixas, largura, altura: topo + caixas.reduce((s, c) => s + c.altura + 32, 0) };
   };
@@ -118,16 +124,21 @@ function organizarAreas(nos, contencoes) {
   const areas = [];
   const posicionar = (conteudo, x, y) => {
     conteudo.colunas.forEach((g, i) => {
-      const gx = x + i * 280;
+      const gx = x + i * 376;
       areas.push({ nome: g.area.nome, indice: AREAS.indexOf(g.area), x: gx, y, largura: g.largura, altura: g.altura - 12 });
-      g.recursos.forEach((n, j) => pos.set(n.id, { x: gx + 24, y: y + 48 + j * 164, largura: 192, altura: 144 }));
+      let ry = y + 48;
+      g.recursos.forEach((n) => {
+        const altura = alturaDoRecurso(n);
+        pos.set(n.id, { x: gx + 24, y: ry, largura: 288, altura });
+        ry += altura + 20;
+      });
     });
     let cy = y + (conteudo.colunas.length ? Math.max(...conteudo.colunas.map((c) => c.altura)) + 32 : 0);
     for (const c of conteudo.caixas) {
       const caixa = { ...c, x, y: cy };
       caixas.push(caixa);
       pos.set(c.no.id, { x: x + 16, y: cy + 12, largura: c.largura - 32, altura: 52 });
-      posicionar(c.conteudo, x + 24, cy + 88);
+      posicionar(c.conteudo, x + 24, cy + c.cabecalho);
       cy += c.altura + 32;
     }
   };
@@ -185,6 +196,7 @@ export function renderArquiteturaRecursos(grafo) {
       ${icone.src ? `<image href="${esc(icone.src)}" x="${c.x + 16}" y="${c.y + 12}" width="32" height="32" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>` : ''}
       <text class="arq-container-nome" x="${c.x + 60}" y="${c.y + 32}">${esc(curto(icone.src ? icone.nome : tipoDoRecurso(c.no), Math.floor((c.largura - 76) / 10)))}</text>
       <text class="arq-nome" x="${c.x + 16}" y="${c.y + 64}">${esc(curto(c.no.rotulo ?? c.no.id, Math.floor(c.largura / 8)))}</text>
+      ${textosDeRede(c.no, c.x + 16, c.y + 84, Math.floor((c.largura - 32) / 7))}
     </g>`;
   }).join('') + areas.map((a) => `<g class="arq-area">
       <rect class="arq-limite-area arq-funcao-${a.indice}" x="${a.x}" y="${a.y}" width="${a.largura}" height="${a.altura}"/>
@@ -203,13 +215,13 @@ export function renderArquiteturaRecursos(grafo) {
     const nome = n.rotulo ?? n.id;
     return `<g class="arq-recurso" data-recurso="${esc(n.id)}" transform="translate(${p.x},${p.y})">
       <title>${esc(nome)} — ${esc(icone.nome)}</title>
-      <rect class="arq-cartao" width="192" height="144"/>
+      <rect class="arq-cartao" width="${p.largura}" height="${p.altura}"/>
       ${icone.src
-        ? `<image href="${esc(icone.src)}" x="64" y="4" width="64" height="64" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>`
-        : '<text x="96" y="50" text-anchor="middle" class="arq-generico" aria-hidden="true">{ }</text>'}
-      <text x="96" y="92" text-anchor="middle" class="arq-servico">${esc(curto(icone.nome, 26))}</text>
-      <text x="96" y="112" text-anchor="middle" class="arq-nome">${esc(curto(nome, 26))}</text>
-      <text x="96" y="132" text-anchor="middle" class="arq-tipo">${icone.src ? 'Ícone oficial' : 'Representação genérica'}</text>
+        ? `<image href="${esc(icone.src)}" x="112" y="4" width="64" height="64" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>`
+        : '<text x="144" y="50" text-anchor="middle" class="arq-generico" aria-hidden="true">{ }</text>'}
+      <text x="144" y="92" text-anchor="middle" class="arq-servico">${esc(curto(icone.nome, 38))}</text>
+      <text x="144" y="112" text-anchor="middle" class="arq-nome">${esc(curto(nome, 38))}</text>
+      ${textosDeRede(n, 144, 132, 40, true)}
     </g>`;
   }).join('');
   return `${introducao}
@@ -217,6 +229,7 @@ export function renderArquiteturaRecursos(grafo) {
       As áreas coloridas agrupam por função; não são etapas de execução nem fronteiras de segurança.
       Recursos sem pertencimento identificado ficam fora das caixas nomeadas, sem presumir acesso público.
       O aninhamento substitui setas para os contêineres; todas as dependências continuam na lista.
+      Redes, máscaras e portas vêm dos campos reconhecidos do código; não comprovam conectividade.
       Explore com a rolagem; nomes completos, pertencimento e relações estão na lista abaixo.</p>
     <div class="arq-rolagem" tabindex="0" role="region" aria-label="Desenho da arquitetura, área com rolagem">
       <svg viewBox="0 0 ${largura} ${altura}" width="${largura}" height="${altura}" role="img"
@@ -227,10 +240,10 @@ export function renderArquiteturaRecursos(grafo) {
     </div>
     <details class="arq-lista" open><summary>Recursos e relações em texto</summary>
       <ul>${[...pais.values()].map((c) => `<li><code>${esc(c.filho)}</code> está em <code>${esc(c.pai)}</code> (${esc(c.motivo)}).</li>`).join('') || '<li>Nenhum pertencimento explícito identificado; agrupamento apenas por função.</li>'}</ul>
-      <ul>${nos.map((n) => `<li><code>${esc(n.rotulo ?? n.id)}</code> — ${esc(iconeDoRecurso(n).nome)}</li>`).join('')}</ul>
+      <ul>${nos.map((n) => `<li><code>${esc(n.rotulo ?? n.id)}</code> — ${esc(iconeDoRecurso(n).nome)}${linhasDeRede(n).length ? `<ul>${linhasDeRede(n).map((texto) => `<li>${esc(texto)}</li>`).join('')}</ul>` : ''}</li>`).join('')}</ul>
       <ul>${ligacoes.map((a) => `<li><code>${esc(a.de)}</code> usa <code>${esc(a.para)}</code>${a.motivo ? ` (${esc(a.motivo)})` : ''}.</li>`).join('') || '<li>Nenhuma relação foi identificada no código. Isso não comprova conectividade entre recursos.</li>'}</ul>
     </details>
     ${avisos.length || avisosLayout.length ? `<div role="note"><p><strong>Referências a conferir</strong></p><ul>${[...avisos, ...avisosLayout].map((a) => `<li>${esc(a)}</li>`).join('')}</ul></div>` : ''}
-    <p class="arq-creditos">Ícones oficiais AWS, Microsoft Azure e Kubernetes usados para documentação.
-      Tipos sem ícone cadastrado usam representação genérica. <a href="${import.meta.env.BASE_URL}icones-arquitetura/ATRIBUICAO.txt" target="_blank" rel="noopener noreferrer">Fontes e termos de uso (abre em nova aba)</a>.</p>`;
+    <p class="arq-creditos">Tipos sem ícone cadastrado usam representação genérica.
+      <a href="${import.meta.env.BASE_URL}licenca/">Licenças e créditos das imagens</a>.</p>`;
 }

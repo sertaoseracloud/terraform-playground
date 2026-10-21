@@ -43,7 +43,28 @@ Azure (VMs, rede virtual, Storage, AKS, SQL, balanceadores e grupos de recursos)
 e recursos Kubernetes. Não inferimos AWS/Azure somente porque um manifesto é
 Kubernetes: um provedor só aparece quando identificado pelo tipo do recurso.
 
-## Fontes e direitos de uso
+## Informações de rede no desenho
+
+O espaço abaixo dos nomes mostra dados de rede do código, não a indicação
+“ícone oficial”. Créditos, procedência e permissões ficam na página **Licença**
+e em `LICENSE-CONTEUDO.md`, mantendo o vínculo para a atribuição completa.
+
+- Terraform: CIDRs literais de VPC, VNet e sub-rede, IP privado, protocolos e
+  portas; também campos de regras `ingress`, `egress` e `security_rule`.
+  Expressões dinâmicas aparecem como “expressão não resolvida”, sem usar valores
+  inventados do simulador. Somente campos de rede permitidos são extraídos;
+  tags, credenciais e outros atributos não entram no desenho.
+- Kubernetes: namespace, IP declarado do Service, portas de serviço/destino/nó
+  e contêiner, host/caminho/porta de Ingress, CIDRs/exceções e portas de
+  NetworkPolicy. Não se lê `status` nem se inventa uma sub-rede para os Pods.
+- CIDR IPv4 válido recebe máscara decimal calculada, incluindo `/0` e `/32`.
+  IPv6 mantém a notação com prefixo, sem produzir máscara IPv4.
+- Máscara e portas são dados informativos: não provam roteamento, exposição
+  pública ou acesso permitido. Campos ausentes não recebem valores presumidos.
+- Cabeçalhos e cartões crescem com os detalhes. Texto longo pode ser abreviado
+  no desenho, mas aparece inteiro no título e na lista textual equivalente.
+
+## Atribuição das imagens
 
 SVGs oficiais hospedados localmente em `public/icones-arquitetura`, sem CDN:
 

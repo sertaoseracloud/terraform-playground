@@ -26,7 +26,7 @@
 .arq-area-nome { fill: #202020; font-size: 14px; font-weight: 700; }
 .arq-cartao { fill: none; }
 .arq-servico, .arq-nome, .arq-generico { fill: #202020; font-size: 13px; }
-.arq-tipo { fill: #555; font-size: 12px; }
+.arq-detalhe { fill: #333; font-size: 12px; }
 .arq-servico { font-weight: 700; }
 .arq-generico { font-size: 32px; }
 .arq-ligacao { fill: none; stroke: #202020; stroke-width: 1.8; }
@@ -40,7 +40,7 @@
   .arq-rolagem { background: Canvas; }
   .arq-cartao { fill: Canvas; }
   .arq-limite, .arq-limite-recurso, .arq-limite-area { fill: Canvas; stroke: CanvasText; }
-  .arq-servico, .arq-nome, .arq-tipo, .arq-generico, .arq-plataforma-nome, .arq-container-nome, .arq-area-nome { fill: CanvasText; }
+  .arq-servico, .arq-nome, .arq-detalhe, .arq-generico, .arq-plataforma-nome, .arq-container-nome, .arq-area-nome { fill: CanvasText; }
   .arq-ligacao { stroke: CanvasText; }
   .arq-ponta { fill: CanvasText; }
 }
