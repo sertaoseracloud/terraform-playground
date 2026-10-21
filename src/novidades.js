@@ -10,6 +10,40 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.13.0',
+    data: '2026-10-20',
+    titulo: 'A vila da trilha ganhou vida',
+    resumo: 'Os cenários da trilha ficaram mais leves e os moradores agora vão a lugares, se cumprimentam, comemoram com você e ensinam definições para revisar.',
+    grupos: [
+      {
+        titulo: '🏘️ Vila viva',
+        itens: [
+          'Os moradores andam até um destino (a porta de casa, perto do seu passo atual, um passo concluído), em vez de andar a esmo.',
+          'Quem se cruza se cumprimenta com 👋 ou conversa com um emoji. Uns sentam perto dos objetos, outros entram e saem de casa. Filhotes e crianças seguem os pais.',
+          'Na cidade à noite, metade dos moradores fica em casa.',
+          'Resolveu um exercício? Na volta para a trilha, a vila comemora e a casa nova aparece crescendo.',
+          'Clique ou toque num personagem para ver a definição de um conceito do curso, para revisar. O balão nunca cobre o ícone de um passo.',
+        ],
+      },
+      {
+        titulo: '♿ Acessibilidade e conforto',
+        itens: [
+          'Cada módulo tem o botão "Conhecer a vila", com todas as definições dos moradores em texto, para o teclado e o leitor de tela.',
+          'O botão "Pausar animação do cenário" para os personagens, e o site lembra a escolha.',
+          'Com "reduzir movimento", alto contraste ou o cenário pausado, nada se move e nenhum balão aparece sozinho.',
+        ],
+      },
+      {
+        titulo: '⚡ Mais leve',
+        itens: [
+          'Com placa de vídeo, o cenário é desenhado com WebGL (PixiJS), carregado só na tela da trilha: a trilha abre mais rápido e usa muito menos memória.',
+          'Sem placa de vídeo, continua o desenho de antes.',
+          'Os personagens param quando a aba fica escondida, quando o módulo sai da tela e quando você sai da trilha.',
+        ],
+      },
+    ],
+  },
+  {
     versao: '1.12.0',
     data: '2026-10-20',
     titulo: 'Mais fácil para quem está começando, e para quem usa leitor de tela',

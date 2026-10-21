@@ -26,7 +26,7 @@ import { VERSAO } from './novidades.js';
 import { VERSAO_TERRAFORM } from './tf/esquema/index.js';
 import { iniciarMenu, iniciarFlutuantes } from './ui/menu.js';
 import { iniciarMaisAcoes } from './ui/mais-acoes.js';
-import { renderInicio, resumoProgresso } from './ui/inicio.js';
+import { renderInicio, resumoProgresso, desligarCenariosDaTrilha } from './ui/inicio.js';
 import { criarTelaItem } from './ui/item.js';
 import { renderCertificado } from './ui/certificado.js';
 import { criarLayout } from './ui/layout.js';
@@ -111,6 +111,7 @@ function marcarMenu(nome) {
 }
 
 function navegar() {
+  desligarCenariosDaTrilha();
   // A landing vem pré-renderizada no HTML; daqui em diante quem mostra/esconde as telas é o JS.
   document.documentElement.classList.remove('rota-interna');
   const rota = lerRota(location.hash);
