@@ -33,8 +33,8 @@ describe('política de privacidade', () => {
     expect(CONTROLADOR.contato).toMatch(/^https:\/\//);
   });
 
-  it('rota #/privacidade', () => {
-    expect(lerRota('#/privacidade')).toEqual({ tela: 'privacidade' });
+  it('rota /privacidade/', () => {
+    expect(lerRota({ pathname: '/privacidade/' })).toEqual({ tela: 'privacidade' });
   });
 });
 

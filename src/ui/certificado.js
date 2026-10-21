@@ -5,6 +5,7 @@ import { CERTIFICADOS, EMISSOR, certificadoXml, decodificarCertificado, linkLink
 import { svgBadge } from '../badges.js';
 import { textoHoras } from '../cargaHoraria.js';
 import { esc, dataPorExtenso } from './util.js';
+import { rota, linkValidar } from '../compartilhar.js';
 
 
 export function renderCertificado(el, codigo, { definirStatus = () => {} } = {}) {
@@ -15,8 +16,8 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
         <div class="aviso-certificado">
           <h1>Certificado não encontrado</h1>
           <p>Este link de certificado não é válido. Confira se ele foi copiado inteiro ou
-            <a href="#/validar">valide pelo código</a>.</p>
-          <p><a href="#/trilha">← Voltar para a trilha</a></p>
+            <a href="${rota('validar')}">valide pelo código</a>.</p>
+          <p><a href="${rota('trilha')}">← Voltar para a trilha</a></p>
         </div>
       </div>`;
     return null;
@@ -43,7 +44,7 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
 
   el.innerHTML = `
     <div class="certificado-pagina">
-      <p class="voltar-trilha"><a href="#/trilha">← Voltar à trilha</a></p>
+      <p class="voltar-trilha"><a href="${rota('trilha')}">← Voltar à trilha</a></p>
       ${avisoSelo}
 
       <!-- Página do badge, no estilo da Credly -->
@@ -81,7 +82,7 @@ export function renderCertificado(el, codigo, { definirStatus = () => {} } = {})
             <button type="button" class="btn btn-fantasma" id="btn-copiar-certificado">🔗 Copiar link</button>
             <button type="button" class="btn btn-fantasma" id="btn-copiar-texto">📝 Copiar texto do post</button>
             <button type="button" class="btn btn-fantasma" id="btn-imprimir">🖨️ Imprimir / PDF</button>
-            <a class="btn btn-fantasma" href="#/validar/${esc(codigo)}">🔎 Validar</a>
+            <a class="btn btn-fantasma" href="${linkValidar(esc(codigo))}">🔎 Validar</a>
             <button type="button" class="btn btn-fantasma" id="btn-xml" title="Arquivo para conferir o certificado em outros sistemas">📄 Baixar XML</button>
           </div>
         </div>

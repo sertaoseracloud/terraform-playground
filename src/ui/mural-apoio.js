@@ -1,6 +1,7 @@
 import { ativarCopiaPix, ativarLinkEstrela, caixaApoio } from './instrutor.js';
 import { lerPreferencia, gravarPreferencia } from '../progresso.js';
 import { $ } from './util.js';
+import { lerRota } from '../compartilhar.js';
 
 /** Hoje, no fuso de quem usa (AAAA-MM-DD). */
 const hoje = () => new Date().toLocaleDateString('sv');
@@ -8,10 +9,10 @@ const hoje = () => new Date().toLocaleDateString('sv');
 /**
  * O mural abre sozinho no máximo uma vez por dia, e só na página inicial ou na trilha: nunca por
  * cima de um exercício, de um certificado ou do validador abertos por link. O apoio continua à
- * mão no rodapé e em #/apoie.
+ * mão no rodapé e em /apoie/.
  */
-export function deveAbrirMural({ hash = location.hash, vistoEm = lerPreferencia('mural-apoio-visto-em'), dia = hoje() } = {}) {
-  return vistoEm !== dia && /^(#\/?|#\/trilha)?$/.test(hash);
+export function deveAbrirMural({ tela = lerRota(location).tela, vistoEm = lerPreferencia('mural-apoio-visto-em'), dia = hoje() } = {}) {
+  return vistoEm !== dia && ['landing', 'inicio'].includes(tela);
 }
 
 export function iniciarMuralApoio() {

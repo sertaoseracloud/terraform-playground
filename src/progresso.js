@@ -2,22 +2,26 @@
 // do playground livre. Cada acesso é protegido: sem localStorage (aba anônima,
 // bloqueio), o site continua funcionando, só não lembra.
 import { PREFIXO_ARMAZENAMENTO as PREFIXO } from './ambiente.js';
+import { notificarFalhaArmazenamento } from './armazenamento.js';
 
 function ler(chave, padrao = null) {
   try {
     const valor = localStorage.getItem(PREFIXO + chave);
     return valor === null ? padrao : JSON.parse(valor);
   } catch {
+    notificarFalhaArmazenamento();
     return padrao;
   }
 }
 
 function gravar(chave, valor) {
-  try { localStorage.setItem(PREFIXO + chave, JSON.stringify(valor)); } catch { /* sem armazenamento */ }
+  try { localStorage.setItem(PREFIXO + chave, JSON.stringify(valor)); return true; }
+  catch { notificarFalhaArmazenamento(); return false; }
 }
 
 function remover(chave) {
-  try { localStorage.removeItem(PREFIXO + chave); } catch { /* sem armazenamento */ }
+  try { localStorage.removeItem(PREFIXO + chave); return true; }
+  catch { notificarFalhaArmazenamento(); return false; }
 }
 
 // ---------- progresso: 'resolvido' | 'tentado' ----------

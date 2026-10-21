@@ -2,6 +2,7 @@
 // o resto abre neste menu, sempre com texto. Padrão "disclosure" (botão com aria-expanded):
 // Tab passa pelos itens, Esc fecha e devolve o foco ao botão, escolher um item ou clicar fora fecha.
 import { $ } from './util.js';
+import { EVENTO_ROTA } from '../compartilhar.js';
 
 export function iniciarMaisAcoes() {
   const botao = $('btn-mais-acoes');
@@ -38,6 +39,6 @@ export function iniciarMaisAcoes() {
   menu.parentElement.addEventListener('focusout', (e) => {
     if (aberto() && !menu.parentElement.contains(e.relatedTarget)) abrir(false);
   });
-  window.addEventListener('hashchange', () => abrir(false));
+  window.addEventListener(EVENTO_ROTA, () => abrir(false));
   return { abrir };
 }

@@ -3,15 +3,16 @@ import { problemas } from '../../src/conteudo/trilha.js';
 
 export const PRIMEIRO = problemas[0];
 export const TEMAS = ['dracula', 'claro', 'suave', 'alto-contraste'];
-export const TELAS = ['#/', '#/trilha', `#/p/${PRIMEIRO.id}`];
+export const TELAS = ['', 'trilha/', `p/${PRIMEIRO.id}/`];
 
 /**
- * Abre `hash` com o localStorage zerado. Por padrão, tutorial, privacidade e o mural de apoio do
+ * Abre `caminho` (relativo ao endereço do site: '', 'trilha/', 'p/<id>/'; um link antigo '#/...'
+ * também vale) com o localStorage zerado. Por padrão, tutorial, privacidade e o mural de apoio do
  * dia já foram vistos; com `muralApoio`, o mural abre (na landing e na trilha). `extras` grava
  * outras chaves (sem o prefixo).
  */
-export async function abrir(page, hash, { tutorial = false, privacidade = true, extras = {}, muralApoio = false } = {}) {
-  await page.goto('/');
+export async function abrir(page, caminho, { tutorial = false, privacidade = true, extras = {}, muralApoio = false } = {}) {
+  await page.goto('./');
   await page.evaluate(({ tutorial, privacidade, extras, muralApoio }) => {
     localStorage.clear();
     const gravar = (chave, valor) => localStorage.setItem(`terraform-playground:${chave}`, JSON.stringify(valor));
@@ -20,7 +21,7 @@ export async function abrir(page, hash, { tutorial = false, privacidade = true, 
     if (!muralApoio) gravar('pref:mural-apoio-visto-em', new Date().toLocaleDateString('sv'));
     for (const [chave, valor] of Object.entries(extras)) gravar(chave, valor);
   }, { tutorial, privacidade, extras, muralApoio });
-  await page.goto(`/${hash}`);
+  await page.goto(caminho || './');
   await page.reload();
   if (!muralApoio) {
     await page.locator('#flutuantes').evaluate(async (element) => {

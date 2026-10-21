@@ -4,13 +4,12 @@ import { INSTRUTOR } from '../instrutor.js';
 import { PIX, apoioDisponivel, codigoPix, svgQrCode } from '../apoio.js';
 import { REPOSITORIO } from '../licenca.js';
 import { esc } from './util.js';
+import { rota, BASE } from '../compartilhar.js';
 
 const linkExterno = (l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.rotulo)} ↗</a>`;
 
-// A foto fica em public/ (servida junto com o site, sem depender de outro domínio). O
-// caminho é relativo: o site sempre roda na página base (as telas são rotas #/...),
-// inclusive na landing pré-renderizada.
-const avatar = () => `<span class="avatar-instrutor"><img src="${INSTRUTOR.foto}" alt="Foto de ${esc(INSTRUTOR.nome)}" width="88" height="88" loading="lazy"></span>`;
+// A foto fica em public/ (servida junto com o site, sem depender de outro domínio).
+const avatar = () => `<span class="avatar-instrutor"><img src="${BASE}${INSTRUTOR.foto}" alt="Foto de ${esc(INSTRUTOR.nome)}" width="88" height="88" loading="lazy"></span>`;
 
 const selos = () => `
   <ul class="selos-instrutor" aria-label="Reconhecimentos">
@@ -30,8 +29,8 @@ export function secaoInstrutor() {
           <p>${esc(INSTRUTOR.resumo[0])}</p>
           ${selos()}
           <p class="acoes-instrutor">
-            <a class="btn btn-roxo" href="#/instrutor">Conheça o instrutor</a>
-            <a class="btn btn-fantasma" href="#/apoie">☕ Apoie o projeto</a>
+            <a class="btn btn-roxo" href="${rota('instrutor')}">Conheça o instrutor</a>
+            <a class="btn btn-fantasma" href="${rota('apoie')}">☕ Apoie o projeto</a>
           </p>
         </div>
       </div>
@@ -112,7 +111,7 @@ export function renderInstrutor(el, { ancora } = {}) {
   const i = INSTRUTOR;
   el.innerHTML = `
     <article class="pagina-texto pagina-instrutor">
-      <p class="voltar-trilha"><a href="#/">← Página inicial</a></p>
+      <p class="voltar-trilha"><a href="${rota()}">← Página inicial</a></p>
       <header class="cabecalho-instrutor">
         ${avatar()}
         <div>

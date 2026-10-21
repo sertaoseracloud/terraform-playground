@@ -1,6 +1,7 @@
 // Menu ☰ do cabeçalho no celular: abre um painel com a navegação (Trilha, Playground livre).
 // Fecha ao escolher uma opção, ao tocar fora, com Esc e ao mudar de página.
 import { $ } from './util.js';
+import { EVENTO_ROTA } from '../compartilhar.js';
 
 /**
  * Botões flutuantes: recolhem quando a pessoa rola a página para baixo (lendo) e
@@ -22,7 +23,7 @@ export function iniciarFlutuantes() {
     if (Math.abs(agora - antes) < 6) return;
     grupo.classList.toggle('recolhidos', agora > antes && agora > 80 && !noFim);
   }, { capture: true, passive: true });
-  window.addEventListener('hashchange', () => grupo.classList.remove('recolhidos'));
+  window.addEventListener(EVENTO_ROTA, () => grupo.classList.remove('recolhidos'));
   grupo.addEventListener('focusin', () => grupo.classList.remove('recolhidos'));
 
   // No celular, os três ficam atrás do ⚙️ para não cobrir o editor; no desktop, sempre à mostra.
@@ -46,7 +47,7 @@ export function iniciarFlutuantes() {
       botao.focus();
     }
   });
-  window.addEventListener('hashchange', () => abrir(false));
+  window.addEventListener(EVENTO_ROTA, () => abrir(false));
   // No celular, o ❓ e o ♿ somem atrás do ⚙️ quando abrem a janela: ao fechar, o foco volta
   // para o ⚙️ (o navegador tentaria devolvê-lo ao botão escondido e ele se perderia na página).
   let abriuDaqui = false;
@@ -89,7 +90,7 @@ export function iniciarMenu() {
       botao.focus();
     }
   });
-  window.addEventListener('hashchange', () => abrir(false));
+  window.addEventListener(EVENTO_ROTA, () => abrir(false));
   // Voltando para a largura de desktop, o painel não pode ficar "preso" aberto.
   window.matchMedia?.('(min-width: 761px)').addEventListener?.('change', (e) => e.matches && abrir(false));
 }

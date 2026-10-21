@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { abrir, medirEstouro, PRIMEIRO, TEMAS } from './apoio.js';
 
-const EXERCICIO = `#/p/${PRIMEIRO.id}`;
+const EXERCICIO = `p/${PRIMEIRO.id}/`;
 const primeiraVisita = { tutorial: true, privacidade: false };
 
 const seCruzam = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;

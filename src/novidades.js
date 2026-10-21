@@ -1,5 +1,5 @@
-// Versão do site e resumo das alterações de cada release (página #/novidades e CHANGELOG.md).
-// A versão vem do package.json (injetada pelo Vite); o histórico completo vem do git
+// Versão do site e resumo das alterações de cada release (página /novidades/ e CHANGELOG.md).
+// A versão vem do package.json (injetada no build, astro.config.mjs); o histórico completo vem do git
 // (scripts/plugin-historico.mjs).
 import historico from 'virtual:historico';
 
@@ -9,6 +9,54 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
+  {
+    versao: '1.14.2',
+    data: '2026-10-21',
+    titulo: 'Do código ao desenho da arquitetura',
+    resumo: 'Uma nova aba mostra seus recursos em áreas agrupadas, com ícones oficiais e conexões. O editor também protege melhor seus rascunhos.',
+    grupos: [
+      { titulo: 'Arquitetura', itens: ['Ícones AWS e Azure em destaque, nomes abaixo e setas em ângulo reto. A lista em texto explica as mesmas relações.', 'Redes, sub-redes e grupos de recursos aparecem como caixas aninhadas quando o código declara o pertencimento.', 'O desenho acompanha o código atual: não executa Apply nem representa uma nuvem real.'] },
+      { titulo: 'Editor', itens: ['Trocas rápidas e restauração não misturam rascunhos; problemas ao guardar dados são avisados.', 'Arquivos auxiliares têm modo e identificação próprios. Ao editar, resultados antigos são marcados como desatualizados.'] },
+    ],
+  },
+  {
+    versao: '1.14.1',
+    data: '2026-10-21',
+    titulo: 'Testes mais estáveis',
+    resumo: 'O limite mínimo de cobertura dos testes ganhou uma pequena folga, para a publicação não parar por uma variação de décimos.',
+    grupos: [
+      { titulo: 'Manutenção', itens: ['A cobertura dos testes varia uns décimos entre uma execução e outra; os limites mínimos ficaram um ponto abaixo da medida, ainda acima dos de antes da migração.'] },
+    ],
+  },
+  {
+    versao: '1.14.0',
+    data: '2026-10-21',
+    titulo: 'Cada lição tem o seu endereço',
+    resumo: 'Lições, exercícios e páginas do site ganharam endereços de verdade, que os buscadores encontram. A tela, os botões e a acessibilidade continuam iguais.',
+    grupos: [
+      {
+        titulo: '🔗 Endereços novos',
+        itens: [
+          'Cada lição e cada exercício tem um endereço próprio, como /p/tf-ola-arquivo/, no lugar do antigo com #/.',
+          'Os links antigos continuam funcionando: quem abrir um link com #/ (inclusive os dos certificados e do LinkedIn) chega à mesma tela, já no endereço novo.',
+          'Dá para abrir uma lição em outra aba, recarregar ou voltar com o botão do navegador, e a tela continua a mesma.',
+        ],
+      },
+      {
+        titulo: '🔎 Mais fácil de achar',
+        itens: [
+          'O Google passa a ver cada lição e exercício como uma página, com título e descrição próprios.',
+          'O mapa do site agora lista todas as lições e exercícios.',
+        ],
+      },
+      {
+        titulo: '♿ Nada muda para quem usa',
+        itens: [
+          'A aparência, o teclado, o leitor de tela, os temas, o progresso e os certificados são os mesmos de antes.',
+        ],
+      },
+    ],
+  },
   {
     versao: '1.13.0',
     data: '2026-10-20',

@@ -1,0 +1,46 @@
+.arquitetura-recursos {
+  padding: 1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--texto);
+}
+.arquitetura-recursos h2 { font-size: 1.15rem; margin: 0 0 .75rem; }
+.arquitetura-recursos p { line-height: 1.6; margin: .75rem 0; }
+.arq-rolagem {
+  width: 100%;
+  max-height: 65vh;
+  overflow: auto;
+  border: 1px solid var(--linha);
+  background: #fff;
+}
+.arq-rolagem:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+.arq-rolagem svg { display: block; max-width: none; font-family: Arial, sans-serif; }
+.arq-limite { fill: #fff; stroke: #456aa5; stroke-width: 1.5; }
+.arq-limite-area { fill: #fff; stroke: #858585; stroke-width: 1; }
+.arq-limite-recurso { fill: #dceff4; stroke: #405c69; stroke-width: 1.5; }
+.arq-funcao-0 { fill: #f3f8fc; }
+.arq-funcao-1 { fill: #edf2dc; }
+.arq-funcao-2 { fill: #fff6e6; }
+.arq-funcao-3 { fill: #f0eafb; }
+.arq-plataforma-nome, .arq-container-nome { fill: #172f51; font-size: 18px; font-weight: 700; }
+.arq-area-nome { fill: #202020; font-size: 14px; font-weight: 700; }
+.arq-cartao { fill: none; }
+.arq-servico, .arq-nome, .arq-generico { fill: #202020; font-size: 13px; }
+.arq-tipo { fill: #555; font-size: 12px; }
+.arq-servico { font-weight: 700; }
+.arq-generico { font-size: 32px; }
+.arq-ligacao { fill: none; stroke: #202020; stroke-width: 1.8; }
+.arq-ponta { fill: #202020; }
+.arq-lista { margin: 1rem 0; }
+.arq-lista summary { cursor: pointer; font-weight: 700; padding: .5rem 0; }
+.arq-lista li { margin-block: .4rem; line-height: 1.5; }
+.arq-creditos { color: var(--suave); font-size: .85rem; }
+.arquitetura-recursos a { color: var(--ciano); text-decoration: underline; }
+@media (forced-colors: active) {
+  .arq-rolagem { background: Canvas; }
+  .arq-cartao { fill: Canvas; }
+  .arq-limite, .arq-limite-recurso, .arq-limite-area { fill: Canvas; stroke: CanvasText; }
+  .arq-servico, .arq-nome, .arq-tipo, .arq-generico, .arq-plataforma-nome, .arq-container-nome, .arq-area-nome { fill: CanvasText; }
+  .arq-ligacao { stroke: CanvasText; }
+  .arq-ponta { fill: CanvasText; }
+}

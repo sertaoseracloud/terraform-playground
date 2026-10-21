@@ -5,7 +5,7 @@
 // (terraform.tfstate simulado) fica salvo por exercício e workspace.
 import { minutosDoItem } from '../cargaHoraria.js';
 import { buscarItem, modulos, vizinhos, DIFICULDADES } from '../conteudo/trilha.js';
-import { linkItem, linkCompartilhado } from '../compartilhar.js';
+import { linkItem, linkCompartilhado, rota } from '../compartilhar.js';
 import { corrigir } from '../corrigir.js';
 import { linhaDoComando, comoTfstate, formatarValor } from '../tf/saida.js';
 import { rodarComando, precisaDeInit, completarComando } from '../tf/comandos.js';
@@ -27,6 +27,10 @@ import { LIMITE_DESBLOQUEIO } from '../gamificacao.js';
 import { $, esc } from './util.js';
 import { anunciar, falaDosTestes, leitorDeTela, frase } from './anuncios.js';
 import { solucaoLiberada, minutosQueFaltam, criarCronometro } from './solucao.js';
+import { criarGravadorRascunho } from '../rascunho.js';
+import { iniciarAvisoArmazenamento } from './aviso-armazenamento.js';
+import { executarTerraform } from '../tf/motor.js';
+import { renderArquiteturaRecursos } from './arquitetura-recursos.js';
 
 const semPressao = () => document.documentElement.classList.contains('a11y-sem-pressao');
 const esperar = () => new Promise((r) => setTimeout(r, 0));
@@ -78,16 +82,24 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   });
   el.pular.onclick = () => terminal.pular();
 
-  let salvarTimer;
+  iniciarAvisoArmazenamento($('editor'));
+  const rascunhos = criarGravadorRascunho(gravarRascunho);
+  window.addEventListener('pagehide', () => rascunhos.descarregar());
+  window.addEventListener('hashchange', () => rascunhos.descarregar());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') rascunhos.descarregar();
+  });
   const editor = new EditorArquivos({
     abas: $('abas-arquivos'),
     editor: $('editor'),
     aoExecutar: () => executarPeloAluno(),
     aoEnviar: () => enviar(),
     aoMudar: (arquivos) => {
-      clearTimeout(salvarTimer);
-      const id = estado.item.id;
-      salvarTimer = setTimeout(() => gravarRascunho(id, arquivos), 300);
+      if (!estado.item) return;
+      rascunhos.agendar(estado.item.id, arquivos);
+      definirStatus('Código alterado — execute novamente');
+      if (ehProblema()) renderTestesPendentes();
+      atualizarArquitetura();
     },
   });
 
@@ -137,7 +149,17 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     aoMudar: () => atualizarSolucao({ avisar: true }),
   });
 
-  const saidas = { terminal: el.janelaTerminal, grafo: el.grafo, estado: el.estado, saidas: el.saidas };
+  const saidas = { terminal: el.janelaTerminal, grafo: el.grafo, estado: el.estado, saidas: el.saidas, arquitetura: $('saida-arquitetura') };
+  function atualizarArquitetura() {
+    const painel = saidas.arquitetura;
+    if (!painel || painel.hidden || !estado.item) return;
+    const resultado = executarTerraform(editor.arquivos, { comando: 'plan', workspace: el.workspace.value, semente: estado.item.id });
+    painel.innerHTML = renderArquiteturaRecursos(resultado.ok ? resultado.grafo : {
+      erro: resultado.diagnosticos.filter((d) => d.gravidade === 'erro')
+        .map((d) => [d.arquivo && `${d.arquivo}:${d.linha ?? 1}`, d.resumo, d.detalhe].filter(Boolean).join(' — '))
+        .join('\n') || 'Não foi possível interpretar o HCL atual.',
+    });
+  }
   function mostrarSaida(nome) {
     for (const [chave, painel] of Object.entries(saidas)) painel.hidden = chave !== nome;
     document.querySelectorAll('[data-saida]').forEach((b) => {
@@ -145,6 +167,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
       b.setAttribute('aria-selected', String(b.dataset.saida === nome));
     });
     if (nome === 'grafo' && estado.ultimo) desenharGrafo(el.grafo, estado.ultimo);
+    if (nome === 'arquitetura') atualizarArquitetura();
   }
   document.querySelectorAll('[data-saida]').forEach((b) => { b.onclick = () => mostrarSaida(b.dataset.saida); });
 
@@ -188,7 +211,9 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     aplicarChecklist(el.enunciado, item.id);
     $('btn-referencia')?.addEventListener('click', () => {
       if (!confirm('Trocar o seu código pelo código de referência desta etapa?')) return;
+      rascunhos.cancelar(item.id);
       editor.carregar(item.arquivos);
+      atualizarArquitetura();
       gravarRascunho(item.id, item.arquivos);
       estado.origem = 'referencia';
       renderDescricao();
@@ -271,7 +296,9 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
         <button class="btn btn-roxo" id="btn-usar-solucao">Copiar para o editor</button>`;
       $('btn-usar-solucao').onclick = () => {
         if (!confirm('Substituir o seu código pela solução?')) return;
+        rascunhos.cancelar(item.id);
         editor.carregar(item.solucao);
+        atualizarArquitetura();
         gravarRascunho(item.id, item.solucao);
         executar();
       };
@@ -308,6 +335,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   function abrir(id, arquivosCompartilhados) {
     const item = buscarItem(id);
     if (!item) return false;
+    rascunhos.descarregar();
     estado.item = item;
     estado.origem = null;
     estado.ultimo = null;
@@ -359,7 +387,9 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
       arquivos: () => ({ ...editor.arquivos }),
       trocarArquivos: (novos) => {
         if (!vivo()) return;
+        rascunhos.cancelar(id);
         editor.carregar(novos);
+        atualizarArquitetura();
         gravarRascunho(id, novos);
       },
       estado: () => lerEstado(chave()) ?? null,
@@ -768,7 +798,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
         el.testes.insertAdjacentHTML('afterbegin', `
           <div class="comemoracao">🏆 Você concluiu o módulo <b>${esc(modulo.titulo)}</b>!
             ${aviso}
-            <a class="btn btn-roxo btn-pequeno" href="#/trilha">Ver no caminho</a></div>`);
+            <a class="btn btn-roxo btn-pequeno" href="${rota('trilha')}">Ver no caminho</a></div>`);
       }
       definirStatus(aprovado ? 'Aceito! 🎉' : semPressao() ? 'Ainda não passou: veja o que falta' : 'Resposta errada', {
         falar: `${falarTestes(resultado, true)} ${conquista}`.trim(),
@@ -797,8 +827,10 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
 
   el.restaurar.onclick = () => {
     if (!confirm('Voltar ao código original? Suas alterações serão perdidas.')) return;
+    rascunhos.cancelar(estado.item.id);
     apagarRascunho(estado.item.id);
     editor.carregar(estado.item.arquivos);
+    atualizarArquitetura();
     executar();
   };
 
@@ -810,7 +842,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   };
 
   el.compartilhar.onclick = async () => {
-    const link = `${location.origin}${location.pathname}${linkCompartilhado({ item: estado.item.id, arquivos: editor.arquivos })}`;
+    const link = `${location.origin}${linkCompartilhado({ item: estado.item.id, arquivos: editor.arquivos })}`;
     try {
       await navigator.clipboard.writeText(link);
       definirStatus('🔗 Link copiado!');
@@ -826,7 +858,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
     abrir,
     redesenharDescricao: () => estado.item && renderDescricao(),
     /** Saiu da tela do exercício: a animação do terminal termina na hora. */
-    sair: () => terminal.pular(),
+    sair: () => { rascunhos.descarregar(); terminal.pular(); },
     terminal,
   };
 }

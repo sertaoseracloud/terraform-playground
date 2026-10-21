@@ -6,7 +6,7 @@ import { abrir, TELAS, TEMAS } from './apoio.js';
 for (const tela of TELAS) {
   for (const tema of TEMAS) {
     test(`axe: ${tela} no tema ${tema}`, async ({ page }) => {
-      test.slow(tela === '#/trilha'); // 200 nós e o cenário: o axe demora no Firefox e no WebKit
+      test.slow(tela === 'trilha/'); // 200 nós e o cenário: o axe demora no Firefox e no WebKit
       await abrir(page, tela);
       await page.evaluate((t) => { document.documentElement.dataset.tema = t; }, tema);
       await page.waitForTimeout(300); // as transições de cor terminam

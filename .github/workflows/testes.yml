@@ -24,6 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint -- --max-warnings 0
+      - name: Checagem das páginas do Astro (astro check)
+        run: npm run check
       - name: Arquivos comuns aos quatro playgrounds (veja comuns.json)
         run: npm run comuns
       - name: Testes com cobertura (o limite está no vitest.config.js)

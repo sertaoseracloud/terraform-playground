@@ -2,6 +2,7 @@
 // histórico completo de alterações, agrupado por dia.
 import { VERSAO, RELEASES, HISTORICO, REPOSITORIO } from '../novidades.js';
 import { esc, dataPorExtenso } from './util.js';
+import { rota } from '../compartilhar.js';
 
 
 /** Histórico agrupado por dia, do mais recente para o mais antigo. */
@@ -18,7 +19,7 @@ export function renderNovidades(el) {
   const dias = historicoPorDia();
   el.innerHTML = `
     <article class="pagina-texto novidades">
-      <p class="voltar-trilha"><a href="#/">← Página inicial</a></p>
+      <p class="voltar-trilha"><a href="${rota()}">← Página inicial</a></p>
       <h1>🆕 Novidades</h1>
       <p class="versao-atual">Versão atual: <b>${esc(VERSAO)}</b></p>
 

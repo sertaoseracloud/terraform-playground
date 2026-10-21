@@ -7,13 +7,24 @@ O site é estático e fica no GitHub Pages.
 
 **Acesse:** https://sertaoseracloud.github.io/terraform-playground/
 
-**Acessível para todas as pessoas.** O nome vem de *neurodivergente*: a plataforma foi feita para pessoas cegas (o leitor de tela fala o resultado de cada teste), surdas e mudas (nada depende de som ou de voz, com tradução para Libras pelo VLibras) e neurodivergentes (perfis para TDAH, dislexia, autismo e ansiedade). A meta é a WCAG 2.2 nível AA, conferida com o axe-core a cada versão. Detalhes na página **Acessibilidade** do site (`#/acessibilidade`).
+**Acessível para todas as pessoas.** O nome vem de *neurodivergente*: a plataforma foi feita para pessoas cegas (o leitor de tela fala o resultado de cada teste), surdas e mudas (nada depende de som ou de voz, com tradução para Libras pelo VLibras) e neurodivergentes (perfis para TDAH, dislexia, autismo e ansiedade). A meta é a WCAG 2.2 nível AA, conferida com o axe-core a cada versão. Detalhes na página **Acessibilidade** do site (`/acessibilidade/`).
 
 ## O que tem
 
-- **Landing page** (`#/`): apresenta o projeto, a trilha, os certificados e os recursos de
+### Edição e rascunhos
+
+As alterações pendentes são gravadas antes de trocar de exercício ou sair da página.
+Restaurar o código original ou usar uma solução descarta a gravação anterior, sem
+ressuscitar o rascunho descartado. Se o navegador bloquear o armazenamento ou a
+quota acabar, um aviso permanece junto ao editor: copie seus arquivos antes de sair.
+O arquivo ativo aparece no rótulo acessível; `.tf` e `.tfvars` usam HCL e os
+arquivos auxiliares usam texto simples, sem cores HCL enganosas. Excluir uma aba
+devolve o foco ao editor. Alterar o código invalida o placar atual, mas não revoga
+exercícios já resolvidos nem certificados.
+
+- **Landing page** (`/`): apresenta o projeto, a trilha, os certificados e os recursos de
   acessibilidade. Os números (exercícios, módulos, projetos) vêm do próprio conteúdo. A trilha fica
-  em `#/trilha`, e quem já começou vê "▶ Continuar" no topo.
+  em `/trilha/`, e quem já começou vê "▶ Continuar" no topo.
 - **200 exercícios** com dificuldade Fácil/Médio/Difícil, mais **lições** de conceito no começo de cada assunto:
   1. **Terraform básico** (50): blocos e HCL, providers, recursos, variáveis, `tfvars`, validação,
      outputs, `locals`, funções, expressões `for`, `count`, `for_each`, blocos `dynamic`,
@@ -41,10 +52,10 @@ O site é estático e fica no GitHub Pages.
 
 - **Como no LeetCode**: **▶ Plan** roda os casos visíveis; **⬆ Enviar** roda todos, inclusive os
   **casos ocultos** (outras variáveis, outro workspace, apply). Resposta fixa no código não passa.
-- **👨‍🏫 Quem é o instrutor?** (`#/instrutor` e seção na landing): perfil de Cláudio Filipe Lima Rapôso
+- **👨‍🏫 Quem é o instrutor?** (`/instrutor/` e seção na landing): perfil de Cláudio Filipe Lima Rapôso
   (atuação, reconhecimentos, certificações e formação), com a foto servida pelo próprio site
   (`public/instrutor.webp`). Os dados ficam em `src/instrutor.js`, sem telefone nem endereço.
-- **☕ Apoie o projeto** (`#/apoie`): PIX de qualquer valor para a conta PicPay do instrutor, por **QR Code**
+- **☕ Apoie o projeto** (`/apoie/`): PIX de qualquer valor para a conta PicPay do instrutor, por **QR Code**
   ou **copia e cola** (com botão de copiar). O código segue o BR Code do Banco Central (campos EMV e
   CRC16) e é montado no navegador por `src/apoio.js`; o QR Code sai da biblioteca `qrcode-generator` (MIT).
   A chave fica em `PIX.chave`: sem ela, o apoio aparece como "em breve".
@@ -80,7 +91,7 @@ O site é estático e fica no GitHub Pages.
   workspace; **Limpar estado** recomeça do zero.
 - **Aba 📘 Docs**: argumentos (obrigatórios, opcionais, que forçam recriação, sensíveis) e atributos
   de cada tipo de recurso usado no código.
-- **Playground livre** (`#/livre`) com vários arquivos e pastas de módulos.
+- **Playground livre** (`/livre/`) com vários arquivos e pastas de módulos.
 - **♿ Acessibilidade**: temas Dracula, Alto contraste, Claro e Suave; tamanho do texto (87,5% a 175%,
   editor incluído); fonte Atkinson Hyperlegible; mais espaçamento; links sublinhados e foco reforçado;
   reduzir animações; **🔊 Ouvir** o enunciado; atalhos de teclado; "Pular para o conteúdo";
@@ -95,7 +106,7 @@ O site é estático e fica no GitHub Pages.
 
 ### Trilha gamificada e certificados
 
-- A trilha (`#/trilha`) é um **caminho** em zigue-zague. Lição vale 5 XP, fácil 10, médio 20 e difícil 40.
+- A trilha (`/trilha/`) é um **caminho** em zigue-zague. Lição vale 5 XP, fácil 10, médio 20 e difícil 40.
   O aluno sobe de **nível** (Iniciante → Mestre do Terraform) e ganha uma **sequência de dias** 🔥.
 - O próximo módulo **desbloqueia quando o atual chega a 70%**.
 - Ao concluir 100% de um módulo, o 🏆 libera o **certificado do módulo**; com todos, o 🎓 libera o
@@ -110,7 +121,7 @@ O site é estático e fica no GitHub Pages.
 - **Selo de verificação** (HMAC-SHA256) e **cadeia de certificados** Terraform → AWS → Azure →
   Projetos → Final: cada certificado inclui no selo o hash do anterior, então mudar uma data ou um
   nome em qualquer ponto quebra os seguintes.
-- **🔎 Validador** (`#/validar`): três abas (link ou código, impresso/PDF e arquivo XML). Quem abre um
+- **🔎 Validador** (`/validar/`): três abas (link ou código, impresso/PDF e arquivo XML). Quem abre um
   link de validação vê o resultado primeiro, com o badge, os dados e a cadeia como linha do tempo.
   As cores separam "válido" (verde), "alterado" (vermelho), "não consegui ler / faltam dados" (âmbar)
   e "link antigo" (ciano), e mudar o texto apaga o resultado anterior.
@@ -132,7 +143,8 @@ O site é estático e fica no GitHub Pages.
 - **📄 XML do certificado** e **✍️ assinatura Ed25519** com a chave pública em `chave-publica-ed25519.txt`.
 - **A palavra secreta nunca entra no código nem no site.** Ela fica no secret
   `CERTIFICADO_SEGREDO` do GitHub Actions; o build injeta só um valor derivado dela
-  (`vite.config.js`) e falha se o secret não existir. Para gerar o build localmente:
+  (`astro.config.mjs`) e falha se o secret não existir; depois do build, `scripts/conferir-segredo.mjs`
+  procura a palavra em todos os arquivos publicados. Para gerar o build localmente:
   `CERTIFICADO_SEGREDO='...' npm run build`. Trocar a palavra invalida os selos já emitidos.
 - **Limite:** sem servidor, a chave derivada vai no JavaScript do site. O selo pega alterações no
   link, mas quem estudar o código publicado consegue gerar selos.
@@ -143,7 +155,7 @@ depois de mudar um deles, rode `npm run badges` e faça commit de `public/`.
 
 ### Privacidade, cookies e LGPD
 
-A página **🔒 Privacidade** (`#/privacidade`) explica como os dados são tratados:
+A página **🔒 Privacidade** (`/privacidade/`) explica como os dados são tratados:
 
 - **Sem cookies e sem rastreamento**: não há analytics, anúncios nem servidor próprio.
 - **Dados só no navegador** (`localStorage`, prefixo `terraform-playground:`): progresso, datas, dias
@@ -153,6 +165,25 @@ A página **🔒 Privacidade** (`#/privacidade`) explica como os dados são trat
 - **Nada vai para a AWS ou para o Azure**: o simulador não faz chamadas de rede e não pede credenciais.
 - **LGPD**: finalidade, base legal do nome (consentimento), direitos do art. 18 com
   **📥 Baixar meus dados** e **🗑️ Apagar meus dados**, e cuidado com menores (art. 14).
+
+## Arquitetura: Astro e endereços reais
+
+O site é gerado pelo [Astro](https://astro.build): **uma página HTML por tela**. Pense numa padaria que
+assa o pão de madrugada: quem chega (o aluno ou o Google) já recebe a página pronta, com título e
+descrição próprios.
+
+- **Rotas** ([`src/compartilhar.js`](src/compartilhar.js)): `/`, `/trilha/`, `/p/<id>/` (cada lição e
+  exercício), `/livre/`, `/validar/`, `/privacidade/`... Códigos (certificado, link compartilhado) ficam
+  no hash (`/validar/#<código>`), que nunca vai ao servidor.
+- **Páginas** ([`src/pages/`](src/pages/)): todas usam a mesma marcação, a do [`index.html`](index.html),
+  montada por [`scripts/prerender.mjs`](scripts/prerender.mjs) com o `<head>` de cada tela
+  ([`src/paginas.js`](src/paginas.js)). A landing já vem escrita em HTML. O sitemap lista todas.
+- **Navegação** ([`src/navegacao.js`](src/navegacao.js)): dentro do site, o clique troca só a tela, sem
+  recarregar (como antes); voltar, avançar, recarregar e abrir em outra aba também funcionam.
+- **Links antigos** (`#/trilha`, `#/p/<id>`, `#/validar/<código>`...): continuam valendo e viram o endereço
+  novo na hora. Os certificados e badges já impressos ou publicados não precisam mudar.
+- **Prefixo**: `/terraform-playground/` no site principal e `/terraform-playground/homologacao/` na
+  homologação (`HOMOLOGACAO=1`). Todo link passa por `rota()`, que já inclui o prefixo.
 
 ## O simulador
 
@@ -207,14 +238,15 @@ em todos os casos e cada código inicial ainda não passa.
 
 ```bash
 npm install
-npm run dev      # servidor local com recarga
+npm run dev      # servidor local com recarga: http://localhost:4321/terraform-playground/
+npm run check    # astro check (páginas e tipos)
 npm run lint     # ESLint
 npm test         # testes (motor, regras e toda a trilha)
 npm run test:cobertura  # os mesmos testes, com o limite de cobertura
 npm run comuns   # confere os arquivos comuns aos quatro playgrounds (comuns.json)
 npm run build    # gera dist/ (precisa de CERTIFICADO_SEGREDO)
-npm run test:e2e        # Playwright contra o dist (fluxo, axe nos 4 temas, larguras de celular)
-npm run lighthouse      # Lighthouse CI contra o dist
+npm run test:e2e        # Playwright contra o dist, no endereço de verdade (fluxo, axe nos 4 temas, celular)
+npm run lighthouse      # Lighthouse CI contra o dist (landing, trilha e um exercício)
 npm run badges   # regenera badges, capa e ícones em public/
 ```
 
@@ -260,6 +292,17 @@ Secrets do GitHub Actions (Settings > Secrets > Actions), gerados aleatoriamente
 Configure também `FEATURE_PR_TOKEN` com acesso de escrita a Contents e Pull requests para que o
 workflow crie a PR e os checks de PR sejam disparados.
 
+## Arquitetura ilustrativa
+
+A aba **Arquitetura** desenha os recursos do código atual com ícones oficiais
+AWS, Azure e Kubernetes quando o tipo é reconhecido. Não executa Apply nem
+representa uma nuvem real. Setas indicam dependências, não tráfego de rede.
+Há alternativa textual, rolagem por teclado e indicação explícita de erros.
+Redes, sub-redes e grupos de recursos viram caixas aninhadas quando o HCL
+declara o pertencimento por referência direta; dependências comuns não criam
+fronteiras de rede fictícias.
+Veja [uso, limites e manutenção](docs/arquitetura-ilustrativa.md).
+
 ## Licença
 
 O DivergeTerraform é **software livre com copyleft**:
@@ -272,5 +315,8 @@ O DivergeTerraform é **software livre com copyleft**:
 
 **Marcas**: Terraform e HCL são marcas da HashiCorp; AWS é marca da Amazon; Azure é marca da Microsoft.
 Este projeto é independente, não usa código da HashiCorp e não é afiliado nem endossado por elas.
+
+Os ícones de arquitetura têm [termos e atribuições próprios](public/icones-arquitetura/ATRIBUICAO.txt);
+não são relicenciados pela licença do código.
 
 Copyright (C) 2026 Sertão será cloud.

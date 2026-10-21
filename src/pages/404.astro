@@ -1,0 +1,17 @@
+---
+// Endereço que não existe: o GitHub Pages devolve esta página, e a aplicação mostra
+// "Página não encontrada" com os caminhos de volta (a mesma tela de sempre).
+import casca from '../../index.html?raw';
+import { montarPagina } from '../../scripts/prerender.mjs';
+
+const { atributos, head, corpo } = montarPagina(casca, { caminho: '404', homologacao: __HOMOLOGACAO__ });
+---
+<html {...atributos}>
+<head>
+<Fragment set:html={head} />
+</head>
+<body>
+<Fragment set:html={corpo} />
+<script>import '../main.js';</script>
+</body>
+</html>

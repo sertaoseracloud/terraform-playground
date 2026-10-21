@@ -1,7 +1,8 @@
 // Tutorial passo a passo em modal (<dialog>), com destaque no elemento explicado.
 // Abre sozinho na primeira visita e pelo botão "❓ Tutorial".
 import { PASSOS, PROBLEMA_DO_TUTORIAL } from './tutorial-passos.js';
-import { linkItem } from '../compartilhar.js';
+import { linkItem, lerRota, rota, EVENTO_ROTA } from '../compartilhar.js';
+import { irPara } from '../navegacao.js';
 import { lerPreferencia, gravarPreferencia } from '../progresso.js';
 import { $ } from './util.js';
 
@@ -25,7 +26,7 @@ export function iniciarTutorial({ telaAtual }) {
   let indice = 0;
   let passos = PASSOS;
   let destacado = null;
-  let hashAntes = '';
+  let telaAntes = '';
 
   function limparDestaque() {
     destacado?.classList.remove('tutorial-destaque');
@@ -34,7 +35,7 @@ export function iniciarTutorial({ telaAtual }) {
 
   async function irParaTela(tela) {
     if (!tela || tela === telaAtual()) return;
-    location.hash = tela === 'inicio' ? '#/trilha' : linkItem(PROBLEMA_DO_TUTORIAL);
+    irPara(tela === 'inicio' ? rota('trilha') : linkItem(PROBLEMA_DO_TUTORIAL));
     for (let i = 0; i < 20 && telaAtual() !== tela; i++) await esperar(50);
     await esperar(150);
   }
@@ -100,7 +101,7 @@ export function iniciarTutorial({ telaAtual }) {
     if (indice === passos.length - 1) {
       fechar();
       // Termina no primeiro problema, ou volta para onde o aluno estava.
-      if (/^(#\/?|#\/trilha)?$/.test(hashAntes)) location.hash = linkItem(PROBLEMA_DO_TUTORIAL);
+      if (['landing', 'inicio'].includes(telaAntes)) irPara(linkItem(PROBLEMA_DO_TUTORIAL));
       return;
     }
     mostrar(indice + 1);
@@ -116,7 +117,7 @@ export function iniciarTutorial({ telaAtual }) {
   window.addEventListener('resize', () => dialogo.open && posicionar(destacado));
 
   const abrir = () => {
-    hashAntes = location.hash;
+    telaAntes = lerRota(location).tela;
     passos = passosAtivos();
     mostrar(0);
   };
@@ -128,11 +129,11 @@ export function iniciarTutorial({ telaAtual }) {
   // quando a pessoa passar pela trilha.
   const talvezAbrir = () => {
     if ($('dialogo-apoio')?.open) return;
-    if (!dialogo.open && !lerPreferencia('tutorial-visto') && /^#\/trilha/.test(location.hash)) abrir();
+    if (!dialogo.open && !lerPreferencia('tutorial-visto') && lerRota(location).tela === 'inicio') abrir();
   };
   $('dialogo-apoio')?.addEventListener('close', talvezAbrir);
   talvezAbrir();
-  window.addEventListener('hashchange', talvezAbrir);
+  window.addEventListener(EVENTO_ROTA, talvezAbrir);
 
   return { abrir };
 }
