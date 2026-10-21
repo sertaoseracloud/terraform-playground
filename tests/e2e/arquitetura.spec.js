@@ -7,6 +7,11 @@ resource "aws_vpc" "rede" { cidr_block = "10.0.0.0/16" }
 resource "aws_subnet" "app" {
   vpc_id = aws_vpc.rede.id
   cidr_block = "10.0.1.0/24"
+}
+resource "aws_instance" "web" {
+  ami = "ami-12345678"
+  instance_type = "t3.micro"
+  subnet_id = aws_subnet.app.id
 }`;
 const AZURE = `provider "azurerm" {
   features {}
@@ -20,6 +25,12 @@ resource "azurerm_virtual_network" "rede" {
   resource_group_name = azurerm_resource_group.aula.name
   location = "eastus"
   address_space = ["10.0.0.0/16"]
+}
+resource "azurerm_subnet" "app" {
+  name = "app"
+  resource_group_name = azurerm_resource_group.aula.name
+  virtual_network_name = azurerm_virtual_network.rede.name
+  address_prefixes = ["10.0.1.0/24"]
 }`;
 async function editar(page, codigo) {
   await page.locator('.cm-content').first().click();
@@ -36,12 +47,15 @@ test('arquitetura acompanha AWS, Azure e erro sem Apply nem assets externos', as
   await expect(painel.locator('image[href$="aws-vpc.svg"]')).toBeVisible();
   await expect(painel.locator('.arq-lista')).toContainText('aws_subnet.app usa aws_vpc.rede');
   await expect(painel.locator('.arq-plataforma-nome')).toHaveText('Amazon Web Services');
-  await expect(painel.locator('.arq-area')).toHaveCount(1);
+  await expect(painel.locator('.arq-contencao')).toHaveCount(2);
+  await expect(painel.locator('image[href$="aws-ec2.svg"]')).toBeVisible();
+  await expect(painel.locator('.arq-lista')).toContainText('aws_instance.web está em aws_subnet.app');
   await painel.screenshot({ path: testInfo.outputPath('arquitetura-aws.png') });
   await editar(page, AZURE);
   await expect(painel.locator('image[href$="azure-vnet.svg"]')).toBeVisible();
   await expect(painel.locator('image[href$="aws-vpc.svg"]')).toHaveCount(0);
-  await expect(painel.locator('.arq-area')).toHaveCount(2);
+  await expect(painel.locator('.arq-contencao')).toHaveCount(2);
+  await expect(painel.locator('.arq-lista')).toContainText('azurerm_subnet.app está em azurerm_virtual_network.rede');
   await painel.screenshot({ path: testInfo.outputPath('arquitetura-azure.png') });
   for (const imagem of await painel.locator('image').all()) {
     const url = new URL(await imagem.getAttribute('href'), page.url());

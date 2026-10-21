@@ -31,5 +31,37 @@ resource "azurerm_virtual_network" "rede" {
     el.innerHTML = renderArquiteturaRecursos(r.grafo);
     expect(el.querySelector(`image[href$="${icone}"]`)).not.toBeNull();
     expect(el.querySelector('.arq-lista').textContent).toContain(relacao);
+    expect(r.grafo.contencoes).toHaveLength(1);
+    expect(el.querySelectorAll('.arq-contencao')).toHaveLength(1);
+  });
+
+  it('não interpreta depends_on como pertencimento a uma rede', () => {
+    const r = executarTerraform({ 'main.tf': `provider "aws" { region = "us-east-1" }
+resource "aws_vpc" "rede" { cidr_block = "10.0.0.0/16" }
+resource "aws_s3_bucket" "dados" {
+  bucket = "arquitetura-sem-contencao"
+  depends_on = [aws_vpc.rede]
+}` }, { comando: 'plan' });
+    expect(r.grafo.arestas).toContainEqual({ de: 'aws_s3_bucket.dados', para: 'aws_vpc.rede' });
+    expect(r.grafo.contencoes).toEqual([]);
+  });
+
+  it('reconhece VPC → subnet → instância sem aplicar recursos', () => {
+    const r = executarTerraform({ 'main.tf': `provider "aws" { region = "us-east-1" }
+resource "aws_vpc" "rede" { cidr_block = "10.0.0.0/16" }
+resource "aws_subnet" "app" {
+  vpc_id = aws_vpc.rede.id
+  cidr_block = "10.0.1.0/24"
+}
+resource "aws_instance" "web" {
+  ami = "ami-12345678"
+  instance_type = "t3.micro"
+  subnet_id = aws_subnet.app.id
+}` }, { comando: 'plan' });
+    expect(r.ok, JSON.stringify(r.diagnosticos)).toBe(true);
+    expect(r.grafo.contencoes).toEqual([
+      { filho: 'aws_subnet.app', pai: 'aws_vpc.rede', motivo: 'vpc_id' },
+      { filho: 'aws_instance.web', pai: 'aws_subnet.app', motivo: 'subnet_id' },
+    ]);
   });
 });

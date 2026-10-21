@@ -127,8 +127,7 @@ describe('arquitetura ilustrativa', () => {
     expect([...el.querySelectorAll('.arq-plataforma-nome')].map((n) => n.textContent))
       .toEqual(['Amazon Web Services', 'Microsoft Azure', 'Kubernetes']);
     expect(el.querySelectorAll('.arq-area')).toHaveLength(5);
-    expect([...el.querySelectorAll('.arq-numero')].map((n) => n.textContent))
-      .toEqual(['1', '2', '3', '4', '5']);
+    expect(el.querySelectorAll('.arq-numero')).toHaveLength(0);
     for (const imagem of el.querySelectorAll('image')) {
       expect(imagem.getAttribute('width')).toBe('64');
       expect(imagem.getAttribute('height')).toBe('64');
@@ -137,7 +136,7 @@ describe('arquitetura ilustrativa', () => {
       expect(ligacao.getAttribute('d')).toMatch(/^M[\d., -]+ H[\d.]+ V[\d.]+ H[\d.]+$/);
       expect(ligacao.querySelector('title').textContent).toContain(' usa ');
     }
-    expect(el.querySelector('.arq-lista').textContent).toContain('Área 3: Amazon Web Services — Dados e volumes');
+    expect(el.querySelector('.arq-lista').textContent).toContain('Nenhum pertencimento explícito');
     expect(el.textContent).toContain('não são etapas de execução');
   });
 
@@ -150,6 +149,55 @@ describe('arquitetura ilustrativa', () => {
     expect(new Set(transformacoes).size).toBe(3);
     expect(el.querySelectorAll('.arq-area')).toHaveLength(1);
     expect(el.querySelector('.arq-ligacao').getAttribute('d')).toContain(' V');
+  });
+
+  it('aninha rede, sub-rede e aplicação somente com pertencimento explícito', () => {
+    const grafo = {
+      nos: [no('aws_vpc.rede'), no('aws_subnet.app'), no('aws_instance.web'), no('aws_s3_bucket.fora')],
+      arestas: [{ de: 'aws_instance.web', para: 'aws_subnet.app' }, { de: 'aws_subnet.app', para: 'aws_vpc.rede' }, { de: 'aws_instance.web', para: 'aws_vpc.rede' }],
+      contencoes: [
+        { filho: 'aws_subnet.app', pai: 'aws_vpc.rede', motivo: 'vpc_id' },
+        { filho: 'aws_instance.web', pai: 'aws_subnet.app', motivo: 'subnet_id' },
+      ],
+    };
+    const antes = JSON.stringify(grafo);
+    const el = montar(grafo);
+    expect(el.querySelectorAll('.arq-contencao')).toHaveLength(2);
+    expect(el.querySelectorAll('.arq-ligacao')).toHaveLength(0);
+    expect(el.querySelector('.arq-lista').textContent).toContain('aws_instance.web usa aws_vpc.rede');
+    expect(el.querySelector('.arq-lista').textContent).toContain('aws_instance.web está em aws_subnet.app (subnet_id)');
+    const limite = (id) => el.querySelector(`.arq-contencao[data-recurso="${id}"] rect`);
+    const numero = (r, a) => Number(r.getAttribute(a));
+    const rede = limite('aws_vpc.rede');
+    const sub = limite('aws_subnet.app');
+    expect(numero(sub, 'x')).toBeGreaterThan(numero(rede, 'x'));
+    expect(numero(sub, 'y')).toBeGreaterThan(numero(rede, 'y'));
+    expect(numero(sub, 'x') + numero(sub, 'width')).toBeLessThan(numero(rede, 'x') + numero(rede, 'width'));
+    expect(numero(sub, 'y') + numero(sub, 'height')).toBeLessThan(numero(rede, 'y') + numero(rede, 'height'));
+    const posicao = (id) => el.querySelector(`.arq-recurso[data-recurso="${id}"]`).getAttribute('transform').match(/[\d.]+/g).map(Number);
+    expect(posicao('aws_instance.web')[1]).toBeGreaterThan(numero(sub, 'y'));
+    expect(posicao('aws_s3_bucket.fora')[1]).toBeLessThan(numero(rede, 'y'));
+    expect(JSON.stringify(grafo)).toBe(antes);
+  });
+
+  it('recusa ciclos, pai ausente, contenção entre clouds e múltiplos pais com aviso', () => {
+    const el = montar({
+      nos: [no('aws_vpc.a'), no('aws_vpc.b'), no('azurerm_virtual_network.c')],
+      arestas: [],
+      contencoes: [
+        { filho: 'aws_vpc.a', pai: 'aws_vpc.b', motivo: '<vpc_id>' },
+        { filho: 'aws_vpc.b', pai: 'aws_vpc.a', motivo: 'ciclo' },
+        { filho: 'aws_vpc.a', pai: 'azurerm_virtual_network.c', motivo: 'segundo pai' },
+        { filho: 'azurerm_virtual_network.c', pai: 'aws_vpc.b', motivo: 'outro cloud' },
+        { filho: 'ausente', pai: 'aws_vpc.b', motivo: 'ausente' },
+      ],
+    });
+    expect(el.querySelectorAll('.arq-contencao')).toHaveLength(1);
+    expect(el.querySelector('[role="note"]').textContent).toContain('ciclo ou plataformas diferentes');
+    expect(el.querySelector('[role="note"]').textContent).toContain('Contenção ambígua');
+    expect(el.querySelector('[role="note"]').textContent).toContain('recurso ausente');
+    expect(el.getElementsByTagName('vpc_id')).toHaveLength(0);
+    expect(el.innerHTML).not.toMatch(/NaN|undefined/);
   });
 
   it('oferece termos locais e não carrega assets de terceiros', () => {

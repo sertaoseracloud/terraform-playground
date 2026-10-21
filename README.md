@@ -298,6 +298,9 @@ A aba **Arquitetura** desenha os recursos do código atual com ícones oficiais
 AWS, Azure e Kubernetes quando o tipo é reconhecido. Não executa Apply nem
 representa uma nuvem real. Setas indicam dependências, não tráfego de rede.
 Há alternativa textual, rolagem por teclado e indicação explícita de erros.
+Redes, sub-redes e grupos de recursos viram caixas aninhadas quando o HCL
+declara o pertencimento por referência direta; dependências comuns não criam
+fronteiras de rede fictícias.
 Veja [uso, limites e manutenção](docs/arquitetura-ilustrativa.md).
 
 ## Licença
