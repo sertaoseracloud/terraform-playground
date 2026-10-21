@@ -63,3 +63,62 @@
 [data-tema="suave"] .cenario { filter: saturate(.5) brightness(.9); }
 [data-tema="alto-contraste"] .cenario-mapa { opacity: 1; }
 [data-tema="alto-contraste"] .personagem { transition: none; }
+
+/* .cenario também é o nome do quadro de casos de teste (estilo.css), com fundo, borda e respiro:
+   nada disso vale para a camada do cenário (o fundo cobriria o canvas do PixiJS e mudaria de
+   tamanho na carga). */
+.cenario[data-cenario] { background: none; padding: 0; border-radius: 0; }
+
+/* PixiJS (palco-pixi.js): um canvas só, fixo atrás da trilha, do tamanho da caixa que rola. */
+.com-pixi { isolation: isolate; }
+.cenario-pixi { position: fixed; z-index: -1; pointer-events: none; image-rendering: pixelated; }
+[data-tema="suave"] .cenario-pixi { filter: saturate(.5) brightness(.9); }
+
+/* Balões da vila: 👋 de quem se cruza, o emoji da conversa e a fala de quem foi clicado. Ficam
+   na camada do cenário (rolam com o módulo e não recebem clique) e nunca piscam: aparecem e somem. */
+.cenario-baloes { position: absolute; top: 0; }
+.balao-vila {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 1px 6px;
+  border: 1px solid var(--linha);
+  border-radius: 10px;
+  background: var(--fundo);
+  color: var(--texto);
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+}
+.balao-vila.fala { width: max-content; max-width: min(240px, 70vw); white-space: normal; font-size: .82rem; }
+/* A fala fica por cima do caminho (é resposta a um clique), sem receber clique. */
+.fala-vila { z-index: 2; pointer-events: none; }
+
+/* "Conhecer a vila" (a alternativa em texto do cenário) e "Pausar animação do cenário". Alvos de
+   pelo menos 24×24 px, foco visível do tema e nada que passe da largura da trilha. */
+.cenario-controle { margin: 0 0 10px; }
+.vila-acoes { display: flex; justify-content: flex-end; margin: 6px 0 0; }
+.btn-vila, .btn-pausar-cenario {
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  background: var(--fundo);
+  color: var(--texto);
+  font: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+}
+.btn-pausar-cenario[aria-pressed="true"] { border-width: 2px; font-weight: 700; }
+.vila-lista {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--linha);
+  border-radius: 8px;
+  background: var(--fundo);
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+}
+.vila-lista p { margin: 0; }
+.vila-lista ul { margin: 6px 0; padding-left: 20px; }
