@@ -78,6 +78,8 @@ g.........gggg..
 export const cidade = {
   id: 'cidade',
   nome: 'Cidade à noite',
+  // À noite, metade dos moradores fica em casa (vida.js).
+  rotina: 'noite',
   chao: { cores: ['#8d8f99', '#7d7f89', '#a0a2ab'], pesos: [6, 3, 1] },
   estrada: { cores: ['#3a3d47', '#30333c', '#454852'], padrao: 'liso' },
   bloqueio: null,

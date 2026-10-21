@@ -7,11 +7,12 @@ import { calcularJornada, sequenciaDeDias, LIMITE_DESBLOQUEIO, NIVEIS } from '..
 import { CERTIFICADOS, ORDEM, linkCertificado } from '../certificados.js';
 import { svgBadge } from '../badges.js';
 import { textoHoras } from '../cargaHoraria.js';
-import { statusDe, dataDe, diasAtivos, hoje, lerNome, gravarNome } from '../progresso.js';
+import { statusDe, dataDe, diasAtivos, hoje, lerNome, gravarNome, lerPreferencia, gravarPreferencia } from '../progresso.js';
 import { esc, $ } from './util.js';
 import { CENARIO_DO_MODULO } from '../conteudo/cenarios.js';
 import { htmlDoCenario } from './cenarios/index.js';
 import { ligarCenarios } from './cenarios/palco.js';
+import { htmlConhecerVila } from './cenarios/conhecer.js';
 
 // No celular, a lista de certificados começa fechada para o caminho aparecer logo.
 const MOSTRAR_CERTIFICADOS = () => !window.matchMedia?.('(max-width: 760px)').matches;
@@ -179,7 +180,7 @@ function unidade(m, anterior, atual, cert) {
   const cenario = htmlDoCenario(CENARIO_DO_MODULO[m.id], m.id, feitos);
   return `
     <section class="bloco-unidade ${cenario ? 'com-cenario' : ''} ${m.desbloqueado ? '' : 'bloqueada'} ${atual ? 'unidade-atual' : ''}" id="unidade-${m.id}" aria-labelledby="titulo-${m.id}">${cenario}
-      ${cabecalho.replace('<h2>', `<h2 id="titulo-${m.id}">`)}
+      ${cabecalho.replace('<h2>', `<h2 id="titulo-${m.id}">`)}${cenario ? htmlConhecerVila(CENARIO_DO_MODULO[m.id], m.id, feitos) : ''}
       <ol class="trilha" id="trilha-${m.id}">${nos}${trofeu(m, cert)}</ol>
     </section>`;
 }
@@ -254,6 +255,12 @@ function diploma(j) {
 // Os cenários da renderização anterior (temporizador e observadores) são desligados a cada nova.
 let desligarCenarios = null;
 
+/** Ao sair da trilha, os cenários param e devolvem o que usavam (temporizador, observadores, WebGL). */
+export function desligarCenariosDaTrilha() {
+  desligarCenarios?.();
+  desligarCenarios = null;
+}
+
 export function renderInicio(el) {
   const j = jornadaAtual();
   const certs = certificadosDaJornada(j);
@@ -269,6 +276,9 @@ export function renderInicio(el) {
           <span><i class="mini lida">📖</i> lição lida</span>
           <span><i class="mini">⭐</i> fácil · <i class="mini">🔥</i> médio · <i class="mini">💎</i> difícil</span>
           <span>O módulo seguinte abre com ${LIMITE_DESBLOQUEIO}% dos exercícios.</span>
+        </p>
+        <p class="cenario-controle">
+          <button type="button" class="btn-pausar-cenario" aria-pressed="false"><span class="icone-pausa" aria-hidden="true">⏸</span> Pausar animação do cenário</button>
         </p>
         ${j.modulos.map((m, i) => unidade(m, j.modulos[i - 1], m.id === atual, certs[i])).join('')}
         ${diploma(j)}
@@ -300,9 +310,40 @@ export function renderInicio(el) {
     await pedirNome();
     renderInicio(el);
   });
+  ligarControlesDaVila(el);
   mostrarPassoAtual(el);
   desligarCenarios?.();
-  desligarCenarios = ligarCenarios(el).desligar;
+  // Os cenários ficam acessíveis no elemento da tela (os testes E2E acham os moradores por aqui).
+  el.cenarios = ligarCenarios(el);
+  desligarCenarios = el.cenarios.desligar;
+}
+
+/**
+ * "Conhecer a vila" abre e fecha a lista de cada módulo; "Pausar animação do cenário" para os
+ * personagens (WCAG 2.2.2) e fica lembrado neste navegador.
+ */
+function ligarControlesDaVila(el) {
+  el.querySelectorAll('.btn-vila').forEach((b) => {
+    b.addEventListener('click', () => {
+      const lista = document.getElementById(b.getAttribute('aria-controls'));
+      const aberta = b.getAttribute('aria-expanded') !== 'true';
+      b.setAttribute('aria-expanded', String(aberta));
+      lista.hidden = !aberta;
+    });
+  });
+  const pausa = el.querySelector('.btn-pausar-cenario');
+  const aplicar = (pausado) => {
+    document.documentElement.classList.toggle('cenario-pausado', pausado);
+    pausa?.setAttribute('aria-pressed', String(pausado));
+    const icone = pausa?.querySelector('.icone-pausa');
+    if (icone) icone.textContent = pausado ? '▶' : '⏸';
+  };
+  aplicar(Boolean(lerPreferencia('cenario-pausado', false)));
+  pausa?.addEventListener('click', () => {
+    const pausado = pausa.getAttribute('aria-pressed') !== 'true';
+    gravarPreferencia('cenario-pausado', pausado);
+    aplicar(pausado);
+  });
 }
 
 /**
