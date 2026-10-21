@@ -9,6 +9,7 @@ import { lerPreferencia, gravarPreferencia } from '../progresso.js';
 import { $ } from './util.js';
 import { ativarLibras } from './libras.js';
 import { anunciar } from './anuncios.js';
+import { BASE } from '../compartilhar.js';
 
 export function iniciarAcessibilidade() {
   let prefs = normalizarPreferencias(lerPreferencia('acessibilidade'));
@@ -87,7 +88,7 @@ export function iniciarAcessibilidade() {
   };
   // Clicar fora da janela, ou num link para outra página do site, fecha.
   dialogo.addEventListener('click', (e) => {
-    if (e.target === dialogo || e.target.closest('a[href^="#/"]')) dialogo.close();
+    if (e.target === dialogo || e.target.closest(`a[href^="${BASE}"]`)) dialogo.close();
   });
 
   sincronizar();

@@ -96,7 +96,8 @@ describe('região de avisos (aria-live)', () => {
   it('"Pular para o conteúdo" não muda a rota (antes levava à página inicial)', () => {
     const main = ler('src/main.js');
     expect(main).toMatch(/querySelector\('\.pular'\)\.addEventListener\('click', \(e\) => \{\s*e\.preventDefault\(\);\s*focarTitulo\(\);/);
-    expect(main).toContain("if (!location.hash.startsWith('#/')");
+    // Âncoras da própria página (#conteudo) não trocam a tela (src/navegacao.js).
+    expect(ler('src/navegacao.js')).toContain('if (!antigo && destino.pathname === location.pathname && ehAncora(destino.hash)) return;');
   });
 });
 
@@ -144,8 +145,8 @@ describe('Libras com o VLibras', () => {
 });
 
 describe('página de acessibilidade', () => {
-  it('rota #/acessibilidade', () => {
-    expect(lerRota('#/acessibilidade')).toEqual({ tela: 'acessibilidade' });
+  it('rota /acessibilidade/', () => {
+    expect(lerRota({ pathname: '/acessibilidade/' })).toEqual({ tela: 'acessibilidade' });
   });
 
   it('fala de pessoas cegas, surdas e mudas, dos atalhos e de como relatar barreiras', () => {
@@ -161,7 +162,7 @@ describe('página de acessibilidade', () => {
   });
 
   it('o rodapé da página inicial e o painel ♿ levam até ela', () => {
-    expect(ler('src/ui/landing.js')).toContain('<a href="#/acessibilidade">Acessibilidade</a>');
+    expect(ler('src/ui/landing.js')).toContain('<a href="${rota(\'acessibilidade\')}">Acessibilidade</a>');
     expect(ler('index.html')).toContain('<a href="#/acessibilidade">Todos os atalhos e recursos de acessibilidade</a>');
   });
 });

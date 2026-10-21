@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { abrir, PRIMEIRO } from './apoio.js';
 
 test('o mural aparece uma vez por dia na landing e pode ser fechado sem reaparecer', async ({ page }) => {
-  await abrir(page, '#/', { muralApoio: true });
+  await abrir(page, '', { muralApoio: true });
   const mural = page.locator('#dialogo-apoio');
 
   await expect(mural).toBeVisible();
@@ -34,12 +34,12 @@ test('o mural aparece uma vez por dia na landing e pode ser fechado sem reaparec
 
   await page.getByRole('button', { name: 'Continuar para o projeto' }).click();
   await expect(mural).toBeHidden();
-  await page.evaluate(() => { location.hash = '#/trilha'; });
-  await expect(page).toHaveURL(/#\/trilha$/);
+  await page.evaluate(() => document.querySelector('a[data-menu="inicio"]').click());
+  await expect(page).toHaveURL(/\/trilha\/$/);
   await expect(mural).toBeHidden();
 
   // No mesmo dia, recarregar não abre de novo; no dia seguinte, abre.
-  await page.evaluate(() => { location.hash = '#/'; });
+  await page.evaluate(() => document.querySelector('.topo .marca').click());
   await page.reload();
   await expect(page.locator('#tela-landing h1')).toBeVisible();
   await expect(mural).toBeHidden();
@@ -49,7 +49,7 @@ test('o mural aparece uma vez por dia na landing e pode ser fechado sem reaparec
 });
 
 test('o mural não abre por cima de um exercício aberto por link', async ({ page }) => {
-  await abrir(page, `#/p/${PRIMEIRO.id}`, { muralApoio: true });
+  await abrir(page, `p/${PRIMEIRO.id}/`, { muralApoio: true });
   await expect(page.locator('#item-titulo')).toBeVisible();
   await expect(page.locator('#dialogo-apoio')).toBeHidden();
 });

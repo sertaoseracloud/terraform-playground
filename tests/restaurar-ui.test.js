@@ -53,8 +53,8 @@ describe('restaurar o progresso no validador', () => {
     expect(ids.every((id) => statusDe(id) === 'resolvido')).toBe(true);
     expect(avisado).toBe(1);
     const depois = document.querySelector('#resultado-inicial .restaurar-progresso');
-    expect(depois.querySelector('a[href="#/trilha"]')).not.toBeNull();
-    expect(document.activeElement).toBe(depois.querySelector('a[href="#/trilha"]'));
+    expect(depois.querySelector('a[href="/trilha/"]')).not.toBeNull();
+    expect(document.activeElement).toBe(depois.querySelector('a[href="/trilha/"]'));
     expect(document.getElementById('anuncio').textContent).toContain('voltaram para este navegador');
   });
 
@@ -84,6 +84,6 @@ describe('restaurar o progresso no validador', () => {
     }
     const depois = document.querySelector('#resultado-inicial .restaurar-progresso');
     expect(depois.textContent).toContain('não deixou o site guardar');
-    expect(depois.querySelector('a[href="#/trilha"]')).toBeNull();
+    expect(depois.querySelector('a[href="/trilha/"]')).toBeNull();
   });
 });

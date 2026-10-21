@@ -5,7 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { abrir, medirEstouro, TEMAS } from './apoio.js';
 
 test('Conhecer a vila e Pausar animação, só com o teclado', async ({ page }) => {
-  await abrir(page, '#/trilha');
+  await abrir(page, 'trilha/');
   const vila = page.getByRole('button', { name: 'Conhecer a vila' }).first();
   await vila.focus();
   await page.keyboard.press('Enter');
@@ -28,7 +28,7 @@ test('Conhecer a vila e Pausar animação, só com o teclado', async ({ page }) 
 });
 
 test('o cenário é decorativo: o desenho fica escondido do leitor de tela e não recebe foco', async ({ page }) => {
-  await abrir(page, '#/trilha');
+  await abrir(page, 'trilha/');
   await expect(page.locator('#tela-inicio')).toHaveAttribute('data-cenario-desenho', /webgl|2d/);
   for (const sel of ['.cenario', '.cenario-pixi']) {
     for (const el of await page.locator(sel).all()) await expect(el).toHaveAttribute('aria-hidden', 'true');
@@ -37,7 +37,7 @@ test('o cenário é decorativo: o desenho fica escondido do leitor de tela e nã
 });
 
 test('alvos de toque da vila com pelo menos 24×24 px', async ({ page }) => {
-  await abrir(page, '#/trilha');
+  await abrir(page, 'trilha/');
   for (const botao of [page.getByRole('button', { name: 'Conhecer a vila' }).first(), page.getByRole('button', { name: 'Pausar animação do cenário' })]) {
     const caixa = await botao.boundingBox();
     expect(caixa.width).toBeGreaterThanOrEqual(24);
@@ -48,7 +48,7 @@ test('alvos de toque da vila com pelo menos 24×24 px', async ({ page }) => {
 for (const tema of TEMAS) {
   test(`axe: a vila aberta no tema ${tema}`, async ({ page }) => {
     test.slow(); // 200 nós e o cenário
-    await abrir(page, '#/trilha');
+    await abrir(page, 'trilha/');
     await page.getByRole('button', { name: 'Conhecer a vila' }).first().click();
     await page.getByRole('button', { name: 'Pausar animação do cenário' }).click();
     await page.evaluate((t) => { document.documentElement.dataset.tema = t; }, tema);
@@ -64,7 +64,7 @@ for (const tema of TEMAS) {
 for (const largura of [320, 375, 412]) {
   test(`${largura} px: a vila aberta e a pausa não passam da borda`, async ({ page }) => {
     await page.setViewportSize({ width: largura, height: 800 });
-    await abrir(page, '#/trilha');
+    await abrir(page, 'trilha/');
     await page.getByRole('button', { name: 'Conhecer a vila' }).first().click();
     await page.waitForTimeout(300);
     expect(await medirEstouro(page)).toEqual([]);

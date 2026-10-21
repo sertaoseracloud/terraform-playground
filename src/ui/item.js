@@ -5,7 +5,7 @@
 // (terraform.tfstate simulado) fica salvo por exercício e workspace.
 import { minutosDoItem } from '../cargaHoraria.js';
 import { buscarItem, modulos, vizinhos, DIFICULDADES } from '../conteudo/trilha.js';
-import { linkItem, linkCompartilhado } from '../compartilhar.js';
+import { linkItem, linkCompartilhado, rota } from '../compartilhar.js';
 import { corrigir } from '../corrigir.js';
 import { linhaDoComando, comoTfstate, formatarValor } from '../tf/saida.js';
 import { rodarComando, precisaDeInit, completarComando } from '../tf/comandos.js';
@@ -768,7 +768,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
         el.testes.insertAdjacentHTML('afterbegin', `
           <div class="comemoracao">🏆 Você concluiu o módulo <b>${esc(modulo.titulo)}</b>!
             ${aviso}
-            <a class="btn btn-roxo btn-pequeno" href="#/trilha">Ver no caminho</a></div>`);
+            <a class="btn btn-roxo btn-pequeno" href="${rota('trilha')}">Ver no caminho</a></div>`);
       }
       definirStatus(aprovado ? 'Aceito! 🎉' : semPressao() ? 'Ainda não passou: veja o que falta' : 'Resposta errada', {
         falar: `${falarTestes(resultado, true)} ${conquista}`.trim(),
@@ -810,7 +810,7 @@ export function criarTelaItem({ layout, definirStatus, aoMudarProgresso }) {
   };
 
   el.compartilhar.onclick = async () => {
-    const link = `${location.origin}${location.pathname}${linkCompartilhado({ item: estado.item.id, arquivos: editor.arquivos })}`;
+    const link = `${location.origin}${linkCompartilhado({ item: estado.item.id, arquivos: editor.arquivos })}`;
     try {
       await navigator.clipboard.writeText(link);
       definirStatus('🔗 Link copiado!');

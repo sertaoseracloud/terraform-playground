@@ -2,13 +2,14 @@
 import { ATUALIZADA_EM, TITULAR, REPOSITORIO, CODIGO, CONTEUDO, TERCEIROS } from '../licenca.js';
 import { CONTROLADOR } from '../privacidade.js';
 import { esc, dataPorExtenso } from './util.js';
+import { rota } from '../compartilhar.js';
 
 const link = (url, texto) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(texto)}</a>`;
 
 export function renderLicenca(el) {
   el.innerHTML = `
     <article class="pagina-texto">
-      <p class="voltar-trilha"><a href="#/">← Página inicial</a></p>
+      <p class="voltar-trilha"><a href="${rota()}">← Página inicial</a></p>
       <h1>📜 Licença</h1>
       <p class="atualizada">Última atualização: ${dataPorExtenso(ATUALIZADA_EM)}</p>
 
@@ -76,7 +77,7 @@ export function renderLicenca(el) {
 export function renderTermos(el) {
   el.innerHTML = `
     <article class="pagina-texto">
-      <p class="voltar-trilha"><a href="#/">← Página inicial</a></p>
+      <p class="voltar-trilha"><a href="${rota()}">← Página inicial</a></p>
       <h1>📄 Termos de uso</h1>
       <p class="atualizada">Última atualização: ${dataPorExtenso(ATUALIZADA_EM)}</p>
 
@@ -84,7 +85,7 @@ export function renderTermos(el) {
         <h2 id="ter-resumo">Em resumo</h2>
         <ul>
           <li>✅ O DivergeTerraform é <b>gratuito</b> e feito para <b>aprender e ensinar</b> programação.</li>
-          <li>💾 Não há cadastro: seu progresso fica no seu navegador (veja a <a href="#/privacidade">privacidade</a>).</li>
+          <li>💾 Não há cadastro: seu progresso fica no seu navegador (veja a <a href="${rota('privacidade')}">privacidade</a>).</li>
           <li>🎓 Os certificados valem como <b>comprovante de participação</b> na trilha, não como diploma.</li>
           <li>🚫 Não use o site para prejudicar outras pessoas nem para falsificar certificados.</li>
         </ul>
@@ -123,7 +124,7 @@ export function renderTermos(el) {
         <h2 id="ter-4">4. Seu código e seus dados</h2>
         <p>O código que você escreve é seu. Ele fica salvo só no seu navegador; quando você compartilha um link, o código
           vai dentro do link e qualquer pessoa com ele pode ver. Os detalhes estão na
-          <a href="#/privacidade">página de privacidade</a>.</p>
+          <a href="${rota('privacidade')}">página de privacidade</a>.</p>
       </section>
 
       <section aria-labelledby="ter-5">
@@ -133,7 +134,7 @@ export function renderTermos(el) {
           <li>O nome que aparece no certificado é informado por você: use o seu nome verdadeiro.</li>
           <li>Eles comprovam a conclusão das atividades do DivergeTerraform. <b>Não são diploma nem certificação
             reconhecida pelo MEC</b> ou por outros órgãos.</li>
-          <li>Qualquer pessoa pode conferir um certificado na página <a href="#/validar">Validar certificado</a>.
+          <li>Qualquer pessoa pode conferir um certificado na página <a href="${rota('validar')}">Validar certificado</a>.
             Certificados alterados deixam de valer.</li>
         </ul>
       </section>
@@ -141,7 +142,7 @@ export function renderTermos(el) {
       <section aria-labelledby="ter-6">
         <h2 id="ter-6">6. Licença e direitos autorais</h2>
         <p>O código é software livre (AGPL-3.0) e o conteúdo didático é aberto (CC BY-SA 4.0). O nome e a marca da
-          ${esc(TITULAR)} não estão incluídos. Veja a <a href="#/licenca">licença</a>.</p>
+          ${esc(TITULAR)} não estão incluídos. Veja a <a href="${rota('licenca')}">licença</a>.</p>
       </section>
 
       <section aria-labelledby="ter-7">

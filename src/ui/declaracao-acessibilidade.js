@@ -3,6 +3,7 @@
 // teclado, os limites conhecidos e onde relatar uma barreira.
 import { NOME, REPOSITORIO } from '../seo.js';
 import { dataPorExtenso } from './util.js';
+import { rota } from '../compartilhar.js';
 
 export const ATUALIZADA_EM = '2026-10-12';
 
@@ -23,7 +24,7 @@ export const ATALHOS = [
 export function renderDeclaracaoAcessibilidade(el) {
   el.innerHTML = `
     <article class="pagina-texto pagina-acessibilidade">
-      <p class="voltar-trilha"><a href="#/">← Página inicial</a></p>
+      <p class="voltar-trilha"><a href="${rota()}">← Página inicial</a></p>
       <h1>Acessibilidade</h1>
       <p class="atualizada">Última atualização: ${dataPorExtenso(ATUALIZADA_EM)}</p>
       <p>O ${NOME} foi feito para ser usado por todo mundo: com leitor de tela, só com o teclado,
@@ -45,7 +46,7 @@ export function renderDeclaracaoAcessibilidade(el) {
       <ul>
         <li>Nada no site depende de som: todo aviso aparece escrito na tela. Não há vídeos nem áudios.</li>
         <li>O único som é o botão 🔊 Ouvir, opcional, que lê em voz alta o texto que já está na tela.</li>
-        <li>Tradução para Libras com o <b>VLibras</b>, do Governo Federal: ligue o perfil <b>🤟 Libras</b> no painel ♿ e use o botão azul com a mão, no lado direito da tela. O VLibras só é carregado se você ligar a opção (veja a <a href="#/privacidade">política de privacidade</a>).</li>
+        <li>Tradução para Libras com o <b>VLibras</b>, do Governo Federal: ligue o perfil <b>🤟 Libras</b> no painel ♿ e use o botão azul com a mão, no lado direito da tela. O VLibras só é carregado se você ligar a opção (veja a <a href="${rota('privacidade')}">política de privacidade</a>).</li>
         <li>Os textos usam linguagem simples, com glossário das palavras técnicas.</li>
       </ul>
 

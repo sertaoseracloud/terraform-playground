@@ -15,9 +15,11 @@ const HTML = { nome: 'Maria da Conceição', modulo: 'basico', data: '2026-10-01
 describe('extrairCodigo', () => {
   const codigo = codificarCertificado(PHP);
   it.each([
-    ['link do certificado', `${SITE}#/certificado/${codigo}`],
+    ['link do certificado (formato antigo, ainda impresso)', `${SITE}#/certificado/${codigo}`],
+    ['link do certificado (rota nova)', `${SITE}certificado/#${codigo}`],
     ['link do badge do LinkedIn', linkPublico(PHP)],
-    ['link do validador', `${SITE}#/validar/${codigo}`],
+    ['link do validador (formato antigo)', `${SITE}#/validar/${codigo}`],
+    ['link do validador (rota nova)', `${SITE}validar/#${codigo}`],
     ['só o código, com espaços', `  ${codigo}  `],
   ])('%s', (_nome, texto) => {
     expect(extrairCodigo(texto)).toBe(codigo);
@@ -81,9 +83,9 @@ describe('validar certificado impresso', () => {
 });
 
 describe('página', () => {
-  it('rotas #/validar e #/validar/<código>', () => {
-    expect(lerRota('#/validar')).toEqual({ tela: 'validar', codigo: '' });
-    expect(lerRota('#/validar/abc')).toEqual({ tela: 'validar', codigo: 'abc' });
+  it('rotas /validar/ e /validar/#<código>', () => {
+    expect(lerRota({ pathname: '/validar/' })).toEqual({ tela: 'validar', codigo: '' });
+    expect(lerRota({ pathname: '/validar/', hash: '#abc' })).toEqual({ tela: 'validar', codigo: 'abc' });
   });
 
   it('com código na rota, o resultado vem primeiro, com o badge', () => {

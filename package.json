@@ -1,11 +1,11 @@
 {
   "name": "terraform-playground",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "DivergeTerraform: Terraform, AWS e Azure no navegador, com acessibilidade para pessoas cegas, surdas e neurodivergentes",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/prerender.mjs",
-    "preview": "vite preview",
+    "dev": "astro dev",
+    "build": "astro build && node scripts/conferir-segredo.mjs",
+    "preview": "astro preview",
     "test": "vitest run",
     "test:cobertura": "vitest run --coverage",
     "test:e2e": "playwright test",
@@ -15,7 +15,8 @@
     "comuns": "node scripts/comuns.mjs",
     "comuns:copiar": "node scripts/comuns.mjs copiar",
     "comuns:comparar": "node scripts/comuns.mjs comparar",
-    "conferir-build": "node scripts/conferir-build.mjs"
+    "conferir-build": "node scripts/conferir-build.mjs",
+    "check": "astro check"
   },
   "type": "module",
   "dependencies": {
@@ -32,15 +33,18 @@
     "qrcode-generator": "2.0.4"
   },
   "devDependencies": {
+    "@astrojs/check": "0.9.10",
     "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "^1.64.1",
     "@resvg/resvg-js": "^2.6.2",
     "@vitest/coverage-v8": "^5.0.5",
+    "astro": "7.3.5",
     "axe-core": "4.14.0",
     "eslint": "10.13.0",
     "globals": "^17.13.0",
     "happy-dom": "^21.0.3",
+    "typescript": "5.9.3",
     "vite": "^8.3.1",
     "vitest": "^5.0.5"
   },

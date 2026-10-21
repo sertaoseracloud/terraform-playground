@@ -26,7 +26,7 @@ const medirCortes = (page) => page.evaluate(() => [...document.querySelectorAll(
   .map((el) => `${el.tagName.toLowerCase()}.${el.className}: ${el.textContent.trim().slice(0, 40)}`));
 
 async function abrirCertificado(page) {
-  await abrir(page, '#/trilha', { extras: concluido });
+  await abrir(page, 'trilha/', { extras: concluido });
   await page.locator(`.trofeu [data-certificado="${primeiro.id}"]`).click();
   await expect(page.locator('#tela-certificado')).toBeVisible();
   await expect(page.locator('#tela-certificado')).toContainText(NOME);

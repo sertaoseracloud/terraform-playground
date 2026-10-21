@@ -1,9 +1,14 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./dist",
+      "startServerCommand": "npx astro preview --port 4321",
+      "startServerReadyPattern": "localhost:4321",
       "numberOfRuns": 3,
-      "url": ["http://localhost/", "http://localhost/#/trilha"]
+      "url": [
+        "http://localhost:4321/terraform-playground/",
+        "http://localhost:4321/terraform-playground/trilha/",
+        "http://localhost:4321/terraform-playground/p/tf-ola-arquivo/"
+      ]
     },
     "assert": {
       "assertions": {

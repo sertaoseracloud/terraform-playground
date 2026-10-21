@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { configurarAmbiente, HOMOLOGACAO, PREFIXO_ARMAZENAMENTO, SITE_ATUAL } from '../src/ambiente.js';
 import { SITE } from '../src/certificados.js';
-import { prerender } from '../scripts/prerender.mjs';
+import { montarPagina } from '../scripts/prerender.mjs';
 
 const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
 
@@ -42,9 +42,9 @@ describe('faixa e indexação', () => {
     expect(faixa).toMatch(/href="\.\.\/"/);
   });
 
-  it('o prerender só põe noindex na homologação', () => {
-    expect(prerender(html)).not.toContain('noindex');
-    const homologacao = prerender(html, { homologacao: true });
+  it('o build só põe noindex na homologação', () => {
+    expect(montarPagina(html).head).not.toContain('noindex');
+    const homologacao = montarPagina(html, { homologacao: true }).head;
     expect(homologacao).toContain('<meta name="robots" content="noindex">');
     expect(homologacao.match(/<meta name="robots"/g)).toHaveLength(1); // um só, sem o "index, follow"
   });

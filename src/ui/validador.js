@@ -17,6 +17,7 @@ import { lerNome, restaurarItens } from '../progresso.js';
 import { planoDeRestauracao, situacaoDoNome, itensDoPlano } from '../restaurar.js';
 import { pedirNome } from './inicio.js';
 import { anunciar } from './anuncios.js';
+import { rota } from '../compartilhar.js';
 
 /** Maior XML aceito: o de um certificado tem poucos KB. */
 const MAX_XML = 512 * 1024;
@@ -219,7 +220,7 @@ function ligarRestauracao(el, aoRestaurar) {
     bloco.innerHTML = `
       <h3 tabindex="-1">↩️ Restaurar o progresso neste navegador</h3>
       <p>${ok ? '✅' : '⚠️'} ${esc(texto)}</p>
-      ${ok ? '<p><a class="btn btn-roxo btn-pequeno" href="#/trilha">Ir para a trilha</a></p>' : ''}`;
+      ${ok ? `<p><a class="btn btn-roxo btn-pequeno" href="${rota('trilha')}">Ir para a trilha</a></p>` : ''}`;
     // Foco no próximo passo: o link da trilha; se não deu certo, o título do aviso.
     (bloco.querySelector('a') ?? bloco.querySelector('h3')).focus();
     anunciar(texto);
@@ -239,7 +240,7 @@ function htmlPagina(temResultadoInicial) {
       aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}"><span aria-hidden="true">${m.icone}</span> ${m.rotulo}</button>`).join('');
   return `
     <article class="pagina-texto validador">
-      <p class="voltar-trilha"><a href="#/">← Página inicial</a></p>
+      <p class="voltar-trilha"><a href="${rota()}">← Página inicial</a></p>
       <header class="cabecalho-validador">
         <h1>🔎 Validar certificado</h1>
         <p>Confira se um certificado ou badge da <b>${esc(EMISSOR.organizacao)}</b> é autêntico.</p>

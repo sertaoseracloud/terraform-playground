@@ -4,13 +4,14 @@
 import { ATUALIZADA_EM, CONTROLADOR, DADOS_LOCAIS, TERCEIROS } from '../privacidade.js';
 import { exportarDados, apagarDados, lerPreferencia, gravarPreferencia } from '../progresso.js';
 import { esc, $, dataPorExtenso } from './util.js';
+import { rota } from '../compartilhar.js';
 
 const linkExterno = (url, texto = url) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(texto)}</a>`;
 
 export function renderPrivacidade(el, { definirStatus = () => {} } = {}) {
   el.innerHTML = `
     <article class="pagina-texto">
-      <p class="voltar-trilha"><a href="#/trilha">← Voltar à trilha</a></p>
+      <p class="voltar-trilha"><a href="${rota('trilha')}">← Voltar à trilha</a></p>
       <h1>🔒 Privacidade e cookies</h1>
       <p class="atualizada">Última atualização: ${dataPorExtenso(ATUALIZADA_EM)}</p>
 
@@ -116,7 +117,7 @@ export function renderPrivacidade(el, { definirStatus = () => {} } = {}) {
       <section aria-labelledby="priv-mudancas">
         <h2 id="priv-mudancas">9. Mudanças nesta política</h2>
         <p>Se o site passar a tratar dados de outro jeito, esta página será atualizada antes, com nova data no topo.</p>
-        <p>Veja também os <a href="#/termos">termos de uso</a> e a <a href="#/licenca">licença</a>.</p>
+        <p>Veja também os <a href="${rota('termos')}">termos de uso</a> e a <a href="${rota('licenca')}">licença</a>.</p>
       </section>
     </article>`;
 
@@ -135,8 +136,8 @@ export function renderPrivacidade(el, { definirStatus = () => {} } = {}) {
     const total = apagarDados();
     definirStatus(`🗑️ ${total} item(ns) apagado(s). Recarregando…`);
     setTimeout(() => {
-      location.hash = '#/';
-      location.reload();
+      // Recarrega na página inicial: a mesma tela de quem chega pela primeira vez.
+      location.assign(rota());
     }, 800);
   };
 }
@@ -147,7 +148,7 @@ export function iniciarAvisoPrivacidade() {
   const aviso = $('aviso-privacidade');
   aviso.innerHTML = `
     <p>🔒 <b>Sem cookies, sem rastreamento.</b> Seu progresso e seu código ficam salvos só neste navegador.</p>
-    <a class="btn btn-fantasma btn-pequeno" href="#/privacidade">Saiba mais</a>
+    <a class="btn btn-fantasma btn-pequeno" href="${rota('privacidade')}">Saiba mais</a>
     <button type="button" class="btn btn-roxo btn-pequeno" id="btn-aviso-ok">Entendi</button>`;
   aviso.hidden = false;
   const fechar = () => {

@@ -76,9 +76,9 @@ describe('página do instrutor', () => {
   const original = PIX.chave;
   afterEach(() => { PIX.chave = original; });
 
-  it('rotas #/instrutor e #/apoie', () => {
-    expect(lerRota('#/instrutor')).toEqual({ tela: 'instrutor' });
-    expect(lerRota('#/apoie')).toEqual({ tela: 'instrutor', ancora: 'apoie' });
+  it('rotas /instrutor/ e /apoie/', () => {
+    expect(lerRota({ pathname: '/instrutor/' })).toEqual({ tela: 'instrutor' });
+    expect(lerRota({ pathname: '/apoie/' })).toEqual({ tela: 'instrutor', ancora: 'apoie' });
   });
 
   it('mostra o perfil, a atuação e os reconhecimentos', () => {
@@ -98,7 +98,8 @@ describe('página do instrutor', () => {
     document.body.innerHTML = '<main id="tela"></main>';
     renderInstrutor(document.getElementById('tela'));
     const foto = document.querySelector('.avatar-instrutor img');
-    expect(foto.getAttribute('src')).toBe(INSTRUTOR.foto);
+    // Com o prefixo do site: a página /instrutor/ fica numa pasta, e um caminho relativo quebraria.
+    expect(foto.getAttribute('src')).toBe(`/${INSTRUTOR.foto}`);
     expect(foto.getAttribute('alt')).toBe(`Foto de ${INSTRUTOR.nome}`);
     expect(existsSync(resolve(process.cwd(), 'public', INSTRUTOR.foto))).toBe(true);
   });
@@ -135,7 +136,7 @@ describe('página do instrutor', () => {
     const el = { innerHTML: '' };
     renderLanding(el);
     expect(el.innerHTML).toContain(secaoInstrutor().trim().slice(0, 60));
-    expect(el.innerHTML).toContain('href="#/instrutor"');
-    expect(el.innerHTML).toContain('href="#/apoie"');
+    expect(el.innerHTML).toContain('href="/instrutor/"');
+    expect(el.innerHTML).toContain('href="/apoie/"');
   });
 });

@@ -1,5 +1,5 @@
-// Versão do site e resumo das alterações de cada release (página #/novidades e CHANGELOG.md).
-// A versão vem do package.json (injetada pelo Vite); o histórico completo vem do git
+// Versão do site e resumo das alterações de cada release (página /novidades/ e CHANGELOG.md).
+// A versão vem do package.json (injetada no build, astro.config.mjs); o histórico completo vem do git
 // (scripts/plugin-historico.mjs).
 import historico from 'virtual:historico';
 
@@ -9,6 +9,35 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
+  {
+    versao: '1.14.0',
+    data: '2026-10-21',
+    titulo: 'Cada lição tem o seu endereço',
+    resumo: 'Lições, exercícios e páginas do site ganharam endereços de verdade, que os buscadores encontram. A tela, os botões e a acessibilidade continuam iguais.',
+    grupos: [
+      {
+        titulo: '🔗 Endereços novos',
+        itens: [
+          'Cada lição e cada exercício tem um endereço próprio, como /p/tf-ola-arquivo/, no lugar do antigo com #/.',
+          'Os links antigos continuam funcionando: quem abrir um link com #/ (inclusive os dos certificados e do LinkedIn) chega à mesma tela, já no endereço novo.',
+          'Dá para abrir uma lição em outra aba, recarregar ou voltar com o botão do navegador, e a tela continua a mesma.',
+        ],
+      },
+      {
+        titulo: '🔎 Mais fácil de achar',
+        itens: [
+          'O Google passa a ver cada lição e exercício como uma página, com título e descrição próprios.',
+          'O mapa do site agora lista todas as lições e exercícios.',
+        ],
+      },
+      {
+        titulo: '♿ Nada muda para quem usa',
+        itens: [
+          'A aparência, o teclado, o leitor de tela, os temas, o progresso e os certificados são os mesmos de antes.',
+        ],
+      },
+    ],
+  },
   {
     versao: '1.13.0',
     data: '2026-10-20',

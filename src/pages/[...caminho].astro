@@ -1,0 +1,25 @@
+---
+// Uma página por tela do site (landing, trilha, cada lição e exercício, páginas legais...).
+// Todas têm a mesma marcação, a do index.html, e o mesmo src/main.js: a aplicação é a mesma de
+// sempre. O que muda de uma página para outra é o <head> (título, descrição e endereço) e, na
+// página inicial, a landing já escrita em HTML (scripts/prerender.mjs).
+import casca from '../../index.html?raw';
+import { montarPagina } from '../../scripts/prerender.mjs';
+import { paginasDoSite } from '../paginas.js';
+
+export function getStaticPaths() {
+  return paginasDoSite().map(({ caminho }) => ({ params: { caminho: caminho || undefined } }));
+}
+
+const { caminho = '' } = Astro.params;
+const { atributos, head, corpo } = montarPagina(casca, { caminho, homologacao: __HOMOLOGACAO__ });
+---
+<html {...atributos}>
+<head>
+<Fragment set:html={head} />
+</head>
+<body>
+<Fragment set:html={corpo} />
+<script>import '../main.js';</script>
+</body>
+</html>
