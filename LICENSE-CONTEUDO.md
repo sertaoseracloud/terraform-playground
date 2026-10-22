@@ -27,7 +27,7 @@ Alguns cenários da trilha usam parte dos sprites do pacote **Tiny Town**, de Ke
 
 - Página oficial: https://kenney.nl/assets/tiny-town
 - Texto legal: https://creativecommons.org/publicdomain/zero/1.0/
-- Arquivos usados: `Tiles/tile_0016.png` e `Tiles/tile_0017.png` (árvores e vegetação).
+- Arquivos usados: `Tiles/tile_0027.png` e `Tiles/tile_0028.png` (árvores completas de um tile).
 
 Os sprites foram incorporados aos cenários compatíveis como elementos decorativos. Crédito não é
 exigido pela CC0; atribuição voluntária: “Tiny Town, Kenney”.
