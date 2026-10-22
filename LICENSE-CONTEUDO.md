@@ -20,6 +20,18 @@ Não estão incluídos nesta licença: o nome, a marca e o logotipo da Sertão s
 emissão de certificados em nome dela. O código-fonte é regido pela licença AGPL-3.0-or-later
 (arquivo `LICENSE`).
 
+## Sprites de cenário de terceiros
+
+Alguns cenários da trilha usam parte dos sprites do pacote **Tiny Town**, de Kenney, sob
+**Creative Commons Zero 1.0 Universal (CC0-1.0)**:
+
+- Página oficial: https://kenney.nl/assets/tiny-town
+- Texto legal: https://creativecommons.org/publicdomain/zero/1.0/
+- Arquivos usados: `Tiles/tile_0016.png` e `Tiles/tile_0017.png` (árvores e vegetação).
+
+Os sprites foram incorporados aos cenários compatíveis como elementos decorativos. Crédito não é
+exigido pela CC0; atribuição voluntária: “Tiny Town, Kenney”.
+
 ## Imagens de arquitetura de terceiros
 
 As imagens oficiais AWS, Microsoft Azure e Kubernetes não estão sob a licença
