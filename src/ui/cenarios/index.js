@@ -1,4 +1,4 @@
-// Cenários da trilha: um mapa de tiles em pixel art (estilo Tibia) atrás do caminho de cada
+// Cenários da trilha: um mapa de tiles em pixel art com sprites próprios e CC0 atrás do caminho de cada
 // módulo, com personagens andando de tile em tile. É pura decoração: a camada fica escondida do
 // leitor de tela (aria-hidden) e não recebe clique nem foco. Quem desenha o mapa e move os
 // personagens é o palco (palco.js), depois que a trilha é renderizada.
@@ -6,8 +6,9 @@ import { canteiro } from './canteiro.js';
 import { porto } from './porto.js';
 import { ceu } from './ceu.js';
 import { cidade } from './cidade.js';
+import { comArvoresTinyTown } from './tiny-town.js';
 
-export const CENARIOS = Object.fromEntries([canteiro, porto, ceu, cidade].map((c) => [c.id, c]));
+export const CENARIOS = Object.fromEntries([comArvoresTinyTown(canteiro), porto, ceu, cidade].map((c) => [c.id, c]));
 
 /**
  * Camada decorativa do cenário (ou '' se o módulo não tem cenário). A semente (o id do módulo)

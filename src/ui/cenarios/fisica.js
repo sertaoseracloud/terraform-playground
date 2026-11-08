@@ -1,4 +1,4 @@
-// Física dos personagens (funções puras): um tile por passo, nas 4 direções, como no Tibia.
+// Física dos personagens (funções puras): um tile por passo, nas 4 direções, como em RPG clássico.
 // Quem anda fica no chão; quem nada ou salta (jangadeiro, peixe) fica na água; quem voa passa
 // por cima de tudo. Ninguém entra na estrada, para nunca cobrir um nó do caminho.
 import { tileEm } from './mapa.js';

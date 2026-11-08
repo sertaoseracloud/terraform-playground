@@ -33,7 +33,7 @@ function textura(ctx, x, y, [base, escuro, claro], padrao, sortear) {
   }
 }
 
-/** Água, lava ou gelo partido: cor, reflexos e a borda nos lados que tocam a terra (como no Tibia). */
+/** Água, lava ou gelo partido: cor, reflexos e a borda nos lados que tocam a terra (como em RPG clássico). */
 function bloqueio(ctx, mapa, c, l, x, y, b, sortear) {
   ctx.fillStyle = b.cor;
   ctx.fillRect(x, y, TILE, TILE);

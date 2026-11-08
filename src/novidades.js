@@ -10,6 +10,15 @@ export const REPOSITORIO = 'https://github.com/sertaoseracloud/terraform-playgro
 /** Releases, da mais nova para a mais antiga. Escritas para quem usa o site, sem jargão. */
 export const RELEASES = [
   {
+    versao: '1.14.4',
+    data: '2026-10-22',
+    titulo: 'Mais verde na vila',
+    resumo: 'O canteiro de obras ganhou árvores em pixel art do pacote Tiny Town, de Kenney.',
+    grupos: [
+      { titulo: 'Cenários', itens: ['A vegetação nova fica no canteiro, mantendo os objetos e personagens de cada tema.', 'A origem e a licença CC0 dos sprites estão registradas na página Licença.'] },
+    ],
+  },
+  {
     versao: '1.14.3',
     data: '2026-10-21',
     titulo: 'Redes e portas no desenho',

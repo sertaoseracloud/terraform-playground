@@ -1,4 +1,4 @@
-// Pixel art dos cenários, no estilo dos tiles do Tibia: cada sprite tem 16×16 pixels, escritos
+// Pixel art dos cenários, no estilo de RPG clássico: cada sprite tem 16×16 pixels, escritos
 // como 16 linhas de 16 letras (cada letra é uma cor da paleta; "." é transparente), e é
 // desenhado ampliado, sem suavização.
 export const LADO = 16;

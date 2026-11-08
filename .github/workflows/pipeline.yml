@@ -1,0 +1,30 @@
+name: Pipeline
+
+# Pipeline único dos playgrounds, guardado em sertaoseracloud/playground-ui
+# (docs/pipeline/README.md). Gitflow: feature/** abre o PR para develop; PRs passam
+# por qualidade, e2e e lighthouse; develop publica a homologação e abre o PR para
+# main; main publica a produção e cria a tag.
+on:
+  push:
+    branches: [main, develop, 'feature/**']
+  pull_request:
+    branches: [develop, main]
+  schedule:
+    - cron: '0 0 * * 0' # auditoria semanal (domingo, 0h UTC)
+  workflow_dispatch:
+
+# O workflow chamado não pode pedir mais permissões do que estas.
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  pull-requests: write
+
+jobs:
+  pipeline:
+    uses: sertaoseracloud/playground-ui/.github/workflows/playground.yml@pipeline-v1
+    with:
+      titulo: 'DivergeTerraform:'
+      astro-check: true
+    # CERTIFICADO_SEGREDO, CERTIFICADO_SEGREDO_HOMOLOGACAO e FEATURE_PR_TOKEN (opcional).
+    secrets: inherit
