@@ -1,14 +1,11 @@
 name: Deploy
 
-# Gitflow: cada push em main ou develop republica o site inteiro a partir do último
-# commit de cada branch, para um nunca apagar o outro:
-#   - main    → https://sertaoseracloud.github.io/terraform-playground/ (e a tag v<versão>);
-#   - develop → https://sertaoseracloud.github.io/terraform-playground/homologacao/
-#     (HOMOLOGACAO=1: outro localStorage, outro segredo, noindex, sem sitemap).
-# Testes aprovados em develop abrem automaticamente o PR de promoção para main.
+# Publica o site no GitHub Pages a partir do main, a cada push nele (ou manualmente).
+# É o único workflow do repositório: testes, homologação, smoke test, tag/release e os
+# PRs automáticos rodam localmente (npm run lint, npm test, npm run test:e2e).
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -22,12 +19,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  testes:
-    uses: ./.github/workflows/testes.yml
-
-  principal:
-    needs: testes
+  publicar:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -42,196 +38,9 @@ jobs:
         env:
           # Palavra secreta do selo dos certificados (Settings > Secrets > Actions).
           CERTIFICADO_SEGREDO: ${{ secrets.CERTIFICADO_SEGREDO }}
-      - uses: actions/upload-artifact@v7
-        with:
-          name: site-principal
-          path: dist/
-          retention-days: 1
-
-  homologacao:
-    needs: testes
-    runs-on: ubuntu-latest
-    outputs:
-      existe: ${{ steps.develop.outputs.existe }}
-    steps:
-      # Sem o branch develop, o site sai só com o principal.
-      - id: develop
-        name: O branch develop existe?
-        run: |
-          if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}" develop > /dev/null; then
-            echo "existe=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "existe=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Sem o branch develop: a homologação não é publicada."
-          fi
-      - uses: actions/checkout@v7
-        if: steps.develop.outputs.existe == 'true'
-        with:
-          ref: develop
-          fetch-depth: 0
-      - uses: actions/setup-node@v7
-        if: steps.develop.outputs.existe == 'true'
-        with:
-          node-version: 24
-          cache: npm
-      - if: steps.develop.outputs.existe == 'true'
-        run: npm ci
-      - if: steps.develop.outputs.existe == 'true'
-        run: npm run build
-        env:
-          HOMOLOGACAO: '1'
-          # Outro segredo: certificado emitido na homologação não vale no site principal.
-          CERTIFICADO_SEGREDO_HOMOLOGACAO: ${{ secrets.CERTIFICADO_SEGREDO_HOMOLOGACAO }}
-      - uses: actions/upload-artifact@v7
-        if: steps.develop.outputs.existe == 'true'
-        with:
-          name: site-homologacao
-          path: dist/
-          retention-days: 1
-
-  montar:
-    needs: [principal, homologacao]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: actions/download-artifact@v7
-        with:
-          name: site-principal
-          path: site/principal
-      - uses: actions/download-artifact@v7
-        if: needs.homologacao.outputs.existe == 'true'
-        with:
-          name: site-homologacao
-          path: site/homologacao
-      # As conferências usam o script deste commit, não o do branch montado: o main pode
-      # ainda não ter o conferir-build (era o caso antes da 1.11.0).
-      - name: Monta o site (principal na raiz, homologação em /homologacao/)
-        run: |
-          node scripts/conferir-build.mjs site/principal principal
-          mkdir -p publicar
-          cp -r site/principal/. publicar/
-          test -f publicar/index.html
-          if [ "${{ needs.homologacao.outputs.existe }}" = "true" ]; then
-            node scripts/conferir-build.mjs site/homologacao homologacao --comparar site/principal
-            mkdir -p publicar/homologacao
-            cp -r site/homologacao/. publicar/homologacao/
-            test -f publicar/homologacao/index.html
-          fi
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: publicar
-
-  publicar:
-    needs: montar
-    runs-on: ubuntu-latest
-    outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
+          path: dist/
       - id: deployment
         uses: actions/deploy-pages@v5
-
-  smoke:
-    needs: [publicar, homologacao]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Smoke test de produção
-        env:
-          URL_PRINCIPAL: ${{ needs.publicar.outputs.page_url }}
-        run: |
-          curl --fail --location --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors "$URL_PRINCIPAL" -o principal.html
-          grep -q '<title>DivergeTerraform:' principal.html
-          if grep -q '<meta name="robots" content="noindex">' principal.html; then
-            echo "::error::O site principal foi publicado com noindex."
-            exit 1
-          fi
-      - name: Smoke test de homologação
-        if: needs.homologacao.outputs.existe == 'true'
-        env:
-          URL_PRINCIPAL: ${{ needs.publicar.outputs.page_url }}
-        run: |
-          URL_HOMOLOGACAO="${URL_PRINCIPAL%/}/homologacao/"
-          curl --fail --location --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors "$URL_HOMOLOGACAO" -o homologacao.html
-          grep -q '<title>DivergeTerraform:' homologacao.html
-          grep -q '<meta name="robots" content="noindex">' homologacao.html
-
-  # Só no main: cria a tag v<versão do package.json> se ela ainda não existir (nunca força).
-  tag:
-    needs: smoke
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-      - name: Tag e release da versão
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          VERSAO="$(node -p "require('./package.json').version")"
-          TAG="v$VERSAO"
-          if [ -n "$(git ls-remote --tags origin "refs/tags/$TAG")" ]; then
-            echo "::notice::A tag $TAG já existe."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "Versão $VERSAO"
-            git push origin "$TAG"
-          fi
-          # A release usa o texto da versão em src/novidades.js, o mesmo da página de novidades.
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "::notice::A release $TAG já existe: nada a fazer."
-          else
-            node scripts/notas-release.mjs "$VERSAO" > notas-release.md
-            gh release create "$TAG" --verify-tag --latest \
-              --title "$(node scripts/notas-release.mjs "$VERSAO" --titulo)" --notes-file notas-release.md
-          fi
-
-  promover:
-    needs: smoke
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      # Um PR aberto com o token do Actions não dispara o workflow de Testes, e os checks
-      # obrigatórios (qualidade, e2e e lighthouse) nunca aparecem. Com o secret FEATURE_PR_TOKEN,
-      # o PR já nasce com os checks; sem ele, feche e reabra o PR para dispará-los.
-      - name: Abre ou reabre o PR de homologação para produção
-        env:
-          GH_TOKEN: ${{ secrets.FEATURE_PR_TOKEN || github.token }}
-          SEM_TOKEN: ${{ secrets.FEATURE_PR_TOKEN == '' }}
-        run: |
-          if [ "$SEM_TOKEN" = "true" ]; then
-            echo "::warning::Sem o secret FEATURE_PR_TOKEN: feche e reabra o PR de develop para main para disparar os checks obrigatórios."
-          fi
-          AHEAD="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...develop" --jq '.ahead_by')"
-          if [ "$AHEAD" -eq 0 ]; then
-            echo "::notice::develop não tem commits novos para promover a main."
-            exit 0
-          fi
-
-          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head develop --state all --json number,state,mergedAt --limit 1)"
-          NUMERO="$(echo "$PR" | jq -r '.[0].number // empty')"
-          ESTADO="$(echo "$PR" | jq -r '.[0].state // empty')"
-          MESCLADO="$(echo "$PR" | jq -r '.[0].mergedAt // empty')"
-
-          if [ "$ESTADO" = "OPEN" ]; then
-            echo "::notice::O PR #$NUMERO de develop para main já está aberto."
-          elif [ "$ESTADO" = "CLOSED" ] && [ -z "$MESCLADO" ]; then
-            gh pr reopen "$NUMERO" --repo "$GITHUB_REPOSITORY"
-          else
-            gh pr create \
-              --repo "$GITHUB_REPOSITORY" \
-              --base main \
-              --head develop \
-              --title "Promove develop para main" \
-              --body "Os testes passaram, a homologação foi publicada e o smoke test do ambiente está verde. Revise as alterações antes de mesclar em produção."
-          fi
