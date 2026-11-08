@@ -1,0 +1,87 @@
+{
+  "versao": 1,
+  "gerado": "2026-11-08",
+  "observacao": "Chaves fictícias dos testes (vitest.config.js). Não regere para \"consertar\" uma falha: a falha quer dizer que certificados emitidos deixariam de valer.",
+  "nome": "  Maria José da Conceição  ",
+  "data": "2026-11-08",
+  "ordem": [
+    "basico",
+    "aws",
+    "azure",
+    "projetos",
+    "final"
+  ],
+  "chavePublicaDosTestes": "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+  "linkSemSelo": "eyJuIjoiTWFyaWEgSm9zw6kgZGEgQ29uY2Vpw6fDo28iLCJtIjoiYmFzaWNvIiwiZCI6IjIwMjUtMDMtMTAifQ",
+  "certificados": [
+    {
+      "modulo": "basico",
+      "posicao": 0,
+      "cadeia": [],
+      "codigo": "eyJuIjoiICBNYXJpYSBKb3PDqSBkYSBDb25jZWnDp8OjbyAgIiwibSI6ImJhc2ljbyIsImQiOiIyMDI2LTExLTA4IiwiaCI6ImFkMWU4YTRiNmVkZWExNzNlZDI2MDhlOGMyNDJiZjg5YWRmOWVmYjhjMTVmMWI0NTliN2ViOTI1ODMyODMwMTYifQ",
+      "selo": "ad1e8a4b6edea173ed2608e8c242bf89adf9efb8c15f1b459b7eb92583283016",
+      "anterior": "",
+      "id": "SSC-2026-AD1E-8A4B",
+      "mensagem": "[\"2026-11-08\",\"Cláudio Raposo\",\"Sertão será cloud\",\"Maria José da Conceição\",\"basico\"]",
+      "assinatura": "032a5c4a00606121c3181eb37e9d8c029ee233357915ea08cb70f022317ae76b68c2001312d87bdafca38bab9bb940c6d6a7ab1e616524c57c3c91a049cbc801"
+    },
+    {
+      "modulo": "aws",
+      "posicao": 1,
+      "cadeia": [
+        "2026-01-15"
+      ],
+      "codigo": "eyJuIjoiICBNYXJpYSBKb3PDqSBkYSBDb25jZWnDp8OjbyAgIiwibSI6ImF3cyIsImQiOiIyMDI2LTExLTA4IiwiaCI6ImRkOTVkZTI3N2JmNWNjNTA1ODFmODQyYjc3YTIzMTZiOThkNzZiNDM3ZDVmZjcwZjcxM2FlYjIyOWZmNTAwZGQiLCJjIjpbIjIwMjYtMDEtMTUiXX0",
+      "selo": "dd95de277bf5cc50581f842b77a2316b98d76b437d5ff70f713aeb229ff500dd",
+      "anterior": "c5681ac827f9a0ff4232089869413b64b2d57d792687c2338a354348868a3893",
+      "id": "SSC-2026-DD95-DE27",
+      "mensagem": "[\"2026-11-08\",\"Cláudio Raposo\",\"Sertão será cloud\",\"Maria José da Conceição\",\"aws\",\"c5681ac827f9a0ff4232089869413b64b2d57d792687c2338a354348868a3893\"]",
+      "assinatura": "78bd509be52a9aeff51607dab88c4de59eada1ef23f11776a3707286c06fe225e402a4fd05d40bf4da268a7980fe81d9dd85de75f4f516e6fe7ee0879f9a5a06"
+    },
+    {
+      "modulo": "azure",
+      "posicao": 2,
+      "cadeia": [
+        "2026-01-15",
+        "2026-02-15"
+      ],
+      "codigo": "eyJuIjoiICBNYXJpYSBKb3PDqSBkYSBDb25jZWnDp8OjbyAgIiwibSI6ImF6dXJlIiwiZCI6IjIwMjYtMTEtMDgiLCJoIjoiZGE4NmM4ZDlhZTdkMzY1YmY3ZmQ2NzE0MWI1NjRhYzlhY2Y1NWUwNDA3ZGY4MWMzZWMxZmEyMTEwYTFjNWY2NyIsImMiOlsiMjAyNi0wMS0xNSIsIjIwMjYtMDItMTUiXX0",
+      "selo": "da86c8d9ae7d365bf7fd67141b564ac9acf55e0407df81c3ec1fa2110a1c5f67",
+      "anterior": "d54b6f8a2fd0526f47bc8c2a0eb44da5941d25e4f2d131bb16ad77e73336724a",
+      "id": "SSC-2026-DA86-C8D9",
+      "mensagem": "[\"2026-11-08\",\"Cláudio Raposo\",\"Sertão será cloud\",\"Maria José da Conceição\",\"azure\",\"d54b6f8a2fd0526f47bc8c2a0eb44da5941d25e4f2d131bb16ad77e73336724a\"]",
+      "assinatura": "55d500e3df5328c792fd9ebbe2d56b1f61c9bbd4c1ec48e0b2810eeda1f4153901b4f9a0df1e37b62058f86dda1b29826c50f31faf3e6953636f13b565316c0b"
+    },
+    {
+      "modulo": "projetos",
+      "posicao": 3,
+      "cadeia": [
+        "2026-01-15",
+        "2026-02-15",
+        "2026-03-15"
+      ],
+      "codigo": "eyJuIjoiICBNYXJpYSBKb3PDqSBkYSBDb25jZWnDp8OjbyAgIiwibSI6InByb2pldG9zIiwiZCI6IjIwMjYtMTEtMDgiLCJoIjoiZjlmNWI2YjYwZDZkZThiMmI3NmI5YzYxNjUzZjYwNjcwMzc4OTIwZjQ2Y2Q2YzViZTQ3ZjlhMDQwNTNlYmZkNyIsImMiOlsiMjAyNi0wMS0xNSIsIjIwMjYtMDItMTUiLCIyMDI2LTAzLTE1Il19",
+      "selo": "f9f5b6b60d6de8b2b76b9c61653f60670378920f46cd6c5be47f9a04053ebfd7",
+      "anterior": "9769fec6009ef2f0e86bfb0e802a99278f32b612768e650e32c69972e73d43a6",
+      "id": "SSC-2026-F9F5-B6B6",
+      "mensagem": "[\"2026-11-08\",\"Cláudio Raposo\",\"Sertão será cloud\",\"Maria José da Conceição\",\"projetos\",\"9769fec6009ef2f0e86bfb0e802a99278f32b612768e650e32c69972e73d43a6\"]",
+      "assinatura": "e80880fa5f1dd25e0d107944f9eb5fb8f04e834e9548aeaba099be5c1ffdbac28aba57f556113e12855a8d59e3c6c3022d3cb5d2285ee7c0f77ee15fc937b004"
+    },
+    {
+      "modulo": "final",
+      "posicao": 4,
+      "cadeia": [
+        "2026-01-15",
+        "2026-02-15",
+        "2026-03-15",
+        "2026-04-15"
+      ],
+      "codigo": "eyJuIjoiICBNYXJpYSBKb3PDqSBkYSBDb25jZWnDp8OjbyAgIiwibSI6ImZpbmFsIiwiZCI6IjIwMjYtMTEtMDgiLCJoIjoiMWYxMWU1ZTI0ZDM5NGFiNGNmMDVkYzZmY2RhYjFhMDExMDE2ZGNjMGY2MWUxZjgzYWMyYzlkMWRiNDlmNmE0ZSIsImMiOlsiMjAyNi0wMS0xNSIsIjIwMjYtMDItMTUiLCIyMDI2LTAzLTE1IiwiMjAyNi0wNC0xNSJdfQ",
+      "selo": "1f11e5e24d394ab4cf05dc6fcdab1a011016dcc0f61e1f83ac2c9d1db49f6a4e",
+      "anterior": "6e1a9eb14248924dcb64dcd2a6336940244d59cb6cd374832551fa4e3cecc637",
+      "id": "SSC-2026-1F11-E5E2",
+      "mensagem": "[\"2026-11-08\",\"Cláudio Raposo\",\"Sertão será cloud\",\"Maria José da Conceição\",\"final\",\"6e1a9eb14248924dcb64dcd2a6336940244d59cb6cd374832551fa4e3cecc637\"]",
+      "assinatura": "d9a1f6ee493e0ef4e02147659be67686ab42d3418b98096cdf33db20b963955d8594c84011b632010ecd5b3f5cd5b1af1a2a661ad7e36fa7857812f3fe20590f"
+    }
+  ]
+}
