@@ -39,4 +39,6 @@ export const TERCEIROS = [
   { nome: 'Desenho dos cenários da trilha (PixiJS)', pacotes: ['pixi.js', '@pixi/colord', 'eventemitter3', 'ismobilejs', 'parse-svg-path'], licenca: 'MIT' },
   { nome: 'Triangulação do PixiJS (earcut)', pacotes: ['earcut'], licenca: 'ISC' },
   { nome: 'Cache do PixiJS (tiny-lru)', pacotes: ['tiny-lru'], licenca: 'BSD-3-Clause' },
+  // Código próprio da Sertão será cloud, compartilhado entre os playgrounds.
+  { nome: 'Design system dos playgrounds (@sertaoseracloud/playground-ui)', pacotes: ['@sertaoseracloud/playground-ui'], licenca: 'AGPL-3.0-or-later' },
 ];
