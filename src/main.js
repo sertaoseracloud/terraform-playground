@@ -4,6 +4,8 @@ import '@fontsource/fira-code/latin-600.css';
 import '@fontsource/fira-code/latin-700.css';
 import '@fontsource/atkinson-hyperlegible/latin-400.css';
 import '@fontsource/atkinson-hyperlegible/latin-700.css';
+// Tokens do design system compartilhado primeiro: o estilo.css usa as variáveis dele.
+import '@sertaoseracloud/playground-ui/tokens.css';
 import './estilo.css';
 import './caminho.css';
 import './cenarios.css';

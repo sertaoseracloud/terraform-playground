@@ -2,7 +2,7 @@
 // Auditoria de acessibilidade das telas (axe-core, WCAG 2.2 AA) e regras de design que
 // já viraram débito técnico uma vez: o teste falha se elas voltarem.
 // O contraste de cores não dá para medir sem navegador; ele foi conferido nos quatro
-// temas com o axe no site publicado, e as cores ficam fixas em estilo.css.
+// temas com o axe no site publicado, e as cores vêm do tokens.css do @sertaoseracloud/playground-ui.
 import { describe, it, expect, beforeEach } from 'vitest';
 import axe from 'axe-core';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -127,7 +127,8 @@ describe('tema que segue o sistema operacional', () => {
   });
 
   it('a barra do navegador (theme-color) acompanha o tema, com a cor do próprio tema', () => {
-    const css = ler('src/estilo.css');
+    // As cores dos temas vêm do design system compartilhado (@sertaoseracloud/playground-ui).
+    const css = ler('node_modules/@sertaoseracloud/playground-ui/dist/tokens.css');
     expect(Object.keys(COR_DA_BARRA).sort()).toEqual(Object.keys(TEMAS).sort());
     for (const [tema, cor] of Object.entries(COR_DA_BARRA)) {
       const bloco = css.match(new RegExp(`\\[data-tema="${tema}"\\] \\{([^}]*)\\}`))[1];
