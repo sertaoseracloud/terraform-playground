@@ -11,7 +11,6 @@
     "src/ui/aviso-armazenamento.js": "b72c6b28733dfdaaff3efa5adbe727ae60102bce43e7ab9e319889bb3a286df0",
     "tests/rascunho.test.js": "ba31bf0c65dbf314e5fd53f38e3e1b218b99cb8be5be1cdcaafa833461bd9d8d",
     "tests/armazenamento.test.js": "a60681a66bf2090dad700623e5c6df9a0b2469d7b7a1be4d38f2f26932e30941",
-    ".github/workflows/feature-pr.yml": "8fc36956b5d888c186b8e5eaf31e6b3c53ffc546c9bf231f43f2c430376a5d8c",
     "docs/debito-tecnico.md": "a8153b4edfc0f281a37fd4087f064ecd71b9265140b1d19067911ba0538cd917",
     "scripts/comuns.mjs": "c0250e7a9a6346c936a82fb9f8b886842b355c95024b52a8a6e3a0aa375011e8",
     "scripts/notas-release.mjs": "ba6643d9d650207d67d4d6cb99b0515b45b073a93b4a50f8d84f96b4e5b461e4",
